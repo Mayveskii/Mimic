@@ -17,13 +17,12 @@ Mimic is a standalone MCP server with a C-core. It is an **optional tool** that 
 ```
 Mimic/
 ├── AGENTS.md              ← YOU ARE HERE. Entry point.
-├── ARCHITECTURE.md        ← Components, flows, boundaries
-├── EXECUTION-SPACE.md     ← Agent task execution space, task types, dimensions
-├── RESOURCES.md           ← Complete resource map, OpPacket translation
-├── SCENARIOS.md           ← Execution patterns with chains, invariants, costs
-├── BEHAVIOR.md            ← Formulas, invariants, phase transitions
-├── SEMANTICS.md           ← Every function: name | input | output | invariant | source
-├── MODULES.md             ← Per-module documentation, connections, state
+├── BRANCH-MAP.md          ← Branch topology, merge rules, per-branch scope
+├── specs/                 ← All documentation (numbered, ordered)
+│   ├── 00-SPEC-INDEX.md   ← Map of all docs + spec card schema
+│   ├── 01-AGENTS.md       ← Rules for agents
+│   ├── ...through 08-MODULES.md
+│   └── sources/*.md       ← 19 per-repo spec cards
 ├── mimicrya/
 │   ├── behavior-sources.yaml  ← Mayveskii/* repos: which behaviors Mimic borrows
 │   └── repos-manifest.yaml    ← Production repos: distillation status
@@ -67,7 +66,7 @@ Mimic/
 Production repos (etcd, k8s, go-ethereum and 90+ others) → git blame → survival index → best commits → mesh slots. These are proven patterns that survived in real systems.
 
 ### Mimicry (mimicrya/behavior-sources.yaml)
-Mayveskii/* repos (bun, exa-mcp-server, gh-aw-mcpg, code-mode, opencode, agency-agents, etc.) → behavior selection: HOW to implement a function in Mimic. Bun showed how to orchestrate phases → Mimic implements a phase graph. gh-aw-mcpg showed how to route MCP → Mimic implements transport. This is not copying — it's selecting the best behavior to implement.
+Mayveskii/* repos (hermes-agent, gastown, bun, rtk, graphify, go-service-template-rest, exa-mcp-server, gh-aw-mcpg, code-mode, opencode, etc.) → behavior selection: HOW to implement a function in Mimic. Hermes-agent showed closed learning loop → Mimic implements curator + skill nudge. Gastown showed multi-agent watchdog → Mimic implements 3-tier health. Rtk showed TOML filter pipeline → Mimic implements token compression. Graphify showed IDF-weighted graph search → Mimic implements knowledge graph. Go-service-template-rest showed bootstrap lifecycle → Mimic implements phased startup. This is not copying — it's selecting the best behavior to implement.
 
 ## Commands
 
@@ -85,7 +84,18 @@ make docker       # Build docker image
 
 - `main` — stable, only via PR + CI green + review
 - `dev` — integration, feature branches from here
-- `feature/X` → PR into dev → merge; dev → PR into main → tag → release
+- `feat/core-ops` — C-core OpPacket execution
+- `feat/core-bmap` — bmap rewrite (.o → .c)
+- `feat/mcp-server` — MCP JSON-RPC server
+- `feat/mcp-bridge` — CGo bridge Go↔C
+- `feat/orchestrator` — pipeline, budget, guardrails
+- `feat/graphify` — knowledge graph integration
+- `feat/rtk-filter` — token compression
+- `feat/config` — koanf layered config
+- `feat/observability` — OTel, Prometheus, health
+- `fix/*` — hotfixes → dev
+
+Full topology: `BRANCH-MAP.md`
 
 ## Releases
 

@@ -778,4 +778,190 @@ sources:
         extracted_from: minbpe/regex.py (register_special_tokens)
         implemented_in: core/special_tokens.c
         status: planned
-    notes: Minimal BPE tokenizer (fork of karpathy/minbpe, 10.5K stars). Python. Progressive inheritance + compression patterns.
+     notes: Minimal BPE tokenizer (fork of karpathy/minbpe, 10.5K stars). Python. Progressive inheritance + compression patterns.
+
+  - repo: Mayveskii/rtk
+    sync_status: partial
+    behaviors:
+      - name: toml_filter_pipeline
+        what: 8-stage TOML filter DSL — strip_ansi → replace(regex) → match_output → strip/keep_lines → truncate → head/tail → max_lines → on_empty
+        extracted_from: src/core/toml_filter.rs
+        implemented_in: internal/rtk/pipeline.go
+        status: planned
+
+      - name: stream_filter_trait
+        what: Line-by-line StreamFilter trait (feed_line, flush, on_exit) — streaming output compression
+        extracted_from: src/core/stream.rs
+        implemented_in: core/stream_filter.c
+        status: planned
+
+      - name: language_aware_code_filter
+        what: MinimalFilter (strip comments, collapse blanks) + AggressiveFilter (keep imports+signatures, strip bodies) + smart_truncate
+        extracted_from: src/core/filter.rs
+        implemented_in: core/code_filter.c
+        status: planned
+
+      - name: command_classification_rewrite
+        what: Static rule table (regex→rtk_cmd) + rewrite_command() stripping sudo/env/git-opts + exclude_commands + transparent_prefixes
+        extracted_from: src/discover/registry.rs, src/discover/rules.rs
+        implemented_in: internal/rtk/classify.go
+        status: planned
+
+      - name: trust_on_first_use
+        what: Project-local .rtk/filters.toml trust model — Trusted/Untrusted/ContentChanged/EnvOverride states
+        extracted_from: src/hooks/trust.rs
+        implemented_in: internal/rtk/trust.go
+        status: planned
+
+      - name: token_tracking_sqlite
+        what: SQLite WAL-mode tracker with estimate_tokens(~4 chars/token), 90-day cleanup, per-project queries
+        extracted_from: src/core/tracking.rs
+        implemented_in: internal/rtk/tracking.go
+        status: planned
+
+      - name: discovery_learning
+        what: Scan session JSONL for unfiltered commands → suggest corrections; detect repeated CLI mistakes → write rules
+        extracted_from: src/discover/mod.rs, src/learn/detector.rs
+        implemented_in: internal/rtk/discover.go
+        status: planned
+
+      - name: tee_on_failure
+        what: On filtered command failure → save full unfiltered output to ~/.local/share/rtk/tee/ for debugging
+        extracted_from: src/core/tee.rs
+        implemented_in: internal/rtk/tee.go
+        status: planned
+
+      - name: multi_agent_hook_init
+        what: Hook scripts for 13 AI agents (Claude, Copilot, Cursor, Gemini, Codex, Windsurf, Cline, OpenCode, etc.)
+        extracted_from: src/hooks/init.rs
+        implemented_in: internal/rtk/hooks.go
+        status: planned
+    notes: CLI proxy for token reduction (fork of rtk-ai/rtk, 49K stars). Rust. 8-stage filter pipeline, 59 built-in TOML filters, 13 agent hooks. Port pipeline to Go, code filter to C.
+
+  - repo: Mayveskii/graphify
+    sync_status: partial
+    behaviors:
+      - name: ast_extraction_engine
+        what: 30+ language tree-sitter extractors — two-pass (structural nodes + call-graph edges) with EXTRACTED/INFERRED/AMBIGUOUS confidence
+        extracted_from: extract.py (_DISPATCH dict, extract_<lang> functions)
+        implemented_in: internal/graphify/extract.go
+        status: planned
+
+      - name: idf_weighted_search
+        what: IDF weighting + three-tier precedence (exact 1000x > prefix 100x > substring 1x) + source-file bonus + gap-ratio seed cutoff
+        extracted_from: serve.py (_compute_idf, _score_nodes, _pick_seeds)
+        implemented_in: core/idf_search.c
+        status: planned
+
+      - name: hub_throttled_traversal
+        what: BFS/DFS with p99 hub threshold (floored at 50) — hubs not expanded as transit unless they are seeds
+        extracted_from: serve.py (_bfs, _dfs)
+        implemented_in: core/traverse.c
+        status: planned
+
+      - name: subgraph_to_text
+        what: Render subgraph as structured text within token_budget — seed nodes first, sort by degree, truncate with omitted count
+        extracted_from: serve.py (_subgraph_to_text)
+        implemented_in: core/render.c
+        status: planned
+
+      - name: three_pass_dedup
+        what: Exact normalization → MinHash/LSH + Jaro-Winkler (92% threshold, community boost +5) → LLM tiebreaker — Union-Find merge
+        extracted_from: dedup.py (_norm, _make_minhash, _UF)
+        implemented_in: core/dedup.c
+        status: planned
+
+      - name: leiden_community_detection
+        what: Leiden algorithm (graspologic) with fallback to Louvain, deterministic seed=42, oversized community splitting, cohesion scoring
+        extracted_from: cluster.py (cluster, _cohesion_score)
+        implemented_in: internal/graphify/cluster.go
+        status: planned
+
+      - name: mcp_stdio_server
+        what: Full MCP stdio server with 10 tools (query_graph, get_node, get_neighbors, etc.) + 6 resources + hot-reload via mtime
+        extracted_from: serve.py (serve function)
+        implemented_in: internal/mcp/server.go
+        status: planned
+
+      - name: ssrf_security_layer
+        what: Private-IP blocking, cloud metadata endpoint blocking, DNS rebinding TOCTOU guard, streaming fetch with size caps
+        extracted_from: security.py (validate_url, _ssrf_guarded_socket)
+        implemented_in: internal/graphify/security.go
+        status: planned
+
+      - name: graph_diff_analysis
+        what: Structural diff between two graph snapshots — added/removed nodes and edges, for tracking project evolution
+        extracted_from: analyze.py (graph_diff)
+        implemented_in: internal/graphify/diff.go
+        status: planned
+
+      - name: incremental_graph_merge
+        what: prefix_graph_for_global (repo_tag:: prefix) + build_merge (append-only, never shrinks unless prune_sources given)
+        extracted_from: build.py (prefix_graph_for_global, build_merge)
+        implemented_in: internal/graphify/merge.go
+        status: planned
+    notes: Code-to-knowledge-graph pipeline (fork of safishamsi/graphify, 48.7K stars). Python. 30+ language AST extraction, Leiden community detection, MCP server with 10 tools. Port search/traverse/dedup to C, orchestration to Go.
+
+  - repo: Mayveskii/go-service-template-rest
+    sync_status: partial
+    behaviors:
+      - name: strict_server_interface
+        what: OpenAPI-first → oapi-codegen generates StrictServerInterface with typed request/response objects per endpoint
+        extracted_from: internal/api/openapi.gen.go, api/openapi/service.yaml
+        implemented_in: internal/mcp/tools_gen.go
+        status: planned
+
+      - name: probe_health_interface
+        what: Probe interface (Name + Check(ctx)) for health/readiness — C-core subsystems implement Probe
+        extracted_from: internal/app/health/service.go
+        implemented_in: internal/app/health/service.go
+        status: planned
+
+      - name: koanf_layered_config
+        what: Config struct with koanf tags → defaults → YAML file → env overrides + strict unknown-key validation + per-stage budgets
+        extracted_from: internal/config/*.go
+        implemented_in: internal/config/*.go
+        status: planned
+
+      - name: middleware_stack
+        what: RequestCorrelation → OTel → SecurityHeaders → AccessLog → RequestBodyLimit → RequestFramingGuard → Recover
+        extracted_from: internal/infra/http/middleware.go, router.go
+        implemented_in: internal/infra/http/middleware.go
+        status: planned
+
+      - name: rfc7807_errors
+        what: Problem Details JSON (type/title/status/detail/request_id) for structured error responses
+        extracted_from: internal/infra/http/problem.go
+        implemented_in: internal/mcp/errors.go
+        status: planned
+
+      - name: repository_pattern_sqlc
+        what: Querier interface + sqlc-generated code + adapter-safe domain records for persistence
+        extracted_from: internal/infra/postgres/ping_history_repository.go, sqlcgen/
+        implemented_in: internal/infra/postgres/
+        status: planned
+
+      - name: bootstrap_lifecycle
+        what: Phased startup with budgets (config=10s, probe=15s, telemetry=2s, total=30s) + signal handling + graceful shutdown with drain
+        extracted_from: cmd/service/internal/bootstrap/run.go, shutdown.go
+        implemented_in: cmd/mimic/internal/bootstrap/
+        status: planned
+
+      - name: drain_mode
+        what: atomic.Bool draining flag → /health/ready returns 503 → LB stops traffic → existing requests complete
+        extracted_from: internal/app/health/service.go
+        implemented_in: internal/app/health/service.go
+        status: planned
+
+      - name: network_policy_enforcement
+        what: Startup-time egress allow/deny lists for controlling which external services the process can contact
+        extracted_from: cmd/service/internal/bootstrap/network_policy.go
+        implemented_in: cmd/mimic/internal/bootstrap/network_policy.go
+        status: planned
+
+      - name: multi_agent_skills
+        what: 30+ canonical skills + 16 subagent TOML definitions — AI-native development workflow
+        extracted_from: .agents/skills/, .codex/agents/, .claude/agents/
+        implemented_in: .agents/skills/
+        status: reference
+    notes: AI-native Go REST service template (fork of msitarzewski/go-service-template-rest, 98.7K stars). Go 1.26, chi, pgx, sqlc, koanf, OTel. Direct reuse as Go orchestration scaffold.

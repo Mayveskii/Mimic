@@ -19,6 +19,9 @@ Reading order. Every document has a number. Read in order.
 Each Mayveskii/* repo has a structured spec card in `specs/sources/`:
 
 ```
+specs/sources/rtk.md
+specs/sources/graphify.md
+specs/sources/go-service-template-rest.md
 specs/sources/hermes-agent.md
 specs/sources/gastown.md
 specs/sources/bun.md
