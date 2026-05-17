@@ -30,7 +30,8 @@ core-test: $(CORE_LIB)
 # ============================================================================
 
 build: $(CORE_LIB)
-	CGO_ENABLED=1 $(GO) build $(GOFLAGS) -o bin/mimic ./cmd/mimic
+	@mkdir -p bin
+	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o bin/mimic ./cmd/mimic
 
 # ============================================================================
 # Tests
@@ -78,8 +79,9 @@ PLATFORMS = linux/amd64 darwin/arm64
 
 release:
 	@echo "Building release..."
+	@mkdir -p dist
 	@for plat in $(PLATFORMS); do \
-		GOOS=$${plat%/*} GOARCH=$${plat#*/} CGO_ENABLED=1 \
+		GOOS=$${plat%/*} GOARCH=$${plat#*/} CGO_ENABLED=0 \
 		$(GO) build $(GOFLAGS) -o dist/$(RELEASE_BIN)-$${plat} ./cmd/mimic; \
 		sha256sum dist/$(RELEASE_BIN)-$${plat} > dist/$(RELEASE_BIN)-$${plat}.sha256; \
 	done

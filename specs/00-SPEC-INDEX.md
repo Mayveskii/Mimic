@@ -19,22 +19,23 @@ Reading order. Every document has a number. Read in order.
 Each Mayveskii/* repo has a structured spec card in `specs/sources/`:
 
 ```
+specs/sources/hermes-agent.md
+specs/sources/gastown.md
 specs/sources/bun.md
+specs/sources/rustnet.md
 specs/sources/exa-mcp-server.md
 specs/sources/gh-aw-mcpg.md
 specs/sources/opencode-anomalyco.md
 specs/sources/code-mode.md
 specs/sources/embryo.md
-specs/sources/gastown.md
-specs/sources/rustnet.md
-specs/sources/netbootxyz.md
 specs/sources/git.md
 specs/sources/gitingest.md
-specs/sources/awesome-mcp-servers.md
+specs/sources/netbootxyz.md
 specs/sources/agency-agents.md
 specs/sources/openmythos.md
 specs/sources/caveman.md
 specs/sources/minbpe.md
+specs/sources/awesome-mcp-servers.md
 ```
 
 ## Spec Card Schema (every source repo follows this)

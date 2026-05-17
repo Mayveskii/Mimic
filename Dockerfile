@@ -10,7 +10,7 @@ COPY internal/ internal/
 COPY cmd/ cmd/
 COPY Makefile .
 
-RUN make build
+RUN make build CGO_ENABLED=0
 
 FROM debian:bookworm-slim
 
