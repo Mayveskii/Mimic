@@ -1,0 +1,282 @@
+# Behavior Sources — Mimic
+
+# Mayveskii/* repositories — sources of behavior for Mimic
+# Mimicry: select the best from each implementation → build into Mimic
+# Not distillation (git blame → survival), but selection: HOW to implement a function
+
+sources:
+  - repo: Mayveskii/embryo
+    sync_status: partial
+    behaviors:
+      - name: binary_runtime
+        what: BinaryRuntime with OpCodes, tool loop, session, inference pool, hooks
+        extracted_from: pkg/do/
+        implemented_in: core/
+        status: partial (c-core derived from this)
+
+      - name: orchestrator_pipeline
+        what: Pipeline: state→mesh→DIRECT→classify→exec→flywheel→respond
+        extracted_from: pkg/orchestrator/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: mesh_agent_cascade
+        what: MeshAgent + Cascade (3-tier: local→medium→top)
+        extracted_from: pkg/agent/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: hunt_system
+        what: Hunt system: assess, compress, github, meshscan (17 files)
+        extracted_from: pkg/hunt/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: mesh_graph_slots
+        what: Mesh graphs, slots, domains
+        extracted_from: pkg/mesh/
+        implemented_in: core/ (bmap)
+        status: partial (libbmap.a derived from this)
+
+      - name: hybrid_rag
+        what: 5-signal hybrid RAG + qdrant
+        extracted_from: pkg/rag/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: projectmap_sqlite
+        what: SQLite-based project navigation
+        extracted_from: pkg/projectmap/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: survival_index
+        what: git blame → Survival Index
+        extracted_from: pkg/survival/
+        implemented_in: core/ (distillation)
+        status: planned
+
+      - name: mapstore_slots_invariants
+        what: Slot, store, invariant_registry
+        extracted_from: pkg/mapstore/
+        implemented_in: core/ (bmap)
+        status: planned
+
+      - name: mcp_tools_registry
+        what: 45+ MCP tools, JSON-RPC, HTTP connection pooling, circuit breaker
+        extracted_from: cmd/mcp/
+        implemented_in: internal/mcp/ + internal/tool/
+        status: planned
+    notes: Embryo repo where Mimic was born. Contains Go implementations that inform C-core and internal/ design.
+
+  - repo: Mayveskii/gastown
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/bun
+    sync_status: partial
+    behaviors:
+      - name: phase_graph
+        what: Phase graph orchestration (classify→plan→exec→verify)
+        extracted_from: PR #30412, 26 workflow files
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: two_vote_verify
+        what: 2-vote adversarial verification after execution
+        extracted_from: PR #30412, verify workflows
+        implemented_in: internal/quality/
+        status: planned
+
+      - name: edit_scope_isolation
+        what: Edit scope isolation (each agent — own crate)
+        extracted_from: PR #30412, scope rules
+        implemented_in: core/conflict_matrix
+        status: planned
+
+      - name: pre_post_hooks
+        what: PreToolUse/PostToolUse middleware chain
+        extracted_from: PR #30412, settings.json hooks
+        implemented_in: internal/mcp/
+        status: planned
+
+      - name: never_rules
+        what: Never-rules (never git destructive, never re-gate, never Box::leak)
+        extracted_from: PR #30412, workflow rules
+        implemented_in: internal/orchestrator/permission
+        status: planned
+
+      - name: lifetime_classify
+        what: Operation lifecycle classification (3-vote refute + 12% sample)
+        extracted_from: PR #30412, lifetime-classify workflow
+        implemented_in: internal/orchestrator/classify
+        status: planned
+
+  - repo: Mayveskii/rustnet
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/netboot.xyz
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/exa-mcp-server
+    sync_status: partial
+    behaviors:
+      - name: web_search_tool
+        what: MCP tool for web search (query → POST /search → results)
+        extracted_from: src/tools/, src/api/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: web_fetch_tool
+        what: MCP tool for content fetching (urls → POST /contents → markdown)
+        extracted_from: src/tools/, src/api/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: mcp_tool_pattern
+        what: MCP tool registration pattern (define → validate → execute)
+        extracted_from: src/index.ts
+        implemented_in: internal/tool/
+        status: planned
+
+  - repo: Mayveskii/git
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/gitingest
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/awesome-mcp-servers
+    sync_status: partial
+    behaviors:
+      - name: mcp_ecosystem_map
+        what: Map of 2245 MCP servers, 50 categories — what exists in the ecosystem
+        extracted_from: README.md
+        implemented_in: behavior-sources reference
+        status: reference
+
+  - repo: Mayveskii/agency-agents
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/gh-aw-mcpg
+    sync_status: partial
+    behaviors:
+      - name: mcp_gateway_routed
+        what: Routed mode: /mcp/{serverID} — route to specific backend
+        extracted_from: src/
+        implemented_in: internal/mcp/transport
+        status: planned
+
+      - name: mcp_gateway_unified
+        what: Unified mode: /mcp — single endpoint for all backends
+        extracted_from: src/
+        implemented_in: internal/mcp/transport
+        status: planned
+
+      - name: difc_security
+        what: DIFC 6-phase pipeline (label agent → label resource → check → exec → label response → filter)
+        extracted_from: src/guards/
+        implemented_in: internal/orchestrator/security
+        status: planned
+
+      - name: circuit_breaker
+        what: Circuit breaker per backend — prevent cascade failure
+        extracted_from: src/
+        implemented_in: internal/mcp/
+        status: planned
+
+      - name: oauth_pkce
+        what: OAuth 2.0 with PKCE for authorization
+        extracted_from: src/auth/
+        implemented_in: internal/mcp/auth
+        status: planned
+
+      - name: wasm_guards
+        what: WASM guards for access control
+        extracted_from: src/guards/
+        implemented_in: internal/orchestrator/security
+        status: future
+
+  - repo: Mayveskii/openmythos
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/caveman
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/opencode-anomalyco-
+    sync_status: partial
+    behaviors:
+      - name: tool_registry
+        what: Tool.Def interface (id/description/parameters/execute→ExecuteResult)
+        extracted_from: packages/opencode/src/tool/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: tool_loop
+        what: while(true) generator: API call → stream → execute → continuation
+        extracted_from: packages/opencode/src/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: mcp_transport
+        what: StreamableHTTP + SSE + Stdio transports
+        extracted_from: packages/opencode/src/mcp/
+        implemented_in: internal/mcp/transport
+        status: planned
+
+  - repo: Mayveskii/agency-agents
+    sync_status: pending
+    behaviors: []
+    notes: ""
+
+  - repo: Mayveskii/code-mode
+    sync_status: partial
+    behaviors:
+      - name: permission_pipeline
+        what: Permission pipeline: deny → ask → bypass → allow rules
+        extracted_from: src/
+        implemented_in: internal/orchestrator/permission
+        status: planned
+
+      - name: denial_tracking
+        what: 3 consecutive denies → circuit break, 20 total → fallback
+        extracted_from: src/
+        implemented_in: internal/quality/
+        status: planned
+
+      - name: auto_classifier
+        what: AI classifier decides allow/deny (auto mode)
+        extracted_from: src/
+        implemented_in: internal/orchestrator/permission
+        status: planned
+
+      - name: budget_enforcement
+        what: maxTurns, maxBudgetUsd — execution budget
+        extracted_from: src/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: concurrency_control
+        what: Up to 10 tools in parallel (concurrency-safe vs serial)
+        extracted_from: src/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+  - repo: Mayveskii/minbpe
+    sync_status: pending
+    behaviors: []
+    notes: ""
