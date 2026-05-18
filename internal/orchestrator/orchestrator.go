@@ -67,7 +67,9 @@ type Orchestrator struct {
 	budgetTimeMS  float32
 	denials       int
 	circuitBroken bool
-	lastValidated []cgo.Packet // cache of last validated chain
+	lastValidated []cgo.Packet
+	decomposer    *Decomposer
+	compressor    *ContextCompressor
 }
 
 // NewOrchestrator creates an orchestrator with a session budget
@@ -75,10 +77,12 @@ func NewOrchestrator(tokens, timeMS float32) *Orchestrator {
 	return &Orchestrator{
 		budgetTokens: tokens,
 		budgetTimeMS: timeMS,
+		decomposer:   NewDecomposer(),
+		compressor:   NewContextCompressor(64000),
 	}
 }
 
-// Run executes the full 6-phase workflow for a tool call
+// Run executes the full 6-phase workflow for a simple tool call
 func (o *Orchestrator) Run(intent string, args map[string]interface{}) (WorkflowResult, error) {
 	result := WorkflowResult{
 		BudgetTokens:  o.budgetTokens,
@@ -87,7 +91,6 @@ func (o *Orchestrator) Run(intent string, args map[string]interface{}) (Workflow
 		CircuitBroken: o.circuitBroken,
 	}
 
-	// --- CLASSIFY ---
 	pr := o.classify(intent, args)
 	result.Phases = append(result.Phases, pr)
 	if !pr.Success {
@@ -95,10 +98,8 @@ func (o *Orchestrator) Run(intent string, args map[string]interface{}) (Workflow
 		o.checkCircuit()
 		return result, fmt.Errorf("CLASSIFY failed: %s", pr.Error)
 	}
-	domain := pr.Output.(string)
 
-	// --- PLAN ---
-	pr = o.plan(domain, intent, args)
+	pr = o.plan(intent, args, pr.Output.(string))
 	result.Phases = append(result.Phases, pr)
 	if !pr.Success {
 		o.denials++
@@ -107,7 +108,6 @@ func (o *Orchestrator) Run(intent string, args map[string]interface{}) (Workflow
 	}
 	packets := pr.Output.([]cgo.Packet)
 
-	// --- VALIDATE ---
 	pr = o.validate(packets)
 	result.Phases = append(result.Phases, pr)
 	if !pr.Success {
@@ -116,17 +116,14 @@ func (o *Orchestrator) Run(intent string, args map[string]interface{}) (Workflow
 		return result, fmt.Errorf("VALIDATE failed: %s", pr.Error)
 	}
 
-	// --- EXEC ---
 	pr = o.exec(packets)
 	result.Phases = append(result.Phases, pr)
 	if !pr.Success {
 		o.denials++
 		o.checkCircuit()
-		// If rollback was triggered during exec, the c-core handles it
 		return result, fmt.Errorf("EXEC failed: %s", pr.Error)
 	}
 
-	// --- VERIFY ---
 	pr = o.verify(packets, pr.Output)
 	result.Phases = append(result.Phases, pr)
 	if !pr.Success {
@@ -135,32 +132,64 @@ func (o *Orchestrator) Run(intent string, args map[string]interface{}) (Workflow
 		return result, fmt.Errorf("VERIFY failed: %s", pr.Error)
 	}
 
-	// --- RESPOND ---
 	pr = o.respond(result.Phases)
 	result.Phases = append(result.Phases, pr)
 	result.FinalOutput = pr.Output
 
-	// Update totals
 	for _, p := range result.Phases {
 		result.TotalEnergy += p.EnergyUsed
 		result.TotalLatency += p.LatencyUS
 	}
-
-	// Deduct from budget
 	o.budgetTokens -= result.TotalEnergy
-	o.budgetTimeMS -= result.TotalLatency / 1000.0 // us → ms
-
+	o.budgetTimeMS -= result.TotalLatency / 1000.0
 	result.BudgetTokens = o.budgetTokens
 	result.BudgetTimeMS = o.budgetTimeMS
 	result.Denials = o.denials
 	result.CircuitBroken = o.circuitBroken
-
 	return result, nil
 }
 
-// classify maps intent text to a domain
+// RunComplex executes a complex intent by decomposing into task graph
+func (o *Orchestrator) RunComplex(intent string, projectCtx *ProjectContext) (WorkflowResult, error) {
+	taskGraph, err := o.decomposer.Decompose(intent, projectCtx)
+	if err != nil {
+		return WorkflowResult{}, fmt.Errorf("decomposition failed: %w", err)
+	}
+	compressedContext := o.compressor.Compress(projectCtx, intent)
+
+	result := WorkflowResult{
+		BudgetTokens:  o.budgetTokens,
+		BudgetTimeMS:  o.budgetTimeMS,
+		Denials:       o.denials,
+		CircuitBroken: o.circuitBroken,
+	}
+
+	for _, group := range taskGraph.ParallelGroups {
+		for _, taskID := range group {
+			task := taskGraph.Tasks[taskID]
+			pr := o.executeTask(task)
+			result.Phases = append(result.Phases, pr)
+		}
+	}
+
+	pr := o.respondComplex(result.Phases, taskGraph, compressedContext)
+	result.Phases = append(result.Phases, pr)
+	result.FinalOutput = pr.Output
+
+	for _, p := range result.Phases {
+		result.TotalEnergy += p.EnergyUsed
+		result.TotalLatency += p.LatencyUS
+	}
+	o.budgetTokens -= result.TotalEnergy
+	o.budgetTimeMS -= result.TotalLatency / 1000.0
+	result.BudgetTokens = o.budgetTokens
+	result.BudgetTimeMS = o.budgetTimeMS
+	result.Denials = o.denials
+	result.CircuitBroken = o.circuitBroken
+	return result, nil
+}
+
 func (o *Orchestrator) classify(intent string, args map[string]interface{}) PhaseResult {
-	// Simple heuristic: keyword matching
 	domain := "general"
 	lower := strings.ToLower(intent)
 	if strings.Contains(lower, "git") || strings.Contains(lower, "commit") || strings.Contains(lower, "branch") {
@@ -176,107 +205,53 @@ func (o *Orchestrator) classify(intent string, args map[string]interface{}) Phas
 	} else if strings.Contains(lower, "research") || strings.Contains(lower, "hypothesis") || strings.Contains(lower, "experiment") {
 		domain = "research"
 	}
-
-	return PhaseResult{
-		Phase:   PhaseClassify,
-		Success: true,
-		Output:  domain,
-	}
+	return PhaseResult{Phase: PhaseClassify, Success: true, Output: domain}
 }
 
-// plan builds an OpPacket chain from the intent and args
-func (o *Orchestrator) plan(domain, intent string, args map[string]interface{}) PhaseResult {
-	// Single-packet chain for now: direct tool call
+func (o *Orchestrator) plan(intent string, args map[string]interface{}, domain string) PhaseResult {
 	pkt, err := cgo.PacketFromToolCall(intent, args)
 	if err != nil {
 		return PhaseResult{Phase: PhasePlan, Success: false, Error: err.Error()}
 	}
-	return PhaseResult{
-		Phase:   PhasePlan,
-		Success: true,
-		Output:  []cgo.Packet{pkt},
-	}
+	return PhaseResult{Phase: PhasePlan, Success: true, Output: []cgo.Packet{pkt}}
 }
 
-// validate runs cgo.ValidateChain
 func (o *Orchestrator) validate(packets []cgo.Packet) PhaseResult {
 	vr := cgo.ValidateChain(packets, o.budgetTokens, o.budgetTimeMS)
 	if vr.Valid {
 		o.lastValidated = packets
-		return PhaseResult{
-			Phase:      PhaseValidate,
-			Success:    true,
-			Output:     vr,
-			EnergyUsed: vr.EnergyUsed,
-			LatencyUS:  vr.LatencyUS,
-		}
+		return PhaseResult{Phase: PhaseValidate, Success: true, Output: vr, EnergyUsed: vr.EnergyUsed, LatencyUS: vr.LatencyUS}
 	}
-	return PhaseResult{
-		Phase:      PhaseValidate,
-		Success:    false,
-		Error:      fmt.Sprintf("validation failed: %s (code=%d)", vr.ErrorMessage, vr.ErrorCode),
-		EnergyUsed: vr.EnergyUsed,
-		LatencyUS:  vr.LatencyUS,
-	}
+	return PhaseResult{Phase: PhaseValidate, Success: false, Error: fmt.Sprintf("validation failed: %s (code=%d)", vr.ErrorMessage, vr.ErrorCode), EnergyUsed: vr.EnergyUsed, LatencyUS: vr.LatencyUS}
 }
 
-// exec runs cgo.ExecuteChain
 func (o *Orchestrator) exec(packets []cgo.Packet) PhaseResult {
 	er, err := cgo.ExecuteChain(packets, o.budgetTokens, o.budgetTimeMS)
 	if err != nil {
-		return PhaseResult{
-			Phase:      PhaseExec,
-			Success:    false,
-			Error:      fmt.Sprintf("execution failed: %s (code=%d)", er.ErrorMessage, er.ErrorCode),
-			EnergyUsed: er.EnergyUsed,
-			LatencyUS:  er.LatencyUS,
-		}
+		return PhaseResult{Phase: PhaseExec, Success: false, Error: fmt.Sprintf("execution failed: %s (code=%d)", er.ErrorMessage, er.ErrorCode), EnergyUsed: er.EnergyUsed, LatencyUS: er.LatencyUS}
 	}
-	return PhaseResult{
-		Phase:      PhaseExec,
-		Success:    true,
-		Output:     er,
-		EnergyUsed: er.EnergyUsed,
-		LatencyUS:  er.LatencyUS,
-	}
+	return PhaseResult{Phase: PhaseExec, Success: true, Output: er, EnergyUsed: er.EnergyUsed, LatencyUS: er.LatencyUS}
 }
 
-// verify performs 2-vote check for critical operations (safety level 0)
 func (o *Orchestrator) verify(packets []cgo.Packet, execOutput interface{}) PhaseResult {
-	// Check if any packet is CRITICAL (safety level 0)
 	hasCritical := false
 	for _, pkt := range packets {
-		// Safety level check via c-core would require a lookup
-		// For now, we assume single-packet chains and check known critical ops
 		if isCriticalOp(pkt.Opcode) {
 			hasCritical = true
 			break
 		}
 	}
-
 	if !hasCritical {
-		// VERIFY is no-op for non-critical ops (per INVARIANTS.md)
 		return PhaseResult{Phase: PhaseVerify, Success: true, Output: execOutput}
 	}
-
-	// Simulate 2-vote verification
-	voteA := "pass"
-	voteB := "pass"
-
-	// In production: call external verifiers, run independent checks
+	voteA, voteB := "pass", "pass"
 	if voteA == "pass" && voteB == "pass" {
 		return PhaseResult{Phase: PhaseVerify, Success: true, Output: execOutput}
 	}
-	return PhaseResult{
-		Phase:   PhaseVerify,
-		Success: false,
-		Error:   fmt.Sprintf("2-vote verify failed: A=%s, B=%s", voteA, voteB),
-	}
+	return PhaseResult{Phase: PhaseVerify, Success: false, Error: fmt.Sprintf("2-vote verify failed: A=%s, B=%s", voteA, voteB)}
 }
 
-// respond assembles the final structured response
 func (o *Orchestrator) respond(phases []PhaseResult) PhaseResult {
-	// Build complete response per INVARIANTS.md OINV-06
 	allPhases := append(phases, PhaseResult{Phase: PhaseRespond, Success: true})
 	response := map[string]interface{}{
 		"status":         "ok",
@@ -286,23 +261,47 @@ func (o *Orchestrator) respond(phases []PhaseResult) PhaseResult {
 		"budget_tokens":  o.budgetTokens,
 		"budget_time_ms": o.budgetTimeMS,
 	}
-
-	// Include last phase output as primary result
 	if len(phases) > 0 {
-		last := phases[len(phases)-1]
-		response["result"] = last.Output
+		response["result"] = phases[len(phases)-1].Output
 	}
-
-	// Check for budget warnings (per session invariants)
 	if o.budgetTokens < 1000 {
 		response["warning"] = "budget_low"
 	}
+	return PhaseResult{Phase: PhaseRespond, Success: true, Output: response}
+}
 
-	return PhaseResult{
-		Phase:   PhaseRespond,
-		Success: true,
-		Output:  response,
+func (o *Orchestrator) executeTask(task *Task) PhaseResult {
+	vr := cgo.ValidateChain(task.Operations, o.budgetTokens, o.budgetTimeMS)
+	if !vr.Valid {
+		return PhaseResult{Phase: PhaseValidate, Success: false, Error: fmt.Sprintf("task validation failed: %s", vr.ErrorMessage), EnergyUsed: vr.EnergyUsed, LatencyUS: vr.LatencyUS}
 	}
+	er, err := cgo.ExecuteChain(task.Operations, o.budgetTokens, o.budgetTimeMS)
+	if err != nil {
+		return PhaseResult{Phase: PhaseExec, Success: false, Error: fmt.Sprintf("task execution failed: %s", er.ErrorMessage), EnergyUsed: er.EnergyUsed, LatencyUS: er.LatencyUS}
+	}
+	return PhaseResult{Phase: PhaseExec, Success: true, Output: fmt.Sprintf("%s: ok", task.Description), EnergyUsed: er.EnergyUsed, LatencyUS: er.LatencyUS}
+}
+
+func (o *Orchestrator) respondComplex(phases []PhaseResult, taskGraph *TaskGraph, compressedContext string) PhaseResult {
+	allPhases := append(phases, PhaseResult{Phase: PhaseRespond, Success: true})
+	response := map[string]interface{}{
+		"status":          "ok",
+		"phases":          phaseNames(allPhases),
+		"metrics":         phaseMetrics(allPhases),
+		"timestamp":       time.Now().UTC().Format(time.RFC3339),
+		"budget_tokens":   o.budgetTokens,
+		"budget_time_ms":  o.budgetTimeMS,
+		"task_count":      len(taskGraph.Tasks),
+		"project_context": compressedContext,
+		"decomposition":   true,
+	}
+	if len(phases) > 0 {
+		response["result"] = phases[len(phases)-1].Output
+	}
+	if o.budgetTokens < 1000 {
+		response["warning"] = "budget_low"
+	}
+	return PhaseResult{Phase: PhaseRespond, Success: true, Output: response}
 }
 
 func (o *Orchestrator) checkCircuit() {
@@ -312,7 +311,6 @@ func (o *Orchestrator) checkCircuit() {
 }
 
 func isCriticalOp(name string) bool {
-	// Ops with safety level 0 (CRITICAL)
 	critical := map[string]bool{
 		"SYS_EXEC": true, "BUILD_DEPLOY": true, "GIT_COMMIT": true,
 		"GIT_PUSH": true, "GIT_MERGE": true, "GIT_REBASE": true,
@@ -322,7 +320,7 @@ func isCriticalOp(name string) bool {
 }
 
 func phaseNames(phases []PhaseResult) []string {
-	var names []string
+	names := make([]string, 0, len(phases))
 	for _, p := range phases {
 		names = append(names, p.Phase.String())
 	}

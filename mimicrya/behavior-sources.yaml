@@ -992,4 +992,82 @@ sources:
         extracted_from: .agents/skills/, .codex/agents/, .claude/agents/
         implemented_in: .agents/skills/
         status: reference
-    notes: AI-native Go REST service template (fork of msitarzewski/go-service-template-rest, 98.7K stars). Go 1.26, chi, pgx, sqlc, koanf, OTel. Direct reuse as Go orchestration scaffold.
+  - repo: Mayveskii/openai-cookbook
+    sync_status: partial
+    behaviors:
+      - name: function_calling_schema
+        what: JSON Schema for tool definitions: type, properties, required, enum, descriptions — prevents argument collisions
+        extracted_from: examples/How_to_call_functions_with_chat_models.ipynb, examples/How_to_build_an_agent_with_the_node_sdk.ipynb
+        implemented_in: internal/mcp/tool_schemas.go
+        status: partial (schemas implemented, parallel tool calls pending)
+
+      - name: parallel_tool_calls
+        what: parallel_tool_calls flag enabling multiple independent tool calls in single turn
+        extracted_from: examples/How_to_call_functions_with_chat_models.ipynb (parallel_tool_calls section)
+        implemented_in: internal/orchestrator/parallel.go
+        status: planned
+
+      - name: structured_outputs_json_schema
+        what: response_format={"type": "json_schema", "schema": {...}} for deterministic structured outputs
+        extracted_from: examples/How_to_structure_outputs_for_text_extraction.ipynb
+        implemented_in: internal/quality/structured.go
+        status: planned
+
+      - name: embedding_normalization
+        what: Normalize embedding vectors before cosine similarity to prevent magnitude bias
+        extracted_from: examples/How_to_get_embeddings_with_tiktoken.ipynb
+        implemented_in: core/cosine.c
+        status: planned
+
+      - name: rag_chunking_strategy
+        what: Fixed-size token chunking with overlap for optimal retrieval granularity
+        extracted_from: examples/How_to_build_a_RAG_system_with_ChatGPT.ipynb
+        implemented_in: internal/rag/chunk.go
+        status: planned
+
+      - name: fine_tuning_data_format
+        what: messages[] with system/user/assistant/tool roles for fine-tuning tool use behavior
+        extracted_from: examples/How_to_finetune_chat_models.ipynb
+        implemented_in: data/extraction/encode_artifacts_v2.py
+        status: planned
+
+      - name: token_counting_tiktoken
+        what: Accurate token counting with cl100k_base encoding for cost estimation
+        extracted_from: examples/How_to_count_tokens_with_tiktoken.ipynb
+        implemented_in: internal/quality/tokens.go
+        status: planned
+    notes: Fork of openai/openai-cookbook. Examples for using OpenAI API — tool calling, RAG, embeddings, fine-tuning. Direct patterns for Mimic MCP tool schemas and quality gates.
+
+  - repo: Mayveskii/Awesome-AI-Benchmarking
+    sync_status: reference
+    behaviors:
+      - name: benchmark_methodology
+        what: lm-evaluation-harness standardized evaluation across dozens of benchmarks
+        extracted_from: README.md (lm-evaluation-harness, HELM, LiveBench sections)
+        implemented_in: internal/quality/benchmark.go
+        status: reference
+
+      - name: contamination_free_testing
+        what: LiveBench frequently updated questions to prevent data leakage
+        extracted_from: README.md (LiveBench description)
+        implemented_in: internal/quality/contamination.go
+        status: reference
+
+      - name: multi_dimensional_scoring
+        what: HELM 7-axis scoring: accuracy, calibration, robustness, fairness, bias, toxicity, efficiency
+        extracted_from: README.md (HELM description)
+        implemented_in: specs/10-QUALITY-GATES.md
+        status: reference
+
+      - name: human_voting_arena
+        what: LMSYS Chatbot Arena crowdsourced Elo ratings for real-world comparison
+        extracted_from: README.md (LMSYS Chatbot Arena)
+        implemented_in: project_context_main/stand/README.md
+        status: reference
+
+      - name: reproducible_evaluation
+        what: Standardized, reproducible evaluation pipelines with full transparency
+        extracted_from: README.md (frameworks for custom benchmarks)
+        implemented_in: project_context_main/stand/run_benchmark.py
+        status: reference
+    notes: Curated list of AI benchmarking tools. Methodology source for QAC measured baselines. Not code to extract, but methodology to apply.
