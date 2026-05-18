@@ -902,6 +902,34 @@ sources:
         status: planned
     notes: Code-to-knowledge-graph pipeline (fork of safishamsi/graphify, 48.7K stars). Python. 30+ language AST extraction, Leiden community detection, MCP server with 10 tools. Port search/traverse/dedup to C, orchestration to Go.
 
+  - repo: Mayveskii/vllm
+    sync_status: partial
+    behaviors:
+      - name: measured_optimization_decision
+        what: Every perf change must show measured before/after on real hardware with specific configs — PR#36 pattern
+        extracted_from: PR #36, vllm/poc/gpu_random.py, .github/workflows/
+        implemented_in: docs/adr/TEMPLATE.md
+        status: planned
+
+      - name: paged_memory_management
+        what: Block-level virtual memory for KV cache — allocate/evict without fragmentation
+        extracted_from: vllm/attention/backends/, vllm/core/block_manager.py
+        implemented_in: core/alloc.c
+        status: planned
+
+      - name: continuous_batching_scheduler
+        what: Preemptive scheduling with priority queues and recompute
+        extracted_from: vllm/core/scheduler.py
+        implemented_in: internal/orchestrator/scheduler.go
+        status: planned
+
+      - name: kernel_fusion_via_compile
+        what: torch.compile(dynamic=False, fullgraph=True) to fuse eager kernels into single Triton kernel
+        extracted_from: vllm/poc/gpu_random.py (PR #36)
+        implemented_in: core/fuse.c
+        status: planned
+    notes: Fork of vllm-project/vllm with PoC patches. Decision patterns from PR#36 are the primary value for Mimic.
+
   - repo: Mayveskii/go-service-template-rest
     sync_status: partial
     behaviors:

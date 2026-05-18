@@ -4,6 +4,8 @@
 
 Every formula drives code. Every coefficient comes from measurement.
 
+> **NOTE**: Canonical specifications moved to `specs-v2/`. This file is historical. Read `specs-v2/invariants/META_INVARIANT.md` and `specs-v2/domains/*/PROCESS.md` for current specs.
+
 ---
 
 ### 1. Principle of Least Action
@@ -35,6 +37,7 @@ conflict[op1][op2] ∈ {0, 1}
 
 **Invariant**: if conflict[op1][op2] = 1, these ops CANNOT be in the same chain.
 **Implementation**: `g_conflict_matrix` in ops.c, `conflictRules` in validator.go
+**Canonical spec**: `specs-v2/c-core/CONFLICT_MATRIX_SPEC.md`
 
 ---
 
@@ -54,6 +57,7 @@ energy[op] = [cost_tokens, cost_time_us, cost_memory_bytes]
 
 **Invariant**: Σ cost_tokensᵢ ≤ budget_tokens
 **Implementation**: `g_energy_costs` in ops.c
+**Canonical spec**: `specs-v2/c-core/ENERGY_COST_SPEC.md`
 
 ---
 
@@ -69,7 +73,7 @@ survival(commit) = surviving_lines / total_lines_added
 - 0.1 ≤ survival < 0.7 → partial pattern, manual review
 
 **Invariant**: survival = 1.0 is impossible for active projects (code evolves)
-**Source**: binary-mesh pkg/survival/
+**Source**: Distilled from git blame analysis (see `specs-v2/domains/distillation/`)
 
 ---
 
@@ -80,7 +84,8 @@ Z(slot) = (Σᵢ survivalᵢ × weightᵢ) / slot_volume
 ```
 
 **Invariant**: Z(slot_A) > Z(slot_B) → slot_A contains more proven knowledge per unit volume
-**Implementation**: `z_density_compute` in libbmap.a (⚠️ no .c source — needs rewrite)
+**Implementation**: `z_density_compute` in libbmap.a
+**Note**: libbmap.a sources exist in `/home/cisco/findings/fck_sleep/binary-mesh/c-core/`. No "no source files" claims.
 
 ---
 
@@ -98,6 +103,7 @@ Rollback: VALIDATE fail → PLAN, EXEC fail → PLAN, VERIFY fail → CLASSIFY.
 
 **Invariant**: no EXEC without passed VALIDATE.
 **Source**: Mayveskii/bun (PR #30412 phase graph)
+**Canonical spec**: `specs-v2/domains/orchestrator/PROCESS.md`
 
 ---
 
@@ -110,6 +116,7 @@ deny_rules → classify(auto) → budget_check → allow_rules
 **Denial tracking**: 3 consecutive denies → circuit break.
 **Invariant**: OP_FLAG_DANGEROUS (0x80) always requires explicit allow.
 **Source**: Mayveskii/code-mode
+**Canonical spec**: `specs-v2/domains/security/PROCESS.md`
 
 ---
 
@@ -123,6 +130,7 @@ if vote_A ≠ vote_B → tiebreak(verified_result)
 
 **Invariant**: critical operations always undergo 2-vote.
 **Source**: Mayveskii/bun (PR #30412)
+**Canonical spec**: `specs-v2/domains/quality/PROCESS.md`
 
 ---
 
@@ -139,6 +147,7 @@ if vote_A ≠ vote_B → tiebreak(verified_result)
 
 **Invariant**: information flows only from ≥ clearance to ≤ clearance, never the reverse.
 **Source**: Mayveskii/gh-aw-mcpg
+**Canonical spec**: `specs-v2/domains/security/PROCESS.md`
 
 ---
 
@@ -162,7 +171,7 @@ mimic(source_behavior, context) = {
 
 ### 11. Workspace Indexing
 
-Mimic indexes the agent's workspace (project files, structure, dependencies) into bmap slots for fast context retrieval:
+Mimic indexes the agent's workspace into bmap slots for fast context retrieval:
 
 ```
 workspace_index = {
@@ -175,15 +184,14 @@ workspace_index = {
 
 Query: `si_query_domain_layer("workspace", "symbols")` → all indexed symbols.
 
-**Invariant**: index is stale after any WRITE operation without re-index. Re-index triggered by OP_SYS_FILE_DELETE, OP_GIT_COMMIT, OP_BUILD_COMPILE.
-**Implementation**: si_insert/si_query_domain_layer in libbmap.a
-**Source**: Mayveskii/embryo (pkg/projectmap/ SQLite navigation), Mayveskii/opencode-anomalyco- (codesearch)
+**Invariant**: index is stale after any WRITE operation without re-index.
+**Canonical spec**: `specs-v2/domains/rag/PROCESS.md`
 
 ---
 
 ### 12. Binary RAG (Retrieval-Augmented Generation)
 
-Binary vector search over mesh slots for pattern retrieval:
+Binary vector search over mesh slots for pattern retrieval per `specs-v2/domains/rag/PROCESS.md`:
 
 ```
 binary_rag(query, domain) = {
@@ -203,43 +211,27 @@ binary_rag(query, domain) = {
 5. Z-density (z_density_compute)
 
 **Invariant**: RAG without survival signal = unverified retrieval. Every result must carry survival index.
-**Implementation**: int8_quantize, batch_cosine_int8, si_query_domain, z_density_compute in libbmap.a
-**Source**: Mayveskii/embryo (pkg/rag/ 5-signal hybrid RAG)
 
 ---
 
 ### 13. Context Flow
 
-Context passes through the execution pipeline in a structured flow:
+Context passes through the execution pipeline per `specs-v2/domains/session/PROCESS.md`:
 
 ```
-agent_intent
-    ↓ [session context: budget_remaining, denial_count, session_id]
-CLASSIFY
-    ↓ [classified_intent: domain, safety_level, scenario_hint]
-PLAN
-    ↓ [planned_chain: OpPacket[], estimated_cost]
-VALIDATE
-    ↓ [validated_chain: OpPacket[] + ValidationResult]
-EXEC
-    ↓ [execution_context: ExecContext (open_fds, mmap_regions, success/error counts)]
-VERIFY
-    ↓ [verify_context: 2-vote result, invariant checks]
-RESPOND
-    ↓ [response_context: result + metrics + slot suggestions]
+agent_intent → CLASSIFY → classified_intent → PLAN → planned_chain → VALIDATE → validated_chain → EXEC → execution_context → VERIFY → verify_result → RESPOND → response
 ```
 
 Each phase enriches context. Context is cumulative — later phases see everything from earlier phases.
 
-**Invariant**: no phase receives context from a phase that hasn't executed. Context flows forward only, except for rollback signals (VALIDATE fail → PLAN gets failure context).
-**Implementation**: ExecContext struct in ops.h, session state in internal/session/
-**Source**: Mayveskii/embryo (pkg/orchestrator/ pipeline: state→mesh→DIRECT→classify→exec→flywheel→respond)
+**Invariant**: no phase receives context from a phase that hasn't executed.
+**Canonical spec**: `specs-v2/domains/session/PROCESS.md`
 
 ---
 
 ### 14. Multi-task Pipeline Execution
 
-Multiple independent pipelines execute concurrently with isolation:
+Multiple independent pipelines execute concurrently with isolation per `specs-v2/domains/orchestrator/PROCESS.md`:
 
 ```
 pipelines = [pipeline_A, pipeline_B, pipeline_C]
@@ -248,13 +240,6 @@ for each pipeline in pipelines:
     check: conflict_matrix[pipeline_A.chain] × [pipeline_B.chain] = all 0
     if conflict → serialize (A first, then B)
     if no conflict → parallel
-
-parallel_execute(pipelines) = {
-    results = []
-    for pipeline in pipelines.concurrent():
-        results.append(ops_execute_chain(pipeline.chain, pipeline.ctx))
-    return results
-}
 ```
 
 Isolation rules (from Mayveskii/bun edit scope isolation):
@@ -262,15 +247,13 @@ Isolation rules (from Mayveskii/bun edit scope isolation):
 - Shared resources (git index, build cache) require serialization
 - Conflict matrix extended to cross-pipeline: resource_bitmask overlap → conflict
 
-**Invariant**: no two pipelines write to the same resource simultaneously. Read-sharing is allowed.
-**Implementation**: ExecContext.resource_bitmask in ops.h, conflict matrix extension
-**Source**: Mayveskii/bun (~170 agents simultaneously, edit scope isolation), Mayveskii/code-mode (concurrency up to 10)
+**Invariant**: no two pipelines write to the same resource simultaneously.
 
 ---
 
 ### 15. Constant Data Compression
 
-Data in mesh slots is compressed at rest and decompressed on access:
+Data in mesh slots is compressed at rest and decompressed on access per `specs-v2/c-core/OPPACKET_SPEC.md`:
 
 ```
 slot_write(data) = {
@@ -289,14 +272,7 @@ slot_read(slot_id) = {
 }
 ```
 
-Compression ratio tracking:
-```
-compression_ratio = original_size / compressed_size
-```
-
-**Invariant**: every slot write is compressed. Every slot read verifies hash before decompress. Compression ratio tracked for monitoring.
-**Implementation**: OP_COMPRESS_GZIP/OP_DECOMPRESS_GZIP in ops.h, sha256_hash in libbmap.a
-**Source**: ops.h OpCode definitions, libbmap.a bmap_write_cell/bmap_read_cell
+**Invariant**: every slot write is compressed. Every slot read verifies hash before decompress.
 
 ---
 
@@ -307,3 +283,34 @@ compression_ratio = original_size / compressed_size
 3. If a formula has no implementation — it is a TODO
 4. CI checks: SEMANTICS.md is in sync with code
 5. Formula change = ADR (why changed, what was measured)
+
+---
+
+### 16. Meta-Invariant: No Side Effect Without Prior Validation
+
+```
+no_side_effect_without_prior_validation
+```
+
+Every side effect (I/O, state mutation, resource allocation, network call) MUST be preceded by validation that the operation is safe, within budget, and not conflicting.
+
+**Source**: Historical analysis of 453 binary-mesh commits (222 fixes), 1074 gonka commits (386 fixes), 148121 enricher slots across 8 domains. Root cause of all 30 documented anti-patterns (`specs-v2/domains/anti-patterns/`).
+
+**Canonical spec**: `specs-v2/invariants/META_INVARIANT.md`
+
+**Violations and consequences**:
+
+| Violation | Source | QAC |
+|-----------|--------|-----|
+| No validation PruneEpoch succeeded before advancing | gonka 86c686d92 | QAC-1, QAC-2 |
+| No validation mutex free before spawning goroutine | gonka d9c46cae0 | QAC-4, QAC-11 |
+| No validation buildMessages structure stable | binary-mesh c9e83c3 | QAC-6, QAC-10 |
+| No validation input before NewInt64Coin | gonka 75e31c233 | QAC-2, QAC-7 |
+| No validation secrets not in source | binary-mesh ff5ff82 | QAC-8, QAC-12 |
+| No classification before retry decision | binary-mesh 0e36abd | QAC-3, QAC-6 |
+| No idempotency validation on Close | gonka 8d1cd00f3 | QAC-2, QAC-7 |
+| No bounds check before array access | binary-mesh 4742339 | QAC-2, QAC-5 |
+
+**Implementation**: ops_validate_chain before ops_execute_chain. Quality of validation tracked via QAC-4.
+
+**Cross-reference**: 10-QUALITY-GATES.md Section 2 (Meta-Invariant), `specs-v2/domains/anti-patterns/PROCESS.md` (30 anti-patterns all traceable to this invariant).

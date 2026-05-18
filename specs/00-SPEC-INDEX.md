@@ -12,6 +12,8 @@ Reading order. Every document has a number. Read in order.
 06-SEMANTICS.md           ← Every function: name | input | output | invariant | source.
 07-RESOURCES.md           ← Complete resource map, OpPacket translation table.
 08-MODULES.md             ← Per-module: what, resources, connections, state.
+09-DISTILLATION-ARTIFACTS.md ← Domain coverage, atomic artifacts, feedback, multimodality, precision formula.
+10-QUALITY-GATES.md      ← Quality axis conditions (QAC-1..13), anti-pattern polarity, measured thresholds, efficiency metrics.
 ```
 
 ## Source Repository Analysis (per-repo spec cards)
@@ -79,3 +81,6 @@ control:                              # HOW application correctness is tracked
 - Source spec cards → MODULES.md (behaviors implemented in modules)
 - Source spec cards → SEMANTICS.md (functions marked with source repo)
 - behavior-sources.yaml → source spec cards (machine-readable summary)
+- 09-DISTILLATION-ARTIFACTS.md → repos-manifest.yaml (coverage targets)
+- 09-DISTILLATION-ARTIFACTS.md → decision-patterns.yaml (decision survival)
+- 09-DISTILLATION-ARTIFACTS.md → artifact.proto (deep cache exchange format)

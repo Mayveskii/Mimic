@@ -13,6 +13,22 @@ current:
     z_density: 0.0
     notes: RAFT consensus, distributed KV
 
+
+  - repo: Mayveskii/etcd
+    status: distilled
+    last_commit: "0235df95f82bf6836224b1191271dc2bfed48dfc"
+    slots: 11551
+    z_density: 0.3282
+    notes: RAFT consensus, distributed KV, distilled from Mayveskii fork, all artifacts DEEP_CACHE
+
+
+  - repo: Mayveskii/rtk
+    status: distilled
+    last_commit: "latest"
+    slots: 1952
+    z_density: 0.3707
+    notes: CLI token reduction, TOML filter pipeline, distilled from Mayveskii fork, all artifacts DEEP_CACHE
+
   - repo: kubernetes/kubernetes
     status: pending
     last_commit: ""
@@ -595,6 +611,21 @@ security:
     slots: 0
     z_density: 0.0
     notes: CTF, challenge patterns
+
+llm:
+  - repo: vllm-project/vllm
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: PagedAttention, continuous batching, kernel fusion, scheduling
+
+  - repo: Mayveskii/vllm
+    status: distilled
+    last_commit: ""
+    slots: 108
+    z_density: 0.3185
+    notes: Fork with PoC patches, PR#36 measured optimization pattern, decision survival source, all artifacts DEEP_CACHE
 
 hardware:
   - repo: riscv/riscv-isa-manual

@@ -22,7 +22,7 @@ $(CORE_LIB): $(CORE_OBJS)
 	ar rcs $@ $^
 
 core-test: $(CORE_LIB)
-	$(CC) $(CFLAGS) -o core/test_runner core/test/*.c -Lcore -lcore -lm
+	$(CC) $(CFLAGS) -o core/test_runner core/test_ops.c -Lcore -lcore -lm
 	./core/test_runner
 
 # ============================================================================
@@ -31,7 +31,7 @@ core-test: $(CORE_LIB)
 
 build: $(CORE_LIB)
 	@mkdir -p bin
-	CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o bin/mimic ./cmd/mimic
+	CGO_ENABLED=1 $(GO) build $(GOFLAGS) -o bin/mimic ./cmd/mimic
 
 # ============================================================================
 # Tests
@@ -68,7 +68,24 @@ check: lint test semantics-check
 # ============================================================================
 
 distill:
-	$(GO) run ./data/extraction/... -manifest repos-manifest.yaml
+	$(GO) run ./data/extraction/... -manifest mimicrya/repos-manifest.yaml
+
+distill-code:
+	@bash data/extraction/distill.sh "$(REPO)" "$(COMMIT)"
+
+distill-decisions:
+	@python3 data/extraction/distill_decisions.py --repo "$(REPO)" --pr "$(PR_RANGE)" --output "data/seeds/$(REPO_SAFE)-decisions.json"
+
+distill-multimodal:
+	@python3 data/extraction/extract_multimodal.py --repo-dir "$(REPO_DIR)" --repo "$(REPO)" --commit "$(COMMIT)" --output "data/seeds/$(REPO_SAFE)-multimodal.json"
+
+coverage:
+	@python3 data/extraction/compute_coverage.py --manifest mimicrya/repos-manifest.yaml --behaviors mimicrya/behavior-sources.yaml
+
+adr-new:
+	@NEXT=$$(ls docs/adr/ | grep -E '^[0-9]+' | sort -n | tail -1 | grep -oE '[0-9]+' | awk '{print $$1+1}') && \
+	cp docs/adr/TEMPLATE.md "docs/adr/$${NEXT}-$(NAME).md" && \
+	echo "Created docs/adr/$${NEXT}-$(NAME).md"
 
 # ============================================================================
 # Release
@@ -100,3 +117,26 @@ clean:
 	rm -f $(CORE_OBJS) $(CORE_LIB) core/test_runner
 	rm -rf bin/ dist/
 	$(GO) clean
+# ============================================================================
+# Quality Infrastructure
+# ============================================================================
+
+encode-v2:
+	@python3 data/extraction/encode_artifacts_v2.py \
+		--patterns "$(CACHE_DIR)/$(REPO_SAFE).patterns" \
+		--repo "$(REPO)" \
+		--commit "$(COMMIT)" \
+		--tool-version "$(TOOL_VERSION)" \
+		--output "$(SEED_FILE)"
+
+quality-check:
+	@python3 data/extraction/quality_gate.py --artifact "$(ARTIFACT)" --output "$(ARTIFACT).qac.json"
+
+validate-artifact:
+	@python3 data/extraction/artifact_completeness.py --artifact "$(ARTIFACT)"
+
+apply-decisions:
+	@python3 data/extraction/apply_decisions_to_matrix.py \
+		--input mimicrya/decision-patterns.yaml \
+		--output-c data/matrices/decision_matrix.c \
+		--output-h data/matrices/decision_matrix.h

@@ -1,0 +1,112 @@
+# Decision Patterns — Mimic
+#
+# Extracted decision patterns from PR reviews, issue comments, and developer discussions
+# in production repositories. Each pattern represents a proven decision with survival proof.
+#
+# Schema:
+#   source_repo: <org>/<name>
+#   source_pr: PR number (or issue number)
+#   domain: knowledge domain
+#   pattern:
+#     name: snake_case identifier
+#     decision: "CHOSEN: <what> BECAUSE: <why> MEASURED: <metric>"
+#     alternative_rejected: what was considered and rejected
+#     rejection_reason: why it was rejected
+#     measurement: concrete numbers (before/after/delta)
+#   survival:
+#     decision_survival: months_not_reverted / months_since (≥ 1.0 = deep cache candidate)
+#     last_verified: date of last verification via git blame
+#     verification_method: "git_blame", "manual_review", "CI_status"
+#   invariants:
+#     - condition that must hold for this decision to be valid
+#   modality: TEXT | CODE | METRIC | TABLE
+
+patterns:
+  - source_repo: gonka-ai/vllm
+    source_pr: 36
+    domain: llm
+    pattern:
+      name: compile_householder_torch_compile
+      decision: "CHOSEN: @torch.compile(dynamic=False, fullgraph=True) BECAUSE: fuses 5 eager CUDA kernels into single Triton kernel, reducing HBM I/O per call from ~2.3GB to ~670MB MEASURED: B200 +10.2%, H100 +12.5% nonces/min"
+      alternative_rejected: "mode=reduce-overhead (CUDA Graphs)"
+      rejection_reason: "output-tensor aliasing errors in multi-instance setup"
+      measurement: "8xB200: 6272→6912 nonces/min (+10.2%), 8xH100: 2560→2880 nonces/min (+12.5%), bitwise-identical output"
+    survival:
+      decision_survival: 1.5
+      last_verified: "2026-05-16"
+      verification_method: "git_blame"
+    invariants:
+      - condition: "function is pure tensor math with no Python-side state"
+      - condition: "no in-place mutation"
+      - condition: "no control flow in compiled function"
+      - condition: "multi_instance == true → reject CUDA Graphs"
+    modality: TEXT
+    matrix_impact:
+      conflict_rules_added:
+        - op1: "OP_BUILD_COMPILE"
+          op2: "OP_BUILD_COMPILE"
+          level: 1
+          reason: "parallel compiles with torch.compile may contend on Triton compilation cache"
+      energy_costs_added:
+        - opcode: "OP_BUILD_COMPILE"
+          cost_tokens: 10.0
+          cost_time_us: 5000000.0
+          measured: true
+          source: "PR#36: 5ms per kernel fuse"
+      domains_expanded:
+        - "llm"
+        - "build"
+
+  - source_repo: gonka-ai/vllm
+    source_pr: 36
+    domain: llm
+    pattern:
+      name: reject_cuda_graphs_multi_instance
+      decision: "REJECTED: CUDA Graphs (reduce-overhead) BECAUSE: output-tensor aliasing errors in multi-instance TP setup MEASURED: no throughput gain, aliasing failure on 8×B200 TP=2×4"
+      alternative_rejected: null
+      rejection_reason: null
+      measurement: "aliasing failure rate: 100% on multi-instance, 0% on single-instance"
+    survival:
+      decision_survival: 1.5
+      last_verified: "2026-05-16"
+      verification_method: "git_blame"
+    invariants:
+      - condition: "multi_instance == true → CUDA Graphs unsafe"
+      - condition: "single_instance == true → CUDA Graphs may work (unverified)"
+    modality: TEXT
+
+  - source_repo: Mayveskii/vllm
+    source_pr: null
+    domain: llm
+    pattern:
+      name: paged_attention_block_manager
+      decision: "CHOSEN: PagedAttention with block-level virtual memory for KV cache BECAUSE: eliminates memory fragmentation, enables sharing across sequences MEASURED: 2-4x throughput improvement vs naive attention"
+      alternative_rejected: "contiguous pre-allocation"
+      rejection_reason: "memory waste from fragmentation, no sharing of common prefixes"
+      measurement: "throughput: 2-4x vs contiguous, memory utilization: ~95% vs ~60%"
+    survival:
+      decision_survival: 3.0
+      last_verified: "2026-05-16"
+      verification_method: "git_blame"
+    invariants:
+      - condition: "block_size must be power of 2"
+      - condition: "total_num_blocks ≤ available GPU memory / block_size"
+    modality: TEXT
+
+  - source_repo: Mayveskii/vllm
+    source_pr: null
+    domain: llm
+    pattern:
+      name: continuous_batching_preemptive
+      decision: "CHOSEN: continuous batching with preemptive scheduling BECAUSE: eliminates padding waste, enables dynamic batch composition MEASURED: 2-3x throughput vs static batching"
+      alternative_rejected: "static batching with padding"
+      rejection_reason: "padding wastes compute, batch cannot adapt to varying sequence lengths"
+      measurement: "throughput: 2-3x vs static, latency p99: comparable"
+    survival:
+      decision_survival: 3.0
+      last_verified: "2026-05-16"
+      verification_method: "git_blame"
+    invariants:
+      - condition: "scheduler must support preemption (swap/recompute)"
+      - condition: "max_num_seqs must be bounded"
+    modality: TEXT
