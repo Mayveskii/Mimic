@@ -1,3 +1,6 @@
+# Agent persistent context
+project_context_main/
+
 # Binaries
 bin/
 dist/

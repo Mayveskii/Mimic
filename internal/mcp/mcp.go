@@ -95,15 +95,11 @@ func NewServer(t Transport) *Server {
 }
 
 func (s *Server) buildTools() {
-	available := cgo.GetAvailableTools()
-	for _, name := range available {
+	for _, schema := range DefaultSchemas {
 		t := Tool{
-			Name:        name,
-			Description: "Mimic c-core operation: " + name,
-			InputSchema: map[string]interface{}{
-				"type":       "object",
-				"properties": map[string]interface{}{},
-			},
+			Name:        schema.Name,
+			Description: schema.Description,
+			InputSchema: schema.InputSchema,
 		}
 		s.tools = append(s.tools, t)
 	}
