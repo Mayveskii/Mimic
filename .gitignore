@@ -1,0 +1,40 @@
+# Agent persistent context
+project_context_main/
+
+# Binaries
+bin/
+dist/
+*.o
+*.a
+*.so
+core/test_runner
+
+# Go
+*.exe
+
+# Build artifacts
+/tmp/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Secrets
+.env
+*.key
+*.pem
+
+# Data (large files, not in git)
+data/repos/
+data/extraction/__pycache__/
+
+# Test artifacts
+file1.txt
+file2.txt
+libnano_ops.so

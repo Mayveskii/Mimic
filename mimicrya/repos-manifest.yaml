@@ -1,0 +1,650 @@
+# Repos Manifest — Mimic Distillation Sources
+
+# Statuses: pending | cloning | blamed | distilled | mimicked
+# last_commit: last processed commit (SHA)
+# slots: how many patterns extracted
+# z_density: domain Z-density (0.0 if not yet computed)
+
+current:
+  - repo: etcd-io/etcd
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: RAFT consensus, distributed KV
+
+
+  - repo: Mayveskii/etcd
+    status: distilled
+    last_commit: "0235df95f82bf6836224b1191271dc2bfed48dfc"
+    slots: 11551
+    z_density: 0.3282
+    notes: RAFT consensus, distributed KV, distilled from Mayveskii fork, all artifacts DEEP_CACHE
+
+
+  - repo: Mayveskii/rtk
+    status: distilled
+    last_commit: "latest"
+    slots: 1952
+    z_density: 0.3707
+    notes: CLI token reduction, TOML filter pipeline, distilled from Mayveskii fork, all artifacts DEEP_CACHE
+
+  - repo: kubernetes/kubernetes
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: controllers, reconciliation loops, API server
+
+  - repo: golang/go
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: runtime, GC, scheduler, toolchain
+
+  - repo: ethereum/go-ethereum
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: blockchain, consensus, p2p
+
+  - repo: envoyproxy/envoy
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: proxy, filter chain, xDS
+
+  - repo: istio/istio
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: service mesh, sidecar, mTLS
+
+  - repo: grpc/grpc-go
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: RPC, streaming, interceptors
+
+  - repo: hashicorp/consul
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: service discovery, KV, health checks
+
+  - repo: cockroachdb/cockroach
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: distributed SQL, transaction pipeline
+
+  - repo: pingcap/tidb
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: distributed SQL, TiKV, coprocessor
+
+  - repo: prometheus/prometheus
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: time series, scrape, rules engine
+
+  - repo: jaegertracing/jaeger
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: distributed tracing, sampling
+
+  - repo: linkerd/linkerd2
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: service mesh, proxy inject
+
+  - repo: opentracing/opentracing-go
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: tracing API standard
+
+  - repo: jaegertracing/jaeger-client-go
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: tracing client, reporters
+
+  - repo: opencensus/opencensus-go
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: metrics + tracing, exporters
+
+new:
+  - repo: microsoft/autogen
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: multi-agent orchestration
+
+  - repo: langchain-ai/langchain
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: chain/agent abstractions
+
+  - repo: langchain-ai/langchainjs
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: JS chain/agent abstractions
+
+  - repo: mit-ll/lyfe
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: agent framework
+
+recommended:
+  - repo: apache/zookeeper
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: distributed coordination
+
+  - repo: redis/redis
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: in-memory KV, pub/sub, persistence
+
+  - repo: confluentinc/kafka
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: distributed streaming, partitions
+
+  - repo: hashicorp/vault
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: secrets management, seal/unseal
+
+  - repo: openssl/openssl
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: crypto, TLS, certificate handling
+
+  - repo: google/tink
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: crypto API, key management
+
+  - repo: grafana/loki
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: log aggregation, label indexing
+
+  - repo: grafana/grafana
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: dashboard, data source abstraction
+
+  - repo: cilium/cilium
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: eBPF networking, CNI
+
+  - repo: postgres/postgres
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: MVCC, WAL, query planner
+
+  - repo: apache/cassandra
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: wide column, tunable consistency
+
+  - repo: mongodb/mongo
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: document store, replica sets
+
+  - repo: tokio-rs/tokio
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: async runtime, task scheduling
+
+  - repo: akka/akka
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: actor model, clustering
+
+agentic:
+  - repo: microsoft/autogen
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: (duplicate in new)
+
+  - repo: langchain-ai/langchain
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: (duplicate in new)
+
+  - repo: langchain-ai/langchainjs
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: (duplicate in new)
+
+  - repo: mit-ll/lyfe
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: (duplicate in new)
+
+  - repo: agentops/agentops
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: agent observability
+
+  - repo: crewai/crewai
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: multi-agent roles
+
+  - repo: lmarena/arena
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: LLM benchmarking
+
+  - repo: jakejarvis/snapshot
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: snapshot testing
+
+  - repo: mindsdb/mindsdb
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: ML in database
+
+  - repo: openai/swarm
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: multi-agent orchestration
+
+git:
+  - repo: git/git
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: git internals, ref management
+
+  - repo: libgit2/libgit2
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: git C library, tree walking
+
+  - repo: go-git/go-git
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: pure Go git, object model
+
+  - repo: isomorphic-git/isomorphic-git
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: JS git, browser-compatible
+
+  - repo: dulwich/dulwich
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: Python git, pack protocol
+
+  - repo: cli/cli
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: GitHub CLI, API interaction
+
+  - repo: kubernetes/kubectl
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: k8s CLI, resource management
+
+  - repo: hashicorp/terraform
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: IaC, state management, plan/apply
+
+  - repo: aneeshdurg/git-ai
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: AI-assisted git
+
+  - repo: jesseduffield/lazygit
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: TUI git, interaction patterns
+
+network:
+  - repo: nginx/nginx
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: web server, event loop, config reload
+
+  - repo: nodejs/node
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: event loop, stream, buffer
+
+  - repo: bound1ess/bound1ess
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+
+  - repo: vercel/turbo
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: monorepo build, caching
+
+  - repo: facebook/react
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: reconciliation, fiber, hooks
+
+  - repo: npm/cli
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: package management, resolution
+
+  - repo: whatwg/html
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: HTML spec, parsing
+
+python:
+  - repo: python/cpython
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: interpreter, GIL, import system
+
+  - repo: pypa/pip
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: package management, resolution
+
+  - repo: conda/conda
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: environment management
+
+  - repo: jupyter/jupyter
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: notebook, kernel protocol
+
+  - repo: scipy/scipy
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: scientific computing
+
+  - repo: pandas-dev/pandas
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: dataframes, indexing
+
+llm:
+  - repo: huggingface/transformers
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: model loading, inference pipeline
+
+  - repo: openai/openai-python
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: API client, streaming
+
+  - repo: vllm-project/vllm
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: inference optimization, paged attention
+
+  - repo: ollama/ollama
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: local inference, model management
+
+  - repo: google-deepmind/gemma
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: open model, architecture
+
+swe:
+  - repo: github/copilot-cli
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: AI CLI assistant
+
+  - repo: sourcegraph/sourcegraph
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: code search, intelligence
+
+  - repo: cursorless/cursorless
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: voice coding, AST navigation
+
+  - repo: exercism/exercism
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: exercise patterns, test runners
+
+os:
+  - repo: torvalds/linux
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: kernel, VFS, scheduler, networking
+
+  - repo: apple/swift
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: compiler, runtime
+
+  - repo: llvm/llvm-project
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: compiler infrastructure, IR, passes
+
+  - repo: gdb/gdb
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: debugger, breakpoint management
+
+security:
+  - repo: microsoft/defender-for-devops
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: security scanning
+
+  - repo: google/sanitizers
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: ASan, MSan, TSan, UBSan
+
+  - repo: mitre/ctf-framework
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: CTF, challenge patterns
+
+llm:
+  - repo: vllm-project/vllm
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: PagedAttention, continuous batching, kernel fusion, scheduling
+
+  - repo: Mayveskii/vllm
+    status: distilled
+    last_commit: ""
+    slots: 108
+    z_density: 0.3185
+    notes: Fork with PoC patches, PR#36 measured optimization pattern, decision survival source, all artifacts DEEP_CACHE
+
+hardware:
+  - repo: riscv/riscv-isa-manual
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: ISA specification
+
+  - repo: qemu/qemu
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: emulation, device models
+
+  - repo: docker/docker
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: container runtime, image layers

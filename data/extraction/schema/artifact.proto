@@ -1,0 +1,76 @@
+syntax = "proto3";
+
+package mimic;
+
+option go_package = "github.com/Mayveskii/mimic/data/extraction/schema";
+
+message Artifact {
+  string id = 1;
+  string source_repo = 2;
+  string source_commit = 3;
+  string domain = 4;
+  string layer = 5;
+  Modality modality = 6;
+
+  string pattern_name = 7;
+  string pattern_description = 8;
+  string pattern_code = 9;
+  bytes pattern_bytes = 10;
+
+  float survival_index = 11;
+  float z_density = 12;
+  float decision_survival = 13;
+
+  repeated Invariant invariants = 14;
+  string invariant_hash = 15;
+
+  string extracted_by = 16;
+  string extracted_at = 17;
+  string extraction_hash = 18;
+
+  int32 token_count = 19;
+  int32 latency_us = 20;
+  int32 memory_bytes = 21;
+}
+
+enum Modality {
+  TEXT = 0;
+  CODE = 1;
+  IMAGE = 2;
+  DIAGRAM = 3;
+  TABLE = 4;
+  METRIC = 5;
+}
+
+message Invariant {
+  string condition = 1;
+  string source = 2;
+  string verification = 3;
+}
+
+message FeedbackArtifact {
+  string id = 1;
+  string task_id = 2;
+  string model_id = 3;
+  string source_artifact_id = 4;
+
+  bool success = 5;
+  string result_hash = 6;
+  int64 execution_time_ns = 7;
+  int32 tokens_used = 8;
+
+  repeated string invariant_checks = 9;
+  float artifact_precision = 10;
+
+  string consilium_votes = 11;
+  string consilium_decision = 12;
+
+  int64 timestamp = 13;
+}
+
+message ArtifactBatch {
+  repeated Artifact artifacts = 1;
+  repeated FeedbackArtifact feedback = 2;
+  string batch_hash = 3;
+  string tool_version = 4;
+}

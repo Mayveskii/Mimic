@@ -1,0 +1,299 @@
+# C-Core Build Configuration
+
+Compile-time options, optional features, and Makefile variables for building Mimic C-core, Go bridge, and optional MCP server.
+
+All features are optional. The minimal build includes only core ops. Each feature adds domains, tools, or integrations.
+
+---
+
+## Build Targets
+
+```makefile
+# Minimal build: core + validation
+make core          # libmimic_core.a (C static library)
+
+# Full build: all features
+make all           # core + bridge + mcp + tools
+
+# Individual components
+make bridge        # Go CGO bridge (mimic_bridge.a)
+make mcp           # MCP JSON-RPC server (optional)
+make mesh          # Mesh storage + indexing (optional)
+make distillation  # Distillation pipeline (optional)
+make sandbox       # Landlock/Seatbelt sandbox (Linux/macOS only)
+
+# Development
+make test          # Run test suite
+make check         # lint + test + semantics-check
+make debug         # Debug build with ASAN/TSAN
+make release       # Optimized build (-O3, LTO)
+make install       # Install to PREFIX (default /usr/local)
+```
+
+---
+
+## Compile-Time Flags
+
+### Feature Enables
+
+| Flag | Default | Description | Dependencies |
+|---|---|---|---|
+| `MIMIC_ENABLE_MCP` | 1 | MCP JSON-RPC server | libuv or stdio |
+| `MIMIC_ENABLE_CGO` | 0 | Go CGO bridge | Go 1.22+, CGO_ENABLED=1 |
+| `MIMIC_ENABLE_SANDBOX` | 1 | Landlock (Linux), Seatbelt (macOS) | Linux 5.13+ or macOS |
+| `MIMIC_ENABLE_DISTILLATION` | 1 | Git blame + pattern extraction | libgit2 |
+| `MIMIC_ENABLE_MESH` | 1 | Slot storage + indexing | SQLite3, LZ4 |
+| `MIMIC_ENABLE_QDRANT` | 0 | Vector semantic search | qdrant-client (Rust/Go) |
+| `MIMIC_ENABLE_NETWORK` | 1 | HTTP/TCP/WebSocket | libcurl or native sockets |
+| `MIMIC_ENABLE_ENCRYPTION` | 1 | AES-GCM | OpenSSL or libsodium |
+| `MIMIC_ENABLE_COMPRESSION` | 1 | Gzip/LZ4 | zlib, lz4 |
+| `MIMIC_ENABLE_RESEARCH_DOMAIN` | 1 | Hypothesis tracking, experiments, literature | libcurl (for fetch) |
+| `MIMIC_ENABLE_SELF_MANAGEMENT` | 1 | Checkpoint, budget reallocate, strategy pivot | SQLite3 (for state) |
+| `MIMIC_ENABLE_PROFILING` | 0 | perfetto/tracy profiling | perfetto SDK |
+
+### Debug Flags
+
+| Flag | Default | Description |
+|---|---|---|
+| `MIMIC_DEBUG_ASSERTIONS` | 0 (1 in debug) | Extra runtime assertions |
+| `MIMIC_DEBUG_VERBOSE_LOG` | 0 | Per-packet logging |
+| `MIMIC_DEBUG_PACKET_TRACE` | 0 | Hexdump every packet |
+| `MIMIC_DEBUG_DISABLE_NEVER_RULES` | 0 | **DANGER**: disable never-rules |
+| `MIMIC_DEBUG_DISABLE_2VOTE` | 0 | **DANGER**: skip 2-vote verify |
+| `MIMIC_DEBUG_DISABLE_SANDBOX` | 0 | **DANGER**: run without sandbox |
+
+### Performance Flags
+
+| Flag | Default | Description |
+|---|---|---|
+| `MIMIC_LTO` | 1 (0 in debug) | Link-time optimization |
+| `MIMIC_VECTORIZE` | 1 | SIMD for hash/compression |
+| `MIMIC_MARCH_NATIVE` | 0 | `-march=native` (non-portable) |
+| `MIMIC_ARENA_ALLOC` | 1 | Arena allocator for packet chains |
+| `MIMIC_IO_URING` | 1 (Linux only) | io_uring for async I/O |
+
+---
+
+## Makefile Variables
+
+```makefile
+# Compiler
+CC ?= gcc
+CXX ?= g++
+GO ?= go
+
+# Paths
+PREFIX ?= /usr/local
+BINDIR ?= $(PREFIX)/bin
+LIBDIR ?= $(PREFIX)/lib
+INCLUDEDIR ?= $(PREFIX)/include
+
+# Feature toggles (override on command line)
+ENABLE_MCP ?= 1
+ENABLE_CGO ?= 0
+ENABLE_SANDBOX ?= 1
+ENABLE_DISTILLATION ?= 1
+ENABLE_MESH ?= 1
+ENABLE_QDRANT ?= 0
+ENABLE_NETWORK ?= 1
+ENABLE_ENCRYPTION ?= 1
+ENABLE_COMPRESSION ?= 1
+ENABLE_PROFILING ?= 0
+
+# Debug
+DEBUG ?= 0
+ASSERTIONS ?= $(DEBUG)
+VERBOSE_LOG ?= $(DEBUG)
+
+# Performance
+OPT_LEVEL ?= -O3
+LTO ?= $(if $(filter 0,$(DEBUG)),1,0)
+MARCH_NATIVE ?= 0
+
+# External libraries (pkg-config or paths)
+LIBGIT2_CFLAGS ?= $(shell pkg-config --cflags libgit2 2>/dev/null)
+LIBGIT2_LIBS ?= $(shell pkg-config --libs libgit2 2>/dev/null)
+SQLITE3_CFLAGS ?= $(shell pkg-config --cflags sqlite3 2>/dev/null)
+SQLITE3_LIBS ?= $(shell pkg-config --libs sqlite3 2>/dev/null)
+LZ4_CFLAGS ?= $(shell pkg-config --cflags liblz4 2>/dev/null)
+LZ4_LIBS ?= $(shell pkg-config --libs liblz4 2>/dev/null)
+ZLIB_CFLAGS ?= $(shell pkg-config --cflags zlib 2>/dev/null)
+ZLIB_LIBS ?= $(shell pkg-config --libs zlib 2>/dev/null)
+OPENSSL_CFLAGS ?= $(shell pkg-config --cflags openssl 2>/dev/null)
+OPENSSL_LIBS ?= $(shell pkg-config --libs openssl 2>/dev/null)
+CURL_CFLAGS ?= $(shell pkg-config --cflags libcurl 2>/dev/null)
+CURL_LIBS ?= $(shell pkg-config --libs libcurl 2>/dev/null)
+
+# Cross-compilation
+TARGET_OS ?= $(shell uname -s | tr '[:upper:]' '[:lower:]')
+TARGET_ARCH ?= $(shell uname -m)
+
+# Windows-specific
+WINDOWS_SANDBOX ?= 0  # Job Objects + ACL (Windows only)
+```
+
+**Usage examples:**
+
+```bash
+# Minimal build (no MCP, no CGO, no sandbox)
+make core ENABLE_MCP=0 ENABLE_CGO=0 ENABLE_SANDBOX=0
+
+# Debug build with sanitizers
+make debug DEBUG=1 ASSERTIONS=1
+
+# Release with all features
+make release ENABLE_CGO=1 ENABLE_QDRANT=1 ENABLE_PROFILING=1
+
+# Windows build
+make all TARGET_OS=windows WINDOWS_SANDBOX=1
+
+# Static build (no dynamic libs)
+make release STATIC=1
+```
+
+---
+
+## C Preprocessor Defines
+
+```c
+// Generated by Makefile into config.h
+
+// Features
+#define MIMIC_ENABLE_MCP 1
+#define MIMIC_ENABLE_CGO 0
+#define MIMIC_ENABLE_SANDBOX 1
+#define MIMIC_ENABLE_DISTILLATION 1
+#define MIMIC_ENABLE_MESH 1
+#define MIMIC_ENABLE_QDRANT 0
+#define MIMIC_ENABLE_NETWORK 1
+#define MIMIC_ENABLE_ENCRYPTION 1
+#define MIMIC_ENABLE_COMPRESSION 1
+
+// Debug
+#if MIMIC_DEBUG
+#define MIMIC_DEBUG_ASSERTIONS 1
+#define MIMIC_DEBUG_VERBOSE_LOG 1
+#endif
+
+// Performance
+#define MIMIC_ARENA_ALLOC 1
+#if defined(__linux__) && MIMIC_ENABLE_NETWORK
+#define MIMIC_IO_URING 1
+#endif
+```
+
+---
+
+## Conditional Compilation in Source
+
+```c
+#include "config.h"
+
+#if MIMIC_ENABLE_MCP
+#include "mcp_server.h"
+#endif
+
+#if MIMIC_ENABLE_SANDBOX
+#include "sandbox_linux.h"
+#endif
+
+#if MIMIC_ENABLE_DISTILLATION
+#include "distill_pipeline.h"
+#endif
+
+void ops_init(void) {
+    // Core always present
+    ops_register_builtins();
+    
+    #if MIMIC_ENABLE_MESH
+    mesh_init();
+    #endif
+    
+    #if MIMIC_ENABLE_DISTILLATION
+    distill_init();
+    #endif
+    
+    #if MIMIC_ENABLE_MCP
+    mcp_server_start();
+    #endif
+}
+```
+
+---
+
+## Optional Domain Registration
+
+Each domain's opcodes are registered conditionally:
+
+| Domain | Flag | Registration Function |
+|---|---|---|
+| Core (memory, io, system) | Always | `ops_register_core()` |
+| Git | Always | `ops_register_git()` |
+| Build | `MIMIC_ENABLE_BUILD` | `ops_register_build()` |
+| Network | `MIMIC_ENABLE_NETWORK` | `ops_register_network()` |
+| Process | `MIMIC_ENABLE_SANDBOX` | `ops_register_process()` |
+| Utility | Always | `ops_register_utility()` |
+| Orchestrator | Always | `ops_register_orchestrator()` |
+| Session | Always | `ops_register_session()` |
+| Mesh | `MIMIC_ENABLE_MESH` | `ops_register_mesh()` |
+| Distillation | `MIMIC_ENABLE_DISTILLATION` | `ops_register_distill()` |
+
+**Default flag values:**
+- Core, Git, Utility, Orchestrator, Session: always enabled.
+- Build, Network, Process: enabled by default (1), disable with `ENABLE_X=0`.
+- Mesh, Distillation: enabled by default (1).
+- MCP: enabled by default (1).
+- CGO: disabled by default (0) — requires Go toolchain.
+- Qdrant: disabled by default (0) — requires external service.
+- Profiling: disabled by default (0).
+
+---
+
+## Minimal Build Size
+
+With all features disabled:
+```bash
+make core ENABLE_MCP=0 ENABLE_MESH=0 ENABLE_DISTILLATION=0 \
+    ENABLE_NETWORK=0 ENABLE_ENCRYPTION=0 ENABLE_COMPRESSION=0 \
+    ENABLE_SANDBOX=0
+```
+
+Result: ~500KB static library. Supports: memory, io, system, utility, orchestrator, session.
+
+Full build: ~5MB (with all features, Qdrant client, profiling).
+
+---
+
+## Installation Layout
+
+```
+$(PREFIX)/
+├── bin/
+│   └── mimic-server       # MCP server binary (if ENABLE_MCP=1)
+├── lib/
+│   ├── libmimic_core.a     # C static library
+│   ├── libmimic_bridge.a   # Go CGO bridge (if ENABLE_CGO=1)
+│   └── libmimic_mesh.a     # Mesh extension (if ENABLE_MESH=1)
+├── include/
+│   └── mimic/
+│       ├── ops.h
+│       ├── config.h
+│       └── rpc.h
+└── share/mimic/
+    ├── schemas/             # JSON schemas for validation
+    └── specs-v2/            # (symlink to project specs)
+```
+
+---
+
+## CI Build Matrix
+
+| OS | Compiler | Features | Sanitizer |
+|---|---|---|---|
+| Linux (x86_64) | gcc-13 | all | ASAN + UBSAN |
+| Linux (aarch64) | clang-17 | all | TSAN |
+| macOS (arm64) | clang-15 | all except io_uring | — |
+| Windows (x64) | MSVC 2022 | core + mcp | — |
+| FreeBSD | clang | core + mesh | — |
+
+Each CI job runs: `make check` (lint + test + semantics-check).

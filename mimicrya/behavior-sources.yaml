@@ -1,0 +1,1073 @@
+# Behavior Sources — Mimic
+#
+# Mayveskii/* repositories — sources of behavior for Mimic
+# Mimicry: select the best from each implementation → build into Mimic
+# Not distillation (git blame → survival), but selection: HOW to implement a function
+#
+# Schema per source:
+#   repo: Mayveskii/<name>
+#   sync_status: pending | partial | done
+#   behaviors:
+#     - name: snake_case identifier
+#       what: one-line description of the behavior
+#       extracted_from: file paths in the source repo
+#       implemented_in: target path in Mimic
+#       status: pending | planned | partial | done | reference | future
+#   notes: free-form context
+
+sources:
+  - repo: Mayveskii/embryo
+    sync_status: partial
+    behaviors:
+      - name: binary_runtime
+        what: BinaryRuntime with OpCodes 0x10-0x41, tool loop, session, inference pool, hooks
+        extracted_from: pkg/do/
+        implemented_in: core/
+        status: partial (c-core derived from this)
+
+      - name: orchestrator_pipeline
+        what: 6-stage pipeline state→mesh→DIRECT→classify→exec→flywheel→respond with rollback
+        extracted_from: pkg/orchestrator/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: mesh_agent_cascade
+        what: 3-tier cascade (local→medium→top) with escalation on failure
+        extracted_from: pkg/agent/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: hunt_system
+        what: 17-module hunt: assess(complexity)→compress(context)→search(mesh)→rank(Z-density)
+        extracted_from: pkg/hunt/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: mesh_graph_slots
+        what: Mesh graphs with domain/layer/state_hash indexed slots
+        extracted_from: pkg/mesh/
+        implemented_in: core/ (bmap)
+        status: partial (libbmap.a derived from this)
+
+      - name: hybrid_rag
+        what: 5-signal RAG (vector+keyword+domain+survival+Z-density) + qdrant
+        extracted_from: pkg/rag/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: projectmap_sqlite
+        what: SQLite-based project file/symbol navigation with auto-index on WRITE
+        extracted_from: pkg/projectmap/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: survival_index
+        what: git blame → surviving lines per commit → survival = surviving/total
+        extracted_from: pkg/survival/
+        implemented_in: core/ (distillation)
+        status: planned
+
+      - name: mapstore_slots_invariants
+        what: Slot storage with invariant registry — every slot has ≥1 invariant
+        extracted_from: pkg/mapstore/
+        implemented_in: core/ (bmap)
+        status: planned
+
+      - name: mcp_tools_registry
+        what: 45+ MCP tools, JSON-RPC handler, HTTP connection pooling, circuit breaker
+        extracted_from: cmd/mcp/
+        implemented_in: internal/mcp/ + internal/tool/
+        status: planned
+    notes: Embryo repo where Mimic was born. Go implementations that inform C-core and internal/ design.
+
+  - repo: Mayveskii/hermes-agent
+    sync_status: partial
+    behaviors:
+      - name: closed_learning_loop
+        what: Agent creates skills from experience, self-improves during use, periodic memory/skill nudge
+        extracted_from: agent/curator.py, agent/memory_manager.py, tools/skill_manager_tool.py
+        implemented_in: internal/orchestrator/learning.go
+        status: planned
+
+      - name: context_compression_pipeline
+        what: Preflight detection + multi-pass compression + cache-aware system prompt (stable prefix)
+        extracted_from: agent/context_compressor.py, agent/conversation_compression.py
+        implemented_in: internal/orchestrator/compress.go
+        status: planned
+
+      - name: iteration_budget
+        what: IterationBudget.consume() gates loop — budget exhausted → grace call → stop
+        extracted_from: agent/iteration_budget.py
+        implemented_in: internal/orchestrator/budget.go
+        status: planned
+
+      - name: tool_guardrails
+        what: Per-turn reset, deny/ask/allow pipeline, halt decisions, OP_FLAG_DANGEROUS always blocked
+        extracted_from: agent/tool_guardrails.py, tools/approval.py
+        implemented_in: internal/orchestrator/guardrails.go
+        status: planned
+
+      - name: delegation_subagents
+        what: Spawn isolated subagents with file state registry across agents
+        extracted_from: tools/delegate_tool.py
+        implemented_in: internal/orchestrator/delegate.go
+        status: planned
+
+      - name: trajectory_compression
+        what: Record tool-call trajectories + compress for training next-gen models
+        extracted_from: agent/trajectory.py, trajectory_compressor.py
+        implemented_in: internal/quality/trajectory.go
+        status: planned
+
+      - name: memory_nudge_turns
+        what: Turn-based nudge: _turns_since_memory >= nudge_interval → trigger memory review
+        extracted_from: agent/memory_manager.py, agent/conversation_loop.py
+        implemented_in: internal/orchestrator/memory.go
+        status: planned
+
+      - name: skill_provenance_tracking
+        what: Track skill write origin (background review vs foreground tool) via ContextVar
+        extracted_from: tools/skill_provenance.py, agent/conversation_loop.py
+        implemented_in: internal/tool/provenance.go
+        status: planned
+
+      - name: streaming_health_check
+        what: 90s stale-stream detection + 60s read timeout — prevent hangs on dead providers
+        extracted_from: agent/conversation_loop.py
+        implemented_in: internal/mcp/health.go
+        status: planned
+
+      - name: error_classifier_failover
+        what: classify_api_error → FailoverReason → retry vs fallback vs abort
+        extracted_from: agent/error_classifier.py
+        implemented_in: internal/mcp/failover.go
+        status: planned
+
+      - name: message_sanitization
+        what: Surrogate repair, non-ASCII strip, tool call argument repair, role alternation fix
+        extracted_from: agent/message_sanitization.py
+        implemented_in: internal/quality/sanitize.go
+        status: planned
+
+      - name: prompt_caching
+        what: Stable system prompt prefix + Anthropic cache_control breakpoints for 75% token savings
+        extracted_from: agent/prompt_caching.py, agent/conversation_loop.py
+        implemented_in: internal/orchestrator/caching.go
+        status: planned
+
+      - name: credential_pool
+        what: Credential pool with env fallback for multi-key rotation
+        extracted_from: agent/credential_pool.py, agent/credential_sources.py
+        implemented_in: internal/mcp/credentials.go
+        status: planned
+
+      - name: multi_transport
+        what: Transport abstraction: Anthropic/OpenAI/Bedrock/Codex/Gemini adapters
+        extracted_from: agent/transports/
+        implemented_in: internal/mcp/transport.go
+        status: planned
+    notes: Production-grade Python agent (fork of NousResearch/hermes-agent). 3479 files, 50+ tools, 7 terminal backends. Richest behavior source.
+
+  - repo: Mayveskii/gastown
+    sync_status: partial
+    behaviors:
+      - name: zfc_state
+        what: Zero False Confidence — tmux session is source of truth, not state files; derive state from observable reality
+        extracted_from: internal/witness/manager.go, internal/polecat/manager.go
+        implemented_in: internal/orchestrator/state.go
+        status: planned
+
+      - name: watchdog_chain
+        what: 3-tier hierarchical watchdog: Daemon(3min heartbeat)→Boot(triage)→Deacon(patrol)→Witness(per-rig)
+        extracted_from: internal/daemon/daemon.go, internal/boot/, internal/deacon/
+        implemented_in: internal/orchestrator/watchdog.go
+        status: planned
+
+      - name: help_classification_routing
+        what: 6-category + 3-severity help triage with auto-routing (Emergency→Overseer, Failed→Deacon, Blocked→Mayor)
+        extracted_from: internal/witness/protocol.go
+        implemented_in: internal/orchestrator/triage.go
+        status: planned
+
+      - name: event_driven_convoy
+        what: Reactive work distribution: completion event triggers feedNextReadyIssue with dependency-aware dispatch
+        extracted_from: internal/convoy/operations.go
+        implemented_in: internal/orchestrator/dispatch.go
+        status: planned
+
+      - name: atomic_resource_allocation
+        what: AllocateAndAdd with flock + pending marker to prevent TOCTOU races
+        extracted_from: internal/polecat/manager.go
+        implemented_in: core/alloc.c
+        status: planned
+
+      - name: rollback_on_failure
+        what: Transactional resource creation: track sequence, cleanupOnError rolls back all created resources
+        extracted_from: internal/polecat/manager.go
+        implemented_in: core/rollback.c
+        status: planned
+
+      - name: pressure_gating
+        what: Capacity-aware dispatch: checkPressure() gates refinery/polecat/dog spawning under load
+        extracted_from: internal/daemon/daemon.go
+        implemented_in: internal/orchestrator/pressure.go
+        status: planned
+
+      - name: agent_lifecycle_state_machine
+        what: 6-state polecat lifecycle (Working/Idle/Done/Stuck/Stalled/Zombie) with cleanup status tracking
+        extracted_from: internal/polecat/types.go
+        implemented_in: internal/orchestrator/lifecycle.go
+        status: planned
+
+      - name: inter_agent_protocol
+        what: 14 typed message protocol (POLECAT_DONE, HELP:, MERGED, HANDOFF, etc.) with structured payloads
+        extracted_from: internal/witness/protocol.go, internal/witness/handlers.go
+        implemented_in: internal/mcp/protocol.go
+        status: planned
+
+      - name: session_continuity
+        what: Session recovery via seance (query past sessions) + prime (context recovery) + nudge queue
+        extracted_from: internal/nudge/, internal/session/, templates/
+        implemented_in: internal/orchestrator/session.go
+        status: planned
+
+      - name: plugin_system
+        what: Shell-based plugins with plugin.md + run.sh (compactor-dog, stuck-agent-dog, quality-review, etc.)
+        extracted_from: plugins/
+        implemented_in: internal/plugin/
+        status: planned
+
+      - name: multi_agent_runtime
+        what: ACP (Agent Control Protocol) abstraction: TMUX + ACP modes, Native/Subcommand/Flag invocation
+        extracted_from: internal/acp/, internal/mayor/manager.go, internal/runtime/
+        implemented_in: internal/mcp/runtime.go
+        status: planned
+    notes: Multi-agent orchestration (fork of gastownhall/gastown, 15K stars). Go, Cobra CLI, Dolt SQL, 20-50+ concurrent agents. Most complete multi-agent system in the source set.
+
+  - repo: Mayveskii/bun
+    sync_status: partial
+    behaviors:
+      - name: phase_graph
+        what: Phase graph orchestration: CLASSIFY→PLAN→VALIDATE→EXEC→VERIFY→RESPOND with gate transitions
+        extracted_from: PR #30412, .github/workflows/phase-*.yml (26 files)
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: two_vote_verify
+        what: 2-vote adversarial verification — two independent verifiers + tiebreak for critical operations
+        extracted_from: PR #30412, verify workflows
+        implemented_in: internal/quality/
+        status: planned
+
+      - name: edit_scope_isolation
+        what: Each agent edits only its assigned crate — resource bitmask prevents cross-contamination
+        extracted_from: PR #30412, scope rules in workflow files
+        implemented_in: core/conflict_matrix
+        status: planned
+
+      - name: pre_post_hooks
+        what: PreToolUse/PostToolUse middleware chain: block dangerous ops, auto-format output
+        extracted_from: PR #30412, settings.json hooks, pre-bash-zig-build.js, post-edit-zig-format.js
+        implemented_in: internal/mcp/
+        status: planned
+
+      - name: never_rules
+        what: Never-rules: never git reset/checkout/restore/stash/rebase, never re-gate, never Box::leak
+        extracted_from: PR #30412, workflow rules across all 26 files
+        implemented_in: internal/orchestrator/permission
+        status: planned
+
+      - name: lifetime_classify
+        what: Operation lifecycle classification: 3-vote refute + 12% random audit sample
+        extracted_from: PR #30412, lifetime-classify workflow
+        implemented_in: internal/orchestrator/classify
+        status: planned
+
+      - name: parallel_agents
+        what: ~170 parallel agents with scoped isolation via conflict matrix
+        extracted_from: PR #30412, workflow matrix strategy, shard assignments
+        implemented_in: internal/orchestrator/concurrency
+        status: planned
+    notes: Fork of oven-sh/bun for PR #30412. Zig/C++/JS. Contains 26 workflow files for ~170 parallel agent orchestration.
+
+  - repo: Mayveskii/rustnet
+    sync_status: partial
+    behaviors:
+      - name: dpi_detection_chain
+        what: Ordered protocol detection: port-gated fast-path → signature fallback, 17 application protocols
+        extracted_from: src/network/dpi/mod.rs, src/network/dpi/*.rs
+        implemented_in: core/dpi.c
+        status: planned
+
+      - name: quic_fragment_reassembly
+        what: Multi-strategy data extraction with 5 strategies: cache→contiguous→fragment→reconstruction→greedy
+        extracted_from: src/network/dpi/quic.rs
+        implemented_in: core/reassemble.c
+        status: planned
+
+      - name: connection_state_machine
+        what: Protocol-aware state machine (TCP RFC 793 + QUIC) with progressive staleness indicators (white→yellow→red)
+        extracted_from: src/network/merge.rs, src/network/types.rs
+        implemented_in: core/conn_state.c
+        status: planned
+
+      - name: immutable_after_set
+        what: First-writer-wins for identity fields, latest-wins for transient state — prevents attribution conflicts
+        extracted_from: src/network/merge.rs
+        implemented_in: core/immutable.c
+        status: planned
+
+      - name: dpi_info_merge
+        what: Per-protocol merge strategy: identity→first-wins, dialog→latest-wins, TLS→prefer complete over partial
+        extracted_from: src/network/merge.rs
+        implemented_in: core/merge_strategy.c
+        status: planned
+
+      - name: structured_filter_query
+        what: Vim/fzf-style filter: keyword:value pairs AND-combined with optional regex /pattern/
+        extracted_from: src/filter.rs
+        implemented_in: core/filter.c
+        status: planned
+
+      - name: platform_abstraction_trait
+        what: Platform trait with DegradationReason enum for actionable diagnostics, not just "failed"
+        extracted_from: src/network/platform/mod.rs, src/network/platform/*/process.rs
+        implemented_in: internal/platform/
+        status: planned
+
+      - name: capability_detection
+        what: eBPF capability check: CapEff bitmask → CAP_BPF + CAP_PERFMON → fallback CAP_SYS_ADMIN → nosuid detection
+        extracted_from: src/network/platform/linux/ebpf/loader.rs
+        implemented_in: core/capability.c
+        status: planned
+
+      - name: concurrent_pipeline
+        what: Producer-consumer with lock-free DashMap + crossbeam channels + snapshot isolation for UI
+        extracted_from: src/main.rs, src/app.rs
+        implemented_in: internal/pipeline/
+        status: planned
+
+      - name: sandbox_multiplatform
+        what: Landlock (Linux) + Seatbelt (macOS) + Job Objects (Windows) — 3-platform sandbox abstraction
+        extracted_from: src/network/platform/linux/sandbox/, src/network/platform/macos/sandbox/, src/network/platform/windows/sandbox/
+        implemented_in: internal/sandbox/
+        status: future
+    notes: Per-process network monitor (fork of domcyrus/rustnet, 3.3K stars). Rust, eBPF, DPI for 17 protocols. Rich C-relevant patterns.
+
+  - repo: Mayveskii/netboot.xyz
+    sync_status: partial
+    behaviors:
+      - name: template_driven_generation
+        what: Jinja2 templates per OS with consistent schema (variables + template + task orchestrator)
+        extracted_from: roles/netbootxyz/templates/menu/*.ipxe.j2
+        implemented_in: internal/template/
+        status: planned
+
+      - name: task_pipeline_ansible
+        what: Ordered pipeline: checksums → menus → disks → signatures, each as composable task
+        extracted_from: roles/netbootxyz/tasks/generate_*.yml
+        implemented_in: internal/pipeline/
+        status: planned
+
+      - name: multi_target_build_matrix
+        what: Build images for Legacy BIOS, UEFI, ARM64, RPi4, Secure Boot from single source
+        extracted_from: roles/netbootxyz/tasks/generate_disks*.yml
+        implemented_in: internal/build/
+        status: planned
+
+      - name: config_driven_registry
+        what: All OS URLs/versions/checksums centralized in defaults/main.yml — single source of truth
+        extracted_from: roles/netbootxyz/defaults/main.yml
+        implemented_in: internal/config/
+        status: planned
+    notes: Network boot utility (fork of netbootxyz/netboot.xyz, 11.8K stars). Jinja/Ansible. Template-driven pipeline patterns.
+
+  - repo: Mayveskii/exa-mcp-server
+    sync_status: partial
+    behaviors:
+      - name: web_search_tool
+        what: MCP tool: query → POST /search → structured results with type/domain hints
+        extracted_from: src/tools/, src/api/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: web_fetch_tool
+        what: MCP tool: urls → POST /contents → markdown with metadata
+        extracted_from: src/tools/, src/api/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: mcp_tool_pattern
+        what: 3-step registration: define(schema) → validate(input) → execute(logic)
+        extracted_from: src/index.ts
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: content_extraction
+        what: URL content extraction with PDF support, YouTube transcripts, and subpage crawling
+        extracted_from: src/tools/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: rate_limit_management
+        what: API key rotation and rate limit tracking for external service calls
+        extracted_from: src/api/
+        implemented_in: internal/mcp/ratelimit.go
+        status: planned
+    notes: MCP server for Exa.ai search (TypeScript). Reference implementation for MCP tool patterns.
+
+  - repo: Mayveskii/git
+    sync_status: partial
+    behaviors:
+      - name: command_dispatch
+        what: cmd_struct array mapping command names to function pointers — tool router pattern
+        extracted_from: git.c
+        implemented_in: core/dispatch.c
+        status: planned
+
+      - name: content_addressable_store
+        what: Hash-addressed object store (blob, tree, commit, tag) — tool result cache pattern
+        extracted_from: object.c, object-store.h
+        implemented_in: core/cache.c
+        status: planned
+
+      - name: pack_delta_compression
+        what: Delta compression of objects for efficient serialization/transmission
+        extracted_from: packfile.c
+        implemented_in: core/compress.c
+        status: future
+
+      - name: hook_middleware
+        what: Pre/post hooks via run-command.c for operations — before/after middleware pattern
+        extracted_from: run-command.c
+        implemented_in: internal/mcp/middleware.go
+        status: planned
+
+      - name: strbuf_dynamic_string
+        what: Safe dynamic string buffer with add/release/grow — directly reusable C utility
+        extracted_from: strbuf.c, strbuf.h
+        implemented_in: core/strbuf.c
+        status: planned
+
+      - name: perf_tracing
+        what: trace2 region enter/leave for performance profiling of operations
+        extracted_from: trace2.c
+        implemented_in: internal/trace/
+        status: planned
+    notes: Fork of git/git (61K stars). C reference for command dispatch, object model, hooks, string utilities.
+
+  - repo: Mayveskii/gitingest
+    sync_status: partial
+    behaviors:
+      - name: ingestion_pipeline
+        what: 4-stage pipeline: parse_query → clone_repo → ingest_query → format_output
+        extracted_from: src/gitingest/entrypoint.py, src/gitingest/ingestion.py
+        implemented_in: internal/tool/ingest.go
+        status: planned
+
+      - name: schema_validation
+        what: Pydantic IngestionQuery + CloneConfig — typed, validated data models for tool I/O
+        extracted_from: src/gitingest/schemas/
+        implemented_in: internal/schema/
+        status: planned
+
+      - name: file_tree_traversal
+        what: Walk file tree with gitignore + include/exclude patterns → FileSystemNode tree
+        extracted_from: src/gitingest/ingestion.py, src/gitingest/utils/ignore_patterns.py
+        implemented_in: internal/tool/filescan.go
+        status: planned
+
+      - name: async_timeout_bounded
+        what: @async_timeout(DEFAULT_TIMEOUT) decorator for resource-bounded tool execution
+        extracted_from: src/gitingest/utils/timeout_wrapper.py
+        implemented_in: internal/timeout/
+        status: planned
+
+      - name: query_url_parsing
+        what: Disambiguate URL patterns, resolve branches/commits/tags → normalized IngestionQuery
+        extracted_from: src/gitingest/query_parser.py
+        implemented_in: internal/tool/parseurl.go
+        status: planned
+
+      - name: token_counting_estimation
+        what: Estimate token count in output summary for cost estimation before LLM call
+        extracted_from: src/gitingest/output_formatter.py
+        implemented_in: internal/quality/tokens.go
+        status: planned
+    notes: Codebase-to-text ingestion for LLMs (fork of coderamp-labs/gitingest, 14.7K stars). Python/FastAPI. Pipeline + schema patterns.
+
+  - repo: Mayveskii/awesome-mcp-servers
+    sync_status: partial
+    behaviors:
+      - name: mcp_ecosystem_map
+        what: Map of 2245 MCP servers, 50 categories — reference for what exists in the ecosystem
+        extracted_from: README.md
+        implemented_in: behavior-sources reference
+        status: reference
+
+      - name: mcp_server_categorization
+        what: 50-category taxonomy for classifying MCP server capabilities
+        extracted_from: README.md category structure
+        implemented_in: internal/mcp/registry.go
+        status: reference
+    notes: Curated list of MCP servers (2.2K+ entries). Reference only, no extractable code.
+
+  - repo: Mayveskii/agency-agents
+    sync_status: partial
+    behaviors:
+      - name: agent_as_markdown
+        what: Self-contained .md per agent with identity/mission/capabilities/workflow/metrics — agent descriptor pattern
+        extracted_from: engineering/*.md, specialized/*.md, etc.
+        implemented_in: internal/agent/descriptor.go
+        status: planned
+
+      - name: division_categorization
+        what: 15 domain directories organizing 120+ agents — tool category registry pattern
+        extracted_from: Directory structure (engineering/, design/, marketing/, etc.)
+        implemented_in: internal/tool/categories.go
+        status: planned
+
+      - name: integration_multiplexer
+        what: Single source → generate adapters for 10+ AI tools (Claude Code, Cursor, Copilot, etc.)
+        extracted_from: scripts/convert.sh
+        implemented_in: internal/adapter/
+        status: planned
+
+      - name: strategy_playbooks
+        what: Phase 0-6 project lifecycle: Discovery→Strategy→Foundation→Build→Hardening→Launch→Operate
+        extracted_from: strategy/
+        implemented_in: internal/orchestrator/phases.go
+        status: planned
+
+      - name: handoff_templates
+        what: Inter-agent context passing templates for multi-agent coordination
+        extracted_from: strategy/coordination/handoff-templates.md
+        implemented_in: internal/orchestrator/handoff.go
+        status: planned
+
+      - name: workflow_process_pattern
+        what: Each agent defines step-by-step workflow — tool execution plan pattern
+        extracted_from: All agent .md files (Workflow Process section)
+        implemented_in: internal/orchestrator/plan.go
+        status: planned
+    notes: 120+ AI agent definitions (fork of msitarzewski/agency-agents, 98.7K stars). Markdown/Shell. Agent descriptor + integration patterns.
+
+  - repo: Mayveskii/gh-aw-mcpg
+    sync_status: partial
+    behaviors:
+      - name: mcp_gateway_routed
+        what: Routed mode: /mcp/{serverID} — route to specific backend
+        extracted_from: src/
+        implemented_in: internal/mcp/transport
+        status: planned
+
+      - name: mcp_gateway_unified
+        what: Unified mode: /mcp — single endpoint for all backends, aggregate responses
+        extracted_from: src/
+        implemented_in: internal/mcp/transport
+        status: planned
+
+      - name: difc_security
+        what: DIFC 6-phase pipeline: label agent → label resource → check → exec → label response → filter
+        extracted_from: src/guards/
+        implemented_in: internal/orchestrator/security
+        status: planned
+
+      - name: circuit_breaker
+        what: Per-backend circuit breaker: 3 failures → open → half-open after 30s → close on success
+        extracted_from: src/
+        implemented_in: internal/mcp/
+        status: planned
+
+      - name: oauth_pkce
+        what: OAuth 2.0 with PKCE for MCP client authorization
+        extracted_from: src/auth/
+        implemented_in: internal/mcp/auth
+        status: planned
+
+      - name: wasm_guards
+        what: WASM sandbox for access control policy evaluation — isolated, no host access
+        extracted_from: src/guards/
+        implemented_in: internal/orchestrator/security
+        status: future
+    notes: MCP Gateway (fork of gh-aw-mcpg, TypeScript). Spec 1.9.0, DIFC security, WASM guards.
+
+  - repo: Mayveskii/openmythos
+    sync_status: partial
+    behaviors:
+      - name: recurrent_depth_execution
+        what: Looped transformer: run same block N times with state injection — retry/refinement loop pattern
+        extracted_from: open_mythos/main.py
+        implemented_in: internal/orchestrator/refine.go
+        status: planned
+
+      - name: moe_routing
+        what: Sparse expert selection via top-K gating — dynamic tool selection pattern
+        extracted_from: open_mythos/main.py, open_mythos/moda.py
+        implemented_in: internal/orchestrator/routing.go
+        status: planned
+
+      - name: depth_lora_adaptation
+        what: Per-loop LoRA adapters that specialize behavior per iteration — context-adaptive tool behavior
+        extracted_from: open_mythos/main.py
+        implemented_in: internal/orchestrator/adapt.go
+        status: future
+
+      - name: prelude_recurrent_coda
+        what: 3-stage architecture: pre-processing → iterative core → post-processing pipeline
+        extracted_from: open_mythos/main.py
+        implemented_in: internal/orchestrator/pipeline.go
+        status: planned
+
+      - name: convergence_stability_check
+        what: Spectral radius validation (eigenvalue check) for iterative convergence guarantee
+        extracted_from: open_mythos/main.py (injection.get_A())
+        implemented_in: internal/quality/convergence.go
+        status: planned
+
+      - name: adaptive_computation_time
+        what: ACT threshold for halting — adaptive tool execution budget
+        extracted_from: open_mythos/main.py (act_threshold)
+        implemented_in: internal/orchestrator/budget.go
+        status: planned
+    notes: Theoretical RDT/Looped Transformer (fork of kyegomez/OpenMythos, 13K stars). Python. Architectural patterns for iterative refinement.
+
+  - repo: Mayveskii/caveman
+    sync_status: partial
+    behaviors:
+      - name: intensity_level_config
+        what: lite/full/ultra/wenyan modes for output compression — configurable tool output density
+        extracted_from: skills/caveman/SKILL.md
+        implemented_in: internal/tool/compress.go
+        status: planned
+
+      - name: auto_clarity_boundary
+        what: Drop compression for security warnings, irreversible actions, ambiguous sequences
+        extracted_from: skills/caveman/SKILL.md (auto-clarity rules)
+        implemented_in: internal/orchestrator/guardrails.go
+        status: planned
+
+      - name: file_type_detection
+        what: classify files as natural_language/code/config → route to appropriate tool
+        extracted_from: caveman-compress/scripts/detect.py
+        implemented_in: internal/tool/classify.go
+        status: planned
+
+      - name: sensitive_path_protection
+        what: Block .env, credentials, SSH keys from being shipped to APIs — security filter
+        extracted_from: caveman-compress/scripts/detect.py (is_sensitive_path)
+        implemented_in: internal/tool/security.go
+        status: planned
+
+      - name: validate_then_accept
+        what: Verify compressed output fidelity before accepting — output verification in tool pipeline
+        extracted_from: caveman-compress/scripts/validate.py
+        implemented_in: internal/quality/validate.go
+        status: planned
+
+      - name: llm_driven_compression
+        what: Tool invokes another LLM as sub-tool with specific instructions for compression
+        extracted_from: caveman-compress/scripts/compress.py (call_claude)
+        implemented_in: internal/tool/llm_compress.go
+        status: planned
+    notes: Token compression system (fork of JuliusBrussee/caveman, 61K stars). JS/Python/Markdown. Output compression + safety patterns.
+
+  - repo: Mayveskii/opencode-anomalyco-
+    sync_status: partial
+    behaviors:
+      - name: tool_registry
+        what: Tool.Def interface: id, description, parameters (zod), execute → ExecuteResult
+        extracted_from: packages/opencode/src/tool/
+        implemented_in: internal/tool/
+        status: planned
+
+      - name: tool_loop
+        what: while(true) generator: API call → stream → execute tools → check continuation
+        extracted_from: packages/opencode/src/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: mcp_transport
+        what: StreamableHTTP + SSE + Stdio transports for MCP client connections
+        extracted_from: packages/opencode/src/mcp/
+        implemented_in: internal/mcp/transport
+        status: planned
+
+      - name: codesearch_tool
+        what: Semantic code search via Exa MCP endpoint with result ranking
+        extracted_from: packages/opencode/src/tool/ (codesearch tool)
+        implemented_in: internal/tool/codesearch.go
+        status: planned
+
+      - name: output_truncation
+        what: 2000 lines / 50KB limit, overflow → temp file for offset/limit reading
+        extracted_from: packages/opencode/src/tool/ (truncation logic)
+        implemented_in: internal/tool/truncation.go
+        status: planned
+
+      - name: permission_system
+        what: Permission modes with allow/deny rules and tool-level permission checks
+        extracted_from: packages/opencode/src/permission/
+        implemented_in: internal/orchestrator/permission.go
+        status: planned
+    notes: AI coding assistant (fork of anomalyco/opencode). TypeScript. Tool registry + MCP client patterns.
+
+  - repo: Mayveskii/code-mode
+    sync_status: partial
+    behaviors:
+      - name: permission_pipeline
+        what: 4-stage permission pipeline: deny_rules → classify(auto AI) → budget_check → allow_rules
+        extracted_from: src/
+        implemented_in: internal/orchestrator/permission
+        status: planned
+
+      - name: denial_tracking
+        what: 3 consecutive denies → circuit break, 20 total → fallback to manual
+        extracted_from: src/
+        implemented_in: internal/quality/
+        status: planned
+
+      - name: auto_classifier
+        what: AI classifier evaluates operation risk: safe/ask/deny → routes to pipeline
+        extracted_from: src/
+        implemented_in: internal/orchestrator/permission
+        status: planned
+
+      - name: budget_enforcement
+        what: Per-session budget: maxTurns + maxBudgetUsd — cost limits for execution
+        extracted_from: src/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: concurrency_control
+        what: Up to 10 tools in parallel via semaphore, concurrency-safe vs serial classification
+        extracted_from: src/
+        implemented_in: internal/orchestrator/
+        status: planned
+
+      - name: structured_output_retry
+        what: Max 5 retries for malformed model outputs, then manual escalation
+        extracted_from: src/
+        implemented_in: internal/orchestrator/retry.go
+        status: planned
+    notes: AI coding agent (fork of Claude Code SDK). TypeScript. Permission + budget + concurrency patterns.
+
+  - repo: Mayveskii/minbpe
+    sync_status: partial
+    behaviors:
+      - name: progressive_inheritance
+        what: Tokenizer→Basic→Regex→GPT4 progressive capability — base struct + vtable pattern
+        extracted_from: minbpe/base.py, minbpe/basic.py, minbpe/regex.py, minbpe/gpt4.py
+        implemented_in: core/tokenizer.c
+        status: planned
+
+      - name: pair_merge_compression
+        what: Iterative pair counting + merge: find most frequent pair → replace with new token
+        extracted_from: minbpe/base.py (get_stats, merge)
+        implemented_in: core/bpe.c
+        status: planned
+
+      - name: versioned_parsing_rules
+        what: GPT2_SPLIT_PATTERN vs GPT4_SPLIT_PATTERN — versioned/configurable parsing
+        extracted_from: minbpe/regex.py
+        implemented_in: core/parse_rules.c
+        status: planned
+
+      - name: special_token_registration
+        what: Reserved tokens with separate handling — reserved tool command tokens
+        extracted_from: minbpe/regex.py (register_special_tokens)
+        implemented_in: core/special_tokens.c
+        status: planned
+     notes: Minimal BPE tokenizer (fork of karpathy/minbpe, 10.5K stars). Python. Progressive inheritance + compression patterns.
+
+  - repo: Mayveskii/rtk
+    sync_status: partial
+    behaviors:
+      - name: toml_filter_pipeline
+        what: 8-stage TOML filter DSL — strip_ansi → replace(regex) → match_output → strip/keep_lines → truncate → head/tail → max_lines → on_empty
+        extracted_from: src/core/toml_filter.rs
+        implemented_in: internal/rtk/pipeline.go
+        status: planned
+
+      - name: stream_filter_trait
+        what: Line-by-line StreamFilter trait (feed_line, flush, on_exit) — streaming output compression
+        extracted_from: src/core/stream.rs
+        implemented_in: core/stream_filter.c
+        status: planned
+
+      - name: language_aware_code_filter
+        what: MinimalFilter (strip comments, collapse blanks) + AggressiveFilter (keep imports+signatures, strip bodies) + smart_truncate
+        extracted_from: src/core/filter.rs
+        implemented_in: core/code_filter.c
+        status: planned
+
+      - name: command_classification_rewrite
+        what: Static rule table (regex→rtk_cmd) + rewrite_command() stripping sudo/env/git-opts + exclude_commands + transparent_prefixes
+        extracted_from: src/discover/registry.rs, src/discover/rules.rs
+        implemented_in: internal/rtk/classify.go
+        status: planned
+
+      - name: trust_on_first_use
+        what: Project-local .rtk/filters.toml trust model — Trusted/Untrusted/ContentChanged/EnvOverride states
+        extracted_from: src/hooks/trust.rs
+        implemented_in: internal/rtk/trust.go
+        status: planned
+
+      - name: token_tracking_sqlite
+        what: SQLite WAL-mode tracker with estimate_tokens(~4 chars/token), 90-day cleanup, per-project queries
+        extracted_from: src/core/tracking.rs
+        implemented_in: internal/rtk/tracking.go
+        status: planned
+
+      - name: discovery_learning
+        what: Scan session JSONL for unfiltered commands → suggest corrections; detect repeated CLI mistakes → write rules
+        extracted_from: src/discover/mod.rs, src/learn/detector.rs
+        implemented_in: internal/rtk/discover.go
+        status: planned
+
+      - name: tee_on_failure
+        what: On filtered command failure → save full unfiltered output to ~/.local/share/rtk/tee/ for debugging
+        extracted_from: src/core/tee.rs
+        implemented_in: internal/rtk/tee.go
+        status: planned
+
+      - name: multi_agent_hook_init
+        what: Hook scripts for 13 AI agents (Claude, Copilot, Cursor, Gemini, Codex, Windsurf, Cline, OpenCode, etc.)
+        extracted_from: src/hooks/init.rs
+        implemented_in: internal/rtk/hooks.go
+        status: planned
+    notes: CLI proxy for token reduction (fork of rtk-ai/rtk, 49K stars). Rust. 8-stage filter pipeline, 59 built-in TOML filters, 13 agent hooks. Port pipeline to Go, code filter to C.
+
+  - repo: Mayveskii/graphify
+    sync_status: partial
+    behaviors:
+      - name: ast_extraction_engine
+        what: 30+ language tree-sitter extractors — two-pass (structural nodes + call-graph edges) with EXTRACTED/INFERRED/AMBIGUOUS confidence
+        extracted_from: extract.py (_DISPATCH dict, extract_<lang> functions)
+        implemented_in: internal/graphify/extract.go
+        status: planned
+
+      - name: idf_weighted_search
+        what: IDF weighting + three-tier precedence (exact 1000x > prefix 100x > substring 1x) + source-file bonus + gap-ratio seed cutoff
+        extracted_from: serve.py (_compute_idf, _score_nodes, _pick_seeds)
+        implemented_in: core/idf_search.c
+        status: planned
+
+      - name: hub_throttled_traversal
+        what: BFS/DFS with p99 hub threshold (floored at 50) — hubs not expanded as transit unless they are seeds
+        extracted_from: serve.py (_bfs, _dfs)
+        implemented_in: core/traverse.c
+        status: planned
+
+      - name: subgraph_to_text
+        what: Render subgraph as structured text within token_budget — seed nodes first, sort by degree, truncate with omitted count
+        extracted_from: serve.py (_subgraph_to_text)
+        implemented_in: core/render.c
+        status: planned
+
+      - name: three_pass_dedup
+        what: Exact normalization → MinHash/LSH + Jaro-Winkler (92% threshold, community boost +5) → LLM tiebreaker — Union-Find merge
+        extracted_from: dedup.py (_norm, _make_minhash, _UF)
+        implemented_in: core/dedup.c
+        status: planned
+
+      - name: leiden_community_detection
+        what: Leiden algorithm (graspologic) with fallback to Louvain, deterministic seed=42, oversized community splitting, cohesion scoring
+        extracted_from: cluster.py (cluster, _cohesion_score)
+        implemented_in: internal/graphify/cluster.go
+        status: planned
+
+      - name: mcp_stdio_server
+        what: Full MCP stdio server with 10 tools (query_graph, get_node, get_neighbors, etc.) + 6 resources + hot-reload via mtime
+        extracted_from: serve.py (serve function)
+        implemented_in: internal/mcp/server.go
+        status: planned
+
+      - name: ssrf_security_layer
+        what: Private-IP blocking, cloud metadata endpoint blocking, DNS rebinding TOCTOU guard, streaming fetch with size caps
+        extracted_from: security.py (validate_url, _ssrf_guarded_socket)
+        implemented_in: internal/graphify/security.go
+        status: planned
+
+      - name: graph_diff_analysis
+        what: Structural diff between two graph snapshots — added/removed nodes and edges, for tracking project evolution
+        extracted_from: analyze.py (graph_diff)
+        implemented_in: internal/graphify/diff.go
+        status: planned
+
+      - name: incremental_graph_merge
+        what: prefix_graph_for_global (repo_tag:: prefix) + build_merge (append-only, never shrinks unless prune_sources given)
+        extracted_from: build.py (prefix_graph_for_global, build_merge)
+        implemented_in: internal/graphify/merge.go
+        status: planned
+    notes: Code-to-knowledge-graph pipeline (fork of safishamsi/graphify, 48.7K stars). Python. 30+ language AST extraction, Leiden community detection, MCP server with 10 tools. Port search/traverse/dedup to C, orchestration to Go.
+
+  - repo: Mayveskii/vllm
+    sync_status: partial
+    behaviors:
+      - name: measured_optimization_decision
+        what: Every perf change must show measured before/after on real hardware with specific configs — PR#36 pattern
+        extracted_from: PR #36, vllm/poc/gpu_random.py, .github/workflows/
+        implemented_in: docs/adr/TEMPLATE.md
+        status: planned
+
+      - name: paged_memory_management
+        what: Block-level virtual memory for KV cache — allocate/evict without fragmentation
+        extracted_from: vllm/attention/backends/, vllm/core/block_manager.py
+        implemented_in: core/alloc.c
+        status: planned
+
+      - name: continuous_batching_scheduler
+        what: Preemptive scheduling with priority queues and recompute
+        extracted_from: vllm/core/scheduler.py
+        implemented_in: internal/orchestrator/scheduler.go
+        status: planned
+
+      - name: kernel_fusion_via_compile
+        what: torch.compile(dynamic=False, fullgraph=True) to fuse eager kernels into single Triton kernel
+        extracted_from: vllm/poc/gpu_random.py (PR #36)
+        implemented_in: core/fuse.c
+        status: planned
+    notes: Fork of vllm-project/vllm with PoC patches. Decision patterns from PR#36 are the primary value for Mimic.
+
+  - repo: Mayveskii/go-service-template-rest
+    sync_status: partial
+    behaviors:
+      - name: strict_server_interface
+        what: OpenAPI-first → oapi-codegen generates StrictServerInterface with typed request/response objects per endpoint
+        extracted_from: internal/api/openapi.gen.go, api/openapi/service.yaml
+        implemented_in: internal/mcp/tools_gen.go
+        status: planned
+
+      - name: probe_health_interface
+        what: Probe interface (Name + Check(ctx)) for health/readiness — C-core subsystems implement Probe
+        extracted_from: internal/app/health/service.go
+        implemented_in: internal/app/health/service.go
+        status: planned
+
+      - name: koanf_layered_config
+        what: Config struct with koanf tags → defaults → YAML file → env overrides + strict unknown-key validation + per-stage budgets
+        extracted_from: internal/config/*.go
+        implemented_in: internal/config/*.go
+        status: planned
+
+      - name: middleware_stack
+        what: RequestCorrelation → OTel → SecurityHeaders → AccessLog → RequestBodyLimit → RequestFramingGuard → Recover
+        extracted_from: internal/infra/http/middleware.go, router.go
+        implemented_in: internal/infra/http/middleware.go
+        status: planned
+
+      - name: rfc7807_errors
+        what: Problem Details JSON (type/title/status/detail/request_id) for structured error responses
+        extracted_from: internal/infra/http/problem.go
+        implemented_in: internal/mcp/errors.go
+        status: planned
+
+      - name: repository_pattern_sqlc
+        what: Querier interface + sqlc-generated code + adapter-safe domain records for persistence
+        extracted_from: internal/infra/postgres/ping_history_repository.go, sqlcgen/
+        implemented_in: internal/infra/postgres/
+        status: planned
+
+      - name: bootstrap_lifecycle
+        what: Phased startup with budgets (config=10s, probe=15s, telemetry=2s, total=30s) + signal handling + graceful shutdown with drain
+        extracted_from: cmd/service/internal/bootstrap/run.go, shutdown.go
+        implemented_in: cmd/mimic/internal/bootstrap/
+        status: planned
+
+      - name: drain_mode
+        what: atomic.Bool draining flag → /health/ready returns 503 → LB stops traffic → existing requests complete
+        extracted_from: internal/app/health/service.go
+        implemented_in: internal/app/health/service.go
+        status: planned
+
+      - name: network_policy_enforcement
+        what: Startup-time egress allow/deny lists for controlling which external services the process can contact
+        extracted_from: cmd/service/internal/bootstrap/network_policy.go
+        implemented_in: cmd/mimic/internal/bootstrap/network_policy.go
+        status: planned
+
+      - name: multi_agent_skills
+        what: 30+ canonical skills + 16 subagent TOML definitions — AI-native development workflow
+        extracted_from: .agents/skills/, .codex/agents/, .claude/agents/
+        implemented_in: .agents/skills/
+        status: reference
+  - repo: Mayveskii/openai-cookbook
+    sync_status: partial
+    behaviors:
+      - name: function_calling_schema
+        what: JSON Schema for tool definitions: type, properties, required, enum, descriptions — prevents argument collisions
+        extracted_from: examples/How_to_call_functions_with_chat_models.ipynb, examples/How_to_build_an_agent_with_the_node_sdk.ipynb
+        implemented_in: internal/mcp/tool_schemas.go
+        status: partial (schemas implemented, parallel tool calls pending)
+
+      - name: parallel_tool_calls
+        what: parallel_tool_calls flag enabling multiple independent tool calls in single turn
+        extracted_from: examples/How_to_call_functions_with_chat_models.ipynb (parallel_tool_calls section)
+        implemented_in: internal/orchestrator/parallel.go
+        status: planned
+
+      - name: structured_outputs_json_schema
+        what: response_format={"type": "json_schema", "schema": {...}} for deterministic structured outputs
+        extracted_from: examples/How_to_structure_outputs_for_text_extraction.ipynb
+        implemented_in: internal/quality/structured.go
+        status: planned
+
+      - name: embedding_normalization
+        what: Normalize embedding vectors before cosine similarity to prevent magnitude bias
+        extracted_from: examples/How_to_get_embeddings_with_tiktoken.ipynb
+        implemented_in: core/cosine.c
+        status: planned
+
+      - name: rag_chunking_strategy
+        what: Fixed-size token chunking with overlap for optimal retrieval granularity
+        extracted_from: examples/How_to_build_a_RAG_system_with_ChatGPT.ipynb
+        implemented_in: internal/rag/chunk.go
+        status: planned
+
+      - name: fine_tuning_data_format
+        what: messages[] with system/user/assistant/tool roles for fine-tuning tool use behavior
+        extracted_from: examples/How_to_finetune_chat_models.ipynb
+        implemented_in: data/extraction/encode_artifacts_v2.py
+        status: planned
+
+      - name: token_counting_tiktoken
+        what: Accurate token counting with cl100k_base encoding for cost estimation
+        extracted_from: examples/How_to_count_tokens_with_tiktoken.ipynb
+        implemented_in: internal/quality/tokens.go
+        status: planned
+    notes: Fork of openai/openai-cookbook. Examples for using OpenAI API — tool calling, RAG, embeddings, fine-tuning. Direct patterns for Mimic MCP tool schemas and quality gates.
+
+  - repo: Mayveskii/Awesome-AI-Benchmarking
+    sync_status: reference
+    behaviors:
+      - name: benchmark_methodology
+        what: lm-evaluation-harness standardized evaluation across dozens of benchmarks
+        extracted_from: README.md (lm-evaluation-harness, HELM, LiveBench sections)
+        implemented_in: internal/quality/benchmark.go
+        status: reference
+
+      - name: contamination_free_testing
+        what: LiveBench frequently updated questions to prevent data leakage
+        extracted_from: README.md (LiveBench description)
+        implemented_in: internal/quality/contamination.go
+        status: reference
+
+      - name: multi_dimensional_scoring
+        what: HELM 7-axis scoring: accuracy, calibration, robustness, fairness, bias, toxicity, efficiency
+        extracted_from: README.md (HELM description)
+        implemented_in: specs/10-QUALITY-GATES.md
+        status: reference
+
+      - name: human_voting_arena
+        what: LMSYS Chatbot Arena crowdsourced Elo ratings for real-world comparison
+        extracted_from: README.md (LMSYS Chatbot Arena)
+        implemented_in: project_context_main/stand/README.md
+        status: reference
+
+      - name: reproducible_evaluation
+        what: Standardized, reproducible evaluation pipelines with full transparency
+        extracted_from: README.md (frameworks for custom benchmarks)
+        implemented_in: project_context_main/stand/run_benchmark.py
+        status: reference
+    notes: Curated list of AI benchmarking tools. Methodology source for QAC measured baselines. Not code to extract, but methodology to apply.
