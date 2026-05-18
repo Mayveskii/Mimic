@@ -19,6 +19,25 @@
 #include <openssl/md5.h>
 #pragma GCC diagnostic pop
 #include <sys/wait.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#include <openssl/sha.h>
+#include <openssl/md5.h>
+#pragma GCC diagnostic pop
+#include <sys/wait.h>
+
+/* ============================================================================
+ * Command execution with output capture
+ * ============================================================================ */
+static int exec_cmd_capture(OpPacketEx* packet, const char* cmd) {
+    FILE* fp = popen(cmd, "r");
+    if (!fp) return ERR_EXEC_FAIL;
+    size_t n = fread(packet->result, 1, sizeof(packet->result) - 1, fp);
+    packet->result[n] = '\0';
+    packet->result_len = n;
+    pclose(fp);
+    return ERR_OK;
+}
 
 /* ============================================================================
  * Static globals
@@ -1005,27 +1024,25 @@ static int exec_sys_exec(OpPacketEx* packet) {
 /* --- Build --- */
 static int exec_build_compile(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
-    const char* flags = arg_value_string(packet, "flags");
-    if (!target) return ERR_BAD_ARGS;
     char cmd[512];
-    snprintf(cmd, sizeof(cmd), "make %s", target);
-    if (flags) {
-        snprintf(cmd, sizeof(cmd), "make %s %s", flags, target);
+    if (target) {
+        snprintf(cmd, sizeof(cmd), "make %s 2>&1", target);
+    } else {
+        snprintf(cmd, sizeof(cmd), "make 2>&1");
     }
-    int ret = system(cmd);
-    if (ret != 0) return ERR_EXEC_FAIL;
-    return ERR_OK;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_build_link(OpPacketEx* packet) {
-    const char* inputs = arg_value_string(packet, "inputs");
-    const char* output = arg_value_string(packet, "output");
-    if (!inputs || !output) return ERR_BAD_ARGS;
+    const char* target = arg_value_string(packet, "target");
+    const char* objects = arg_value_string(packet, "objects");
     char cmd[512];
-    snprintf(cmd, sizeof(cmd), "gcc -o %s %s", output, inputs);
-    int ret = system(cmd);
-    if (ret != 0) return ERR_EXEC_FAIL;
-    return ERR_OK;
+    if (target && objects) {
+        snprintf(cmd, sizeof(cmd), "gcc -o %s %s 2>&1", target, objects);
+    } else {
+        snprintf(cmd, sizeof(cmd), "echo 'link: need target + objects' 2>&1");
+    }
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_build_test(OpPacketEx* packet) {
@@ -1036,82 +1053,68 @@ static int exec_build_test(OpPacketEx* packet) {
     char cmd[512];
     if (dir) {
         if (filter) {
-            snprintf(cmd, sizeof(cmd), "cd %s && go test -run %s ./...", dir, filter);
+            snprintf(cmd, sizeof(cmd), "cd %s && go test -run %s ./... 2>&1", dir, filter);
         } else {
-            snprintf(cmd, sizeof(cmd), "cd %s && go test ./...", dir);
+            snprintf(cmd, sizeof(cmd), "cd %s && go test ./... 2>&1", dir);
         }
     } else {
         if (filter) {
-            snprintf(cmd, sizeof(cmd), "go test -run %s ./...", filter);
+            snprintf(cmd, sizeof(cmd), "go test -run %s ./... 2>&1", filter);
         } else {
-            snprintf(cmd, sizeof(cmd), "go test ./...");
+            snprintf(cmd, sizeof(cmd), "go test ./... 2>&1");
         }
     }
-    int ret = system(cmd);
-    if (ret != 0) return ERR_EXEC_FAIL;
-    return ERR_OK;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_build_deploy(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
-    const char* version = arg_value_string(packet, "version");
     if (!target) return ERR_BAD_ARGS;
     char cmd[512];
-    if (version) {
-        snprintf(cmd, sizeof(cmd), "echo deploy %s@%s", target, version);
-    } else {
-        snprintf(cmd, sizeof(cmd), "echo deploy %s", target);
-    }
-    int ret = system(cmd);
-    (void)ret;
-    /* Deploy is DANGEROUS but we validated permission earlier. */
-    return ERR_OK;
+    snprintf(cmd, sizeof(cmd), "echo 'deploy %s' 2>&1", target);
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_build_clean(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
     char cmd[512];
     if (target) {
-        snprintf(cmd, sizeof(cmd), "make clean-%s", target);
+        snprintf(cmd, sizeof(cmd), "make clean-%s 2>&1", target);
     } else {
-        snprintf(cmd, sizeof(cmd), "make clean");
+        snprintf(cmd, sizeof(cmd), "make clean 2>&1");
     }
-    int ret = system(cmd);
-    if (ret != 0) return ERR_EXEC_FAIL;
-    return ERR_OK;
+    return exec_cmd_capture(packet, cmd);
 }
 
 /* --- Git stubs (simplified) --- */
 static int exec_git_status(OpPacketEx* packet) {
-    (void)packet;
-    return system("git status --short") == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, "git status --short 2>&1");
 }
 
 static int exec_git_diff(OpPacketEx* packet) {
-    (void)packet;
-    return system("git diff --stat") == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, "git diff --stat 2>&1");
 }
 
 static int exec_git_add(OpPacketEx* packet) {
     const char* path = arg_value_string(packet, "path");
     char cmd[512];
     if (path) {
-        snprintf(cmd, sizeof(cmd), "git add %s", path);
+        snprintf(cmd, sizeof(cmd), "git add %s 2>&1", path);
     } else {
-        snprintf(cmd, sizeof(cmd), "git add -A");
+        snprintf(cmd, sizeof(cmd), "git add -A 2>&1");
     }
-    return system(cmd) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_commit(OpPacketEx* packet) {
     const char* message = arg_value_string(packet, "message");
     char cmd[512];
     if (message) {
-        snprintf(cmd, sizeof(cmd), "git commit -m \"%s\"", message);
+        snprintf(cmd, sizeof(cmd), "git commit -m '%s' 2>&1", message);
     } else {
-        snprintf(cmd, sizeof(cmd), "git commit");
+        snprintf(cmd, sizeof(cmd), "git commit 2>&1");
     }
-    return system(cmd) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_checkout(OpPacketEx* packet) {
@@ -1119,7 +1122,7 @@ static int exec_git_checkout(OpPacketEx* packet) {
     if (!branch) return ERR_BAD_ARGS;
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "git checkout %s", branch);
-    return system(cmd) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_branch(OpPacketEx* packet) {
@@ -1130,7 +1133,7 @@ static int exec_git_branch(OpPacketEx* packet) {
     } else {
         snprintf(cmd, sizeof(cmd), "git branch --list");
     }
-    return system(cmd) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 /* --- Network stubs --- */
@@ -1139,7 +1142,7 @@ static int exec_net_http_get(OpPacketEx* packet) {
     if (!url) return ERR_BAD_ARGS;
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "curl -sL %s", url);
-    return system(cmd) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_net_http_post(OpPacketEx* packet) {
@@ -1152,7 +1155,7 @@ static int exec_net_http_post(OpPacketEx* packet) {
     } else {
         snprintf(cmd, sizeof(cmd), "curl -sL -X POST %s", url);
     }
-    return system(cmd) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_net_tcp_close(OpPacketEx* packet) {
@@ -1167,7 +1170,7 @@ static int exec_proc_spawn(OpPacketEx* packet) {
     const char* cmd = arg_value_string(packet, "cmd");
     if (!cmd) return ERR_BAD_ARGS;
     /* Simplified: system() blocks. Real spawn is fork+exec. */
-    return system(cmd) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_proc_wait(OpPacketEx* packet) {
