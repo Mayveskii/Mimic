@@ -89,26 +89,76 @@ adr-new:
 	echo "Created docs/adr/$${NEXT}-$(NAME).md"
 
 # ============================================================================
-# Release
+# Bootstrap (download mesh data on first run)
 # ============================================================================
 
-RELEASE_BIN = mimic
-PLATFORMS = linux/amd64 darwin/arm64
+bootstrap:
+	@echo "Bootstrapping Mimic mesh data..."
+	@bash scripts/download-data.sh
 
-release:
-	@echo "Building release..."
-	@mkdir -p dist
-	@for plat in $(PLATFORMS); do \
-		GOOS=$${plat%/*} GOARCH=$${plat#*/} CGO_ENABLED=0 \
-		$(GO) build $(GOFLAGS) -o dist/$(RELEASE_BIN)-$${plat} ./cmd/mimic; \
-		sha256sum dist/$(RELEASE_BIN)-$${plat} > dist/$(RELEASE_BIN)-$${plat}.sha256; \
-	done
-	@echo "Release binaries in dist/"
+# ============================================================================
+# Data packaging for GitHub Release
+# ============================================================================
+
+package-data:
+	@bash scripts/package-data.sh $(shell git describe --tags --always)
+
+# ============================================================================
+# Full release: binaries + data + Docker
+# ============================================================================
+
+RELEASE_VERSION := $(shell git describe --tags --always)
+
+release-all: clean build package-data docker
+	@echo "═══════════════════════════════════════════════════════════════"
+	@echo "  RELEASE v$(RELEASE_VERSION)"
+	@echo "═══════════════════════════════════════════════════════════════"
+	@echo ""
+	@echo "  Artifacts to publish:"
+	@echo ""
+	@echo "  1. GitHub Release assets:"
+	@echo "     - dist/mimic-$(RELEASE_VERSION)-linux-amd64"
+	@echo "     - dist/mimic-$(RELEASE_VERSION)-darwin-arm64"
+	@echo "     - dist/mimic-data-$(RELEASE_VERSION).tar.gz"
+	@echo ""
+	@echo "  2. Docker images:"
+	@echo "     - ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)"
+	@echo "     - ghcr.io/mayveskii/mimic:latest"
+	@echo ""
+	@echo "  Upload commands:"
+	@echo "     gh release create $(RELEASE_VERSION) --generate-notes"
+	@echo "     gh release upload $(RELEASE_VERSION) dist/*"
+	@echo "     docker push ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)"
+	@echo "═══════════════════════════════════════════════════════════════"
+
+# ============================================================================
+# Docker
+# ============================================================================
 
 docker:
 	docker build -t mimic:latest .
-	docker tag mimic:latest mayveskii/mimic:latest
-	docker tag mimic:latest mayveskii/mimic:$(shell git describe --tags --always)
+	docker tag mimic:latest ghcr.io/mayveskii/mimic:latest
+	docker tag mimic:latest ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)
+
+docker-push: docker
+	docker push ghcr.io/mayveskii/mimic:latest
+	docker push ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)
+
+# ============================================================================
+# Release (legacy — binaries only)
+# ============================================================================
+
+release:
+	@echo "Building release binaries..."
+	@mkdir -p dist
+	@for plat in $(PLATFORMS); do \
+		GOOS=$${plat%/*} GOARCH=$${plat#*/} CGO_ENABLED=1 \
+		CC=$${plat%/*}-gcc \
+		$(GO) build $(GOFLAGS) -o dist/mimic-$${plat} ./cmd/mimic 2>/dev/null || \
+		CGO_ENABLED=0 $(GO) build $(GOFLAGS) -o dist/mimic-$${plat} ./cmd/mimic; \
+		sha256sum dist/mimic-$${plat} > dist/mimic-$${plat}.sha256; \
+	done
+	@echo "Release binaries in dist/"
 
 # ============================================================================
 # Clean

@@ -131,6 +131,7 @@ typedef enum {
     OP_SYS_FILE_MOVE    = 0x87,
     OP_SYS_FILE_DELETE  = 0x88,
     OP_SYS_CHMOD        = 0x89,
+    OP_SYS_FILE_READ    = 0x8A,
 
     /* Session / Orchestrator (0x90-0x9A) */
     OP_SESS_BUDGET_CHECK    = 0x90,

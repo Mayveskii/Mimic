@@ -171,37 +171,27 @@ func (s *Server) handleRequest(req JSONRPCRequest) *JSONRPCResponse {
 			return resp
 		}
 
-		_, err := cgo.PacketFromToolCall(params.Name, params.Arguments)
+		// Fast path: direct execution via cgo (bypass orchestrator for simple tool calls)
+		pkt, err := cgo.PacketFromToolCall(params.Name, params.Arguments)
 		if err != nil {
 			resp.Error = &JSONRPCError{Code: -32602, Message: "Unknown tool: " + params.Name}
 			return resp
 		}
 
-		wr, err := s.orchestrator.Run(params.Name, params.Arguments)
+		cr, err := cgo.ExecuteChain([]cgo.Packet{pkt}, 100000.0, 60000.0)
 		if err != nil {
 			resp.Result = map[string]interface{}{
 				"content": []map[string]string{
-					{"type": "text", "text": fmt.Sprintf("Orchestrator failed: %s", err.Error())},
+					{"type": "text", "text": fmt.Sprintf("Execution failed: %s (code=%d)", cr.ErrorMessage, cr.ErrorCode)},
 				},
 				"isError": true,
 			}
 			return resp
 		}
 
-		// Extract meaningful result for the model
-		var resultText string
-		if outputMap, ok := wr.FinalOutput.(map[string]interface{}); ok {
-			if result := outputMap["result"]; result != nil {
-				if cr, ok := result.(cgo.ChainResult); ok && cr.Result != "" {
-					resultText = cr.Result
-				} else {
-					jsonBytes, _ := json.Marshal(result)
-					resultText = string(jsonBytes)
-				}
-			}
-		}
+		resultText := cr.Result
 		if resultText == "" {
-			jsonOut, _ := json.MarshalIndent(wr.FinalOutput, "", "  ")
+			jsonOut, _ := json.MarshalIndent(cr, "", "  ")
 			resultText = string(jsonOut)
 		}
 		resp.Result = map[string]interface{}{

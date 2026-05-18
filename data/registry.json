@@ -1,0 +1,22 @@
+{
+  "version": "0.1.0",
+  "updated": "2026-05-18T19:45:00Z",
+  "bundles": [
+    {
+      "name": "mesh-core",
+      "version": "0.1.0",
+      "slots_count": 13611,
+      "size_bytes": 13611000,
+      "download_url": "https://github.com/Mayveskii/Mimic/releases/download/v0.1.0/mimic-data-0.1.0.tar.gz",
+      "sha256": "placeholder_will_be_updated_by_ci",
+      "domains": ["distributed", "general", "llm"],
+      "precision_threshold": 0.8,
+      "avg_precision": 0.8500,
+      "avg_survival": 0.8500,
+      "avg_z_density": 0.3342
+    }
+  ],
+  "default_bundle": "mesh-core",
+  "cache_dir": "${HOME}/.cache/mimic/data",
+  "update_policy": "lazy"
+}

@@ -1,0 +1,482 @@
+{
+  "date": "2026-05-18T20:12:52Z",
+  "model": "moonshotai/kimi-k2.6",
+  "budget_usd": 2.0,
+  "total_cost_usd": 0.009984,
+  "total_tokens": 16038,
+  "total_time_ms": 68907.21702575684,
+  "efficiency": {
+    "tokens_per_dollar": 1606370.1923076923,
+    "tasks_per_dollar": 801.2820512820513
+  },
+  "tier_summary": {
+    "tier_1": {
+      "tasks": 4,
+      "pass": 4,
+      "fail": 0
+    },
+    "tier_2": {
+      "tasks": 2,
+      "pass": 0,
+      "partial": 0
+    },
+    "tier_3": {
+      "tasks": 2,
+      "pass": 0,
+      "partial": 2
+    }
+  },
+  "results": [
+    {
+      "tier": 1,
+      "task_name": "file_exists",
+      "description": "Single tool: SYS_FILE_EXISTS",
+      "status": "pass",
+      "latency_ms": 5603.667974472046,
+      "input_tokens": 1817,
+      "output_tokens": 60,
+      "total_tokens": 1877,
+      "cost_usd": 0.0010285,
+      "tool_calls_count": 1,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Used tools: ['SYS_FILE_EXISTS']",
+        "Result: [{'text': 'exists: true', 'type': 'text'}]"
+      ],
+      "raw_response": {
+        "id": "gen-1779135103-paO1ZSlROk9fPENjCC8g",
+        "object": "chat.completion",
+        "created": 1779135103,
+        "model": "moonshotai/kimi-k2.6-20260420",
+        "provider": "Inceptron",
+        "system_fingerprint": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "tool_calls",
+            "native_finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "refusal": null,
+              "reasoning": " The user wants to check if a file named README.md exists in the current directory. I should use the SYS_FILE_EXISTS tool with the path \"README.md\" (relative path to current directory).",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "index": 0,
+                  "id": "functions.SYS_FILE_EXISTS:0",
+                  "function": {
+                    "name": "SYS_FILE_EXISTS",
+                    "arguments": "{\"path\": \"README.md\"}"
+                  }
+                }
+              ],
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": " The user wants to check if a file named README.md exists in the current directory. I should use the SYS_FILE_EXISTS tool with the path \"README.md\" (relative path to current directory).",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1817,
+          "completion_tokens": 60,
+          "total_tokens": 1877,
+          "cost": 0.00162726,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00162726,
+            "upstream_inference_prompt_cost": 0.00141726,
+            "upstream_inference_completions_cost": 0.00021
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 47,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "_latency_ms": 5590.190172195435,
+        "_cost_usd": 0.0010285,
+        "_tokens": {
+          "input": 1817,
+          "output": 60,
+          "total": 1877
+        }
+      }
+    },
+    {
+      "tier": 1,
+      "task_name": "hash_sha256",
+      "description": "Single tool: HASH_SHA256",
+      "status": "pass",
+      "latency_ms": 7403.583526611328,
+      "input_tokens": 1819,
+      "output_tokens": 66,
+      "total_tokens": 1885,
+      "cost_usd": 0.0010415,
+      "tool_calls_count": 1,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Used tools: ['HASH_SHA256']",
+        "Result: [{'text': 'b94d27b9934d3e08a52e52d7da7dabfac484efe37a5380ee9088f7ace2efcde9', 'type': 'text'}]"
+      ],
+      "raw_response": {
+        "id": "gen-1779135108-JvDd9JWZ142AIZcMbay1",
+        "object": "chat.completion",
+        "created": 1779135108,
+        "model": "moonshotai/kimi-k2.6-20260420",
+        "provider": "Inceptron",
+        "system_fingerprint": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "tool_calls",
+            "native_finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "refusal": null,
+              "reasoning": " The user wants me to calculate the SHA256 hash of the string 'hello world' using the HASH_SHA256 tool. This is straightforward - I just need to call the tool with the data parameter set to 'hello world'.",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "index": 0,
+                  "id": "functions.HASH_SHA256:0",
+                  "function": {
+                    "name": "HASH_SHA256",
+                    "arguments": "{\"data\": \"hello world\"}"
+                  }
+                }
+              ],
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": " The user wants me to calculate the SHA256 hash of the string 'hello world' using the HASH_SHA256 tool. This is straightforward - I just need to call the tool with the data parameter set to 'hello world'.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1819,
+          "completion_tokens": 66,
+          "total_tokens": 1885,
+          "cost": 0.00164982,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00164982,
+            "upstream_inference_prompt_cost": 0.00141882,
+            "upstream_inference_completions_cost": 0.000231
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 51,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "_latency_ms": 7403.400897979736,
+        "_cost_usd": 0.0010415,
+        "_tokens": {
+          "input": 1819,
+          "output": 66,
+          "total": 1885
+        }
+      }
+    },
+    {
+      "tier": 1,
+      "task_name": "git_status",
+      "description": "Single tool: GIT_STATUS",
+      "status": "pass",
+      "latency_ms": 3961.9650840759277,
+      "input_tokens": 1814,
+      "output_tokens": 53,
+      "total_tokens": 1867,
+      "cost_usd": 0.001013,
+      "tool_calls_count": 1,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Used tools: ['GIT_STATUS']",
+        "Result: [{'text': 'A  .env.example\\n M .github/workflows/release.yml\\n M .gitignore\\nM  Dockerfile\\n M Makefile\\nMM README.md\\nMM core/ops.c\\nA  data/distilled/SEMANTIC_SUMMARY.md\\nA  data/distilled/mesh_slots.json\\nA  data/distilled/mesh_stats.json\\nA  data/extraction/distill_pipeline.py\\nA  data/registry.json\\nA  docker-compose.yml\\nA  docs/MESH_VISION.md\\nAM install.sh\\nA  scripts/download-data.sh\\nA  scripts/package-data.sh\\nAM test/integration/comprehensive_test.py\\n?? data/extraction/__pycache__/\\n?? test/battlefield/\\n', 'type': 'text'}]"
+      ],
+      "raw_response": {
+        "id": "gen-1779135116-uU2HUKagJbJCPRqbkqBE",
+        "object": "chat.completion",
+        "created": 1779135116,
+        "model": "moonshotai/kimi-k2.6-20260420",
+        "provider": "Inceptron",
+        "system_fingerprint": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "tool_calls",
+            "native_finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "refusal": null,
+              "reasoning": " The user wants to see the git status of the current repository. I need to use the GIT_STATUS tool. This is a safe and readonly operation, so no special permissions or confirmations are needed.",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "index": 0,
+                  "id": "functions.GIT_STATUS:0",
+                  "function": {
+                    "name": "GIT_STATUS",
+                    "arguments": "{}"
+                  }
+                }
+              ],
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": " The user wants to see the git status of the current repository. I need to use the GIT_STATUS tool. This is a safe and readonly operation, so no special permissions or confirmations are needed.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1814,
+          "completion_tokens": 53,
+          "total_tokens": 1867,
+          "cost": 0.00160042,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 0,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00160042,
+            "upstream_inference_prompt_cost": 0.00141492,
+            "upstream_inference_completions_cost": 0.0001855
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 49,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "_latency_ms": 3961.7979526519775,
+        "_cost_usd": 0.001013,
+        "_tokens": {
+          "input": 1814,
+          "output": 53,
+          "total": 1867
+        }
+      }
+    },
+    {
+      "tier": 1,
+      "task_name": "build_test",
+      "description": "Single tool: BUILD_TEST",
+      "status": "pass",
+      "latency_ms": 4400.501251220703,
+      "input_tokens": 1823,
+      "output_tokens": 153,
+      "total_tokens": 1976,
+      "cost_usd": 0.0012175,
+      "tool_calls_count": 1,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Used tools: ['BUILD_TEST']",
+        "Result: [{'text': 'go: warning: \"./...\" matched no packages\\nno packages to test\\n', 'type': 'text'}]"
+      ],
+      "raw_response": {
+        "id": "gen-1779135120-km6j4ek5aGZb37LgzxJy",
+        "object": "chat.completion",
+        "created": 1779135120,
+        "model": "moonshotai/kimi-k2.6-20260420",
+        "provider": "Novita",
+        "system_fingerprint": null,
+        "choices": [
+          {
+            "index": 0,
+            "logprobs": null,
+            "finish_reason": "tool_calls",
+            "native_finish_reason": "tool_calls",
+            "message": {
+              "role": "assistant",
+              "content": null,
+              "refusal": null,
+              "reasoning": "The user wants to run tests in the project. They've specified:\n- Test directory: './test'\n- Filter: 'Test'\n- Tool to use: BUILD_TEST\n\nI should use the BUILD_TEST function with:\n- dir: './test'\n- filter: 'Test'\n\nLet me check if there are any other considerations. The BUILD_TEST function has parameters:\n- dir: Working directory for tests\n- filter: Test name pattern\n- timeout_ms: Timeout in milliseconds (default: 30000)\n\nThe user didn't specify a timeout, so I'll use the default or not specify it. Let me just use the required parameters they mentioned.",
+              "tool_calls": [
+                {
+                  "type": "function",
+                  "index": 0,
+                  "id": "functions.BUILD_TEST:0",
+                  "function": {
+                    "name": "BUILD_TEST",
+                    "arguments": "{\"dir\": \"./test\", \"filter\": \"Test\"}"
+                  }
+                }
+              ],
+              "reasoning_details": [
+                {
+                  "type": "reasoning.text",
+                  "text": "The user wants to run tests in the project. They've specified:\n- Test directory: './test'\n- Filter: 'Test'\n- Tool to use: BUILD_TEST\n\nI should use the BUILD_TEST function with:\n- dir: './test'\n- filter: 'Test'\n\nLet me check if there are any other considerations. The BUILD_TEST function has parameters:\n- dir: Working directory for tests\n- filter: Test name pattern\n- timeout_ms: Timeout in milliseconds (default: 30000)\n\nThe user didn't specify a timeout, so I'll use the default or not specify it. Let me just use the required parameters they mentioned.",
+                  "format": "unknown",
+                  "index": 0
+                }
+              ]
+            }
+          }
+        ],
+        "usage": {
+          "prompt_tokens": 1823,
+          "completion_tokens": 153,
+          "total_tokens": 1976,
+          "cost": 0.00083172,
+          "is_byok": false,
+          "prompt_tokens_details": {
+            "cached_tokens": 1792,
+            "cache_write_tokens": 0,
+            "audio_tokens": 0,
+            "video_tokens": 0
+          },
+          "cost_details": {
+            "upstream_inference_cost": 0.00083172,
+            "upstream_inference_prompt_cost": 0.00031152,
+            "upstream_inference_completions_cost": 0.0005202
+          },
+          "completion_tokens_details": {
+            "reasoning_tokens": 150,
+            "image_tokens": 0,
+            "audio_tokens": 0
+          }
+        },
+        "_latency_ms": 4400.235176086426,
+        "_cost_usd": 0.0012175,
+        "_tokens": {
+          "input": 1823,
+          "output": 153,
+          "total": 1976
+        }
+      }
+    },
+    {
+      "tier": 2,
+      "task_name": "analyze_repo_state",
+      "description": "Multi-step tool chain",
+      "status": "fail",
+      "latency_ms": 10505.529880523682,
+      "input_tokens": 1845,
+      "output_tokens": 479,
+      "total_tokens": 2324,
+      "cost_usd": 0.0018805,
+      "tool_calls_count": 1,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Chain: GIT_STATUS"
+      ],
+      "raw_response": null
+    },
+    {
+      "tier": 2,
+      "task_name": "build_and_verify",
+      "description": "Multi-step tool chain",
+      "status": "fail",
+      "latency_ms": 4746.463775634766,
+      "input_tokens": 1850,
+      "output_tokens": 167,
+      "total_tokens": 2017,
+      "cost_usd": 0.001259,
+      "tool_calls_count": 1,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Chain: BUILD_COMPILE"
+      ],
+      "raw_response": null
+    },
+    {
+      "tier": 3,
+      "task_name": "refactor_core_ops",
+      "description": "Complex analysis with synthesis",
+      "status": "partial",
+      "latency_ms": 15287.456035614014,
+      "input_tokens": 1880,
+      "output_tokens": 131,
+      "total_tokens": 2011,
+      "cost_usd": 0.001202,
+      "tool_calls_count": 2,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Decomposition: False",
+        "RTK triggered: False",
+        "Actionable output: False",
+        "Unique tools: 1"
+      ],
+      "raw_response": null
+    },
+    {
+      "tier": 3,
+      "task_name": "architecture_review",
+      "description": "Complex analysis with synthesis",
+      "status": "partial",
+      "latency_ms": 16998.04949760437,
+      "input_tokens": 1880,
+      "output_tokens": 201,
+      "total_tokens": 2081,
+      "cost_usd": 0.001342,
+      "tool_calls_count": 5,
+      "argument_collisions": 0,
+      "rollback_triggers": 0,
+      "compressed_output": false,
+      "notes": [
+        "Decomposition: False",
+        "RTK triggered: False",
+        "Actionable output: False",
+        "Unique tools: 2"
+      ],
+      "raw_response": null
+    }
+  ],
+  "data_gaps": [
+    "Tier 2 decomposition failures: 2. Need: better task relationship metadata in mesh slots."
+  ],
+  "recommendations": [
+    "Add language-specific mesh slots (Go, Rust, Python) for Tier 3 analysis",
+    "Expand JSON Schema with more enum values for commonly-misused arguments",
+    "Test RTK compression ratios on real large outputs (>5KB)",
+    "Add 'project context' mesh slots for common project types (CLI, web service, library)"
+  ]
+}

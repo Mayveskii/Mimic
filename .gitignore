@@ -30,9 +30,23 @@ Thumbs.db
 *.key
 *.pem
 
-# Data (large files, not in git)
+# Large data files (downloaded from GitHub Releases on first run)
+data/seeds/
+data/distilled/
 data/repos/
+!data/registry.json
+!data/extraction/
+!data/seeds/.gitkeep
+!data/distilled/.gitkeep
+
+# Python cache
 data/extraction/__pycache__/
+*.pyc
+__pycache__/
+
+# Temporary / runtime artifacts
+Mimic_server/
+*.log
 
 # Test artifacts
 file1.txt

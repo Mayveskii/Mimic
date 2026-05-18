@@ -1,0 +1,65 @@
+# Mimic MCP Server — Docker Compose
+# 
+# Default ports (1337-style):
+#   1337 - Main MCP server (stdio/SSE/HTTP)
+#   1117 - HTTP API / metrics endpoint  
+#   1227 - Admin/management API
+#   1447 - WebSocket transport
+#   1557 - Internal mesh communication (future)
+
+services:
+  mimic:
+    image: ghcr.io/mayveskii/mimic:latest
+    container_name: mimic-server
+    restart: unless-stopped
+    
+    ports:
+      - "1337:1337"  # Main MCP server
+      - "1117:1117"  # HTTP API / metrics
+      - "1227:1227"  # Admin API
+      - "1447:1447"  # WebSocket
+      # - "1557:1557"  # Mesh (future)
+    
+    environment:
+      MIMIC_PORT: 1337
+      MIMIC_HTTP_PORT: 1117
+      MIMIC_ADMIN_PORT: 1227
+      MIMIC_WS_PORT: 1447
+      MIMIC_MESH_PORT: 1557
+      MIMIC_LOG_LEVEL: info
+      MIMIC_BUDGET_TOKENS: 100000
+      MIMIC_BUDGET_TIME_MS: 3600000
+      MIMIC_MAX_TASKS: 50
+    
+    volumes:
+      # Persistent cache for mesh slots
+      - mimic-cache:/var/lib/mimic/cache
+      # Config directory
+      - mimic-config:/etc/mimic
+      # Logs
+      - mimic-logs:/var/log/mimic
+    
+    healthcheck:
+      test: ["CMD", "mimic", "ping"]
+      interval: 30s
+      timeout: 3s
+      start_period: 5s
+      retries: 3
+    
+    # Resource limits (adjust based on workload)
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 512M
+        reservations:
+          cpus: '0.5'
+          memory: 128M
+
+volumes:
+  mimic-cache:
+    driver: local
+  mimic-config:
+    driver: local
+  mimic-logs:
+    driver: local

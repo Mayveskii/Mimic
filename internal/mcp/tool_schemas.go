@@ -27,6 +27,30 @@ var DefaultSchemas = []ToolSchema{
 		},
 	},
 	{
+		Name:        "SYS_FILE_READ",
+		Description: "Read file contents by path. No file descriptor needed. Supports optional limit and offset. Safe and readonly.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"path": map[string]interface{}{
+					"type":        "string",
+					"description": "File path to read",
+				},
+				"limit": map[string]interface{}{
+					"type":        "integer",
+					"description": "Max bytes to read. Default: 4096 (entire file if smaller). 0 = unlimited",
+					"default":     4096,
+				},
+				"offset": map[string]interface{}{
+					"type":        "integer",
+					"description": "Byte offset to start reading from. Default: 0",
+					"default":     0,
+				},
+			},
+			"required": []string{"path"},
+		},
+	},
+	{
 		Name:        "SYS_DIR_CREATE",
 		Description: "Create a directory. Supports recursive creation. Idempotent (succeeds if already exists).",
 		InputSchema: map[string]interface{}{

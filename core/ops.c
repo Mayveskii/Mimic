@@ -113,6 +113,7 @@ static void init_energy_costs(void) {
     g_energy_costs[OP_SYS_FILE_MOVE][0] = 3.0f;     g_energy_costs[OP_SYS_FILE_MOVE][1] = 200.0f;   g_energy_costs[OP_SYS_FILE_MOVE][2] = 0.0f;
     g_energy_costs[OP_SYS_FILE_DELETE][0] = 1.0f;   g_energy_costs[OP_SYS_FILE_DELETE][1] = 20.0f;   g_energy_costs[OP_SYS_FILE_DELETE][2] = 0.0f;
     g_energy_costs[OP_SYS_CHMOD][0] = 1.0f;        g_energy_costs[OP_SYS_CHMOD][1] = 10.0f;         g_energy_costs[OP_SYS_CHMOD][2] = 0.0f;
+    g_energy_costs[OP_SYS_FILE_READ][0] = 2.0f;    g_energy_costs[OP_SYS_FILE_READ][1] = 50.0f;     g_energy_costs[OP_SYS_FILE_READ][2] = 4096.0f;
     g_energy_costs[OP_SYS_ENV_GET][0] = 1.0f;       g_energy_costs[OP_SYS_ENV_GET][1] = 1.0f;        g_energy_costs[OP_SYS_ENV_GET][2] = 0.0f;
     g_energy_costs[OP_SYS_ENV_SET][0] = 1.0f;       g_energy_costs[OP_SYS_ENV_SET][1] = 2.0f;        g_energy_costs[OP_SYS_ENV_SET][2] = 0.0f;
     g_energy_costs[OP_SYS_EXEC][0] = 5.0f;          g_energy_costs[OP_SYS_EXEC][1] = 10000.0f;      g_energy_costs[OP_SYS_EXEC][2] = 0.0f;
@@ -305,6 +306,7 @@ static const struct { OpCode code; const char* name; } g_opcode_names[] = {
     { OP_ENCRYPT_AES, "ENCRYPT_AES" }, { OP_DECRYPT_AES, "DECRYPT_AES" },
     { OP_SYS_EXEC, "SYS_EXEC" }, { OP_SYS_ENV_GET, "SYS_ENV_GET" },
     { OP_SYS_ENV_SET, "SYS_ENV_SET" }, { OP_SYS_FILE_EXISTS, "SYS_FILE_EXISTS" },
+    { OP_SYS_FILE_READ, "SYS_FILE_READ" },
     { OP_SYS_DIR_CREATE, "SYS_DIR_CREATE" }, { OP_SYS_DIR_REMOVE, "SYS_DIR_REMOVE" },
     { OP_SYS_FILE_COPY, "SYS_FILE_COPY" }, { OP_SYS_FILE_MOVE, "SYS_FILE_MOVE" },
     { OP_SYS_FILE_DELETE, "SYS_FILE_DELETE" }, { OP_SYS_CHMOD, "SYS_CHMOD" },
@@ -897,8 +899,45 @@ static int exec_sys_file_exists(OpPacketEx* packet) {
     if (!path) return ERR_BAD_ARGS;
     struct stat st;
     bool exists = (stat(path, &st) == 0);
-    /* Result would be returned via output mechanism. Simplified. */
-    (void)exists;
+    snprintf(packet->result, sizeof(packet->result), "exists: %s", exists ? "true" : "false");
+    packet->result_len = strlen(packet->result);
+    return ERR_OK;
+}
+
+/* New convenience tool: read file by path (no fd needed) */
+static int exec_sys_file_read(OpPacketEx* packet) {
+    const char* path = arg_value_string(packet, "path");
+    int64_t limit = arg_value_int(packet, "limit", 0);
+    int64_t offset = arg_value_int(packet, "offset", 0);
+    if (!path) return ERR_BAD_ARGS;
+    
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        snprintf(packet->result, sizeof(packet->result), "error: cannot open %s", path);
+        packet->result_len = strlen(packet->result);
+        return ERR_EXEC_FAIL;
+    }
+    
+    if (offset > 0) {
+        lseek(fd, (off_t)offset, SEEK_SET);
+    }
+    
+    size_t buf_size = sizeof(packet->result) - 1;
+    if (limit > 0 && (size_t)limit < buf_size) {
+        buf_size = (size_t)limit;
+    }
+    
+    ssize_t n = read(fd, packet->result, buf_size);
+    close(fd);
+    
+    if (n < 0) {
+        snprintf(packet->result, sizeof(packet->result), "error: cannot read %s", path);
+        packet->result_len = strlen(packet->result);
+        return ERR_EXEC_FAIL;
+    }
+    
+    packet->result[n] = '\0';
+    packet->result_len = (size_t)n;
     return ERR_OK;
 }
 
@@ -1016,9 +1055,7 @@ static int exec_sys_exec(OpPacketEx* packet) {
     const char* cmd = arg_value_string(packet, "cmd");
     if (!cmd) return ERR_BAD_ARGS;
     /* DANGEROUS: always requires explicit allow. Validation already checked. */
-    int ret = system(cmd);
-    if (ret != 0) return ERR_EXEC_FAIL;
-    return ERR_OK;
+    return exec_cmd_capture(packet, cmd);
 }
 
 /* --- Build --- */
@@ -1165,11 +1202,11 @@ static int exec_net_tcp_close(OpPacketEx* packet) {
     return ERR_OK;
 }
 
-/* --- Process stubs --- */
+/* --- Process --- */
 static int exec_proc_spawn(OpPacketEx* packet) {
     const char* cmd = arg_value_string(packet, "cmd");
     if (!cmd) return ERR_BAD_ARGS;
-    /* Simplified: system() blocks. Real spawn is fork+exec. */
+    /* Uses exec_cmd_capture to capture stdout in packet->result */
     return exec_cmd_capture(packet, cmd);
 }
 
@@ -1415,10 +1452,7 @@ static int exec_git_init(OpPacketEx* packet) {
     if (!path) return ERR_BAD_ARGS;
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "git init %s", path);
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git init %s: %s", path, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_clone(OpPacketEx* packet) {
@@ -1431,10 +1465,7 @@ static int exec_git_clone(OpPacketEx* packet) {
     } else {
         snprintf(cmd, sizeof(cmd), "git clone %s", url);
     }
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git clone %s: %s", url, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_fetch(OpPacketEx* packet) {
@@ -1442,10 +1473,7 @@ static int exec_git_fetch(OpPacketEx* packet) {
     if (!remote) remote = "origin";
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "git fetch %s", remote);
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git fetch %s: %s", remote, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_push(OpPacketEx* packet) {
@@ -1455,10 +1483,7 @@ static int exec_git_push(OpPacketEx* packet) {
     if (!branch) branch = "HEAD";
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "git push %s %s", remote, branch);
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git push %s %s: %s", remote, branch, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_merge(OpPacketEx* packet) {
@@ -1466,10 +1491,7 @@ static int exec_git_merge(OpPacketEx* packet) {
     if (!branch) return ERR_BAD_ARGS;
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "git merge %s", branch);
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git merge %s: %s", branch, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_rebase(OpPacketEx* packet) {
@@ -1477,10 +1499,7 @@ static int exec_git_rebase(OpPacketEx* packet) {
     if (!branch) return ERR_BAD_ARGS;
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "git rebase %s", branch);
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git rebase %s: %s", branch, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_tag(OpPacketEx* packet) {
@@ -1493,10 +1512,7 @@ static int exec_git_tag(OpPacketEx* packet) {
     } else {
         snprintf(cmd, sizeof(cmd), "git tag %s", name);
     }
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git tag %s: %s", name, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_reset(OpPacketEx* packet) {
@@ -1505,10 +1521,7 @@ static int exec_git_reset(OpPacketEx* packet) {
     bool hard = arg_value_bool(packet, "hard", false);
     char cmd[512];
     snprintf(cmd, sizeof(cmd), "git reset %s %s", hard ? "--hard" : "", target);
-    int r = system(cmd);
-    snprintf(packet->result, sizeof(packet->result), "git reset %s: %s", target, (r == 0) ? "ok" : "fail");
-    packet->result_len = strlen(packet->result);
-    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_unimplemented(OpPacketEx* packet) {
@@ -1607,15 +1620,60 @@ void ops_register_builtins(void) {
                 3, true, true);
 
     /* System */
+    register_op(OP_SYS_EXEC, "SYS_EXEC", "Execute shell command. DANGEROUS: requires explicit allow",
+                exec_sys_exec, OP_SYS_EXEC, NULL,
+                OP_FLAG_DANGEROUS, 0,
+                5.0f, 10000.0f, 0.0f,
+                1, false, false);
+    register_op(OP_SYS_ENV_GET, "SYS_ENV_GET", "Get environment variable",
+                exec_sys_env_get, OP_SYS_ENV_GET, NULL,
+                OP_FLAG_SAFE | OP_FLAG_READONLY, 0,
+                1.0f, 1.0f, 0.0f,
+                3, true, true);
+    register_op(OP_SYS_ENV_SET, "SYS_ENV_SET", "Set environment variable",
+                exec_sys_env_set, OP_SYS_ENV_SET, NULL,
+                OP_FLAG_DANGEROUS, 0,
+                1.0f, 2.0f, 0.0f,
+                2, false, true);
     register_op(OP_SYS_FILE_EXISTS, "SYS_FILE_EXISTS", "Check file existence",
                 exec_sys_file_exists, OP_SYS_FILE_EXISTS, NULL,
                 OP_FLAG_SAFE | OP_FLAG_READONLY, 0,
                 1.0f, 10.0f, 0.0f,
                 3, true, true);
+    register_op(OP_SYS_FILE_READ, "SYS_FILE_READ", "Read file contents by path. Safe and readonly.",
+                exec_sys_file_read, OP_SYS_FILE_READ, NULL,
+                OP_FLAG_SAFE | OP_FLAG_READONLY, 0,
+                2.0f, 50.0f, 4096.0f,
+                3, true, true);
     register_op(OP_SYS_DIR_CREATE, "SYS_DIR_CREATE", "Create directory",
                 exec_sys_dir_create, OP_SYS_DIR_REMOVE, NULL,
                 OP_FLAG_DISK, 0,
-                2.0f, 50.0f, 4096.0f,
+                2.0f, 50.0f, 0.0f,
+                2, false, true);
+    register_op(OP_SYS_DIR_REMOVE, "SYS_DIR_REMOVE", "Remove directory. DANGEROUS",
+                exec_sys_dir_remove, OP_SYS_DIR_CREATE, NULL,
+                OP_FLAG_DANGEROUS, 0,
+                2.0f, 100.0f, 0.0f,
+                1, false, false);
+    register_op(OP_SYS_FILE_COPY, "SYS_FILE_COPY", "Copy file",
+                exec_sys_file_copy, OP_SYS_FILE_COPY, NULL,
+                OP_FLAG_DISK, 0,
+                3.0f, 100.0f, 0.0f,
+                2, false, true);
+    register_op(OP_SYS_FILE_MOVE, "SYS_FILE_MOVE", "Move or rename file",
+                exec_sys_file_move, OP_SYS_FILE_MOVE, NULL,
+                OP_FLAG_DISK, 0,
+                3.0f, 200.0f, 0.0f,
+                2, false, true);
+    register_op(OP_SYS_FILE_DELETE, "SYS_FILE_DELETE", "Delete file. DANGEROUS",
+                exec_sys_file_delete, OP_SYS_FILE_DELETE, NULL,
+                OP_FLAG_DANGEROUS, 0,
+                1.0f, 20.0f, 0.0f,
+                1, false, false);
+    register_op(OP_SYS_CHMOD, "SYS_CHMOD", "Change file permissions",
+                exec_sys_chmod, OP_SYS_CHMOD, NULL,
+                OP_FLAG_DISK, 0,
+                1.0f, 10.0f, 0.0f,
                 2, false, true);
     register_op(OP_SYS_DIR_REMOVE, "SYS_DIR_REMOVE", "Remove directory",
                 exec_sys_dir_remove, OP_SYS_DIR_CREATE, NULL,
