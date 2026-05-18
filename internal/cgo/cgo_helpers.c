@@ -1,6 +1,7 @@
 #include "ops.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stddef.h>
 
 /* ============================================================================
  * CGO Helper Functions
@@ -60,4 +61,10 @@ ValidationResult cgo_validate_chain(OpPacketEx* packets, size_t count, ExecConte
 
 int cgo_execute_chain(OpPacketEx* packets, size_t count, ExecContext* ctx) {
     return ops_execute_chain(packets, count, ctx);
+}
+
+const char* cgo_get_packet_result(OpPacketEx* packets, size_t idx) {
+    if (!packets) return "";
+    OpPacketEx* p = &packets[idx];
+    return p->result;
 }

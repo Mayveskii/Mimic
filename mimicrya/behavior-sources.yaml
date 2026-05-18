@@ -792,14 +792,14 @@ sources:
       - name: stream_filter_trait
         what: Line-by-line StreamFilter trait (feed_line, flush, on_exit) — streaming output compression
         extracted_from: src/core/stream.rs
-        implemented_in: core/stream_filter.c
-        status: planned
+        implemented_in: internal/rtk/compress.go (Compress function with content-type detection)
+        status: partial (implemented as batch compressor per-output, true streaming TBD)
 
       - name: language_aware_code_filter
         what: MinimalFilter (strip comments, collapse blanks) + AggressiveFilter (keep imports+signatures, strip bodies) + smart_truncate
         extracted_from: src/core/filter.rs
-        implemented_in: core/code_filter.c
-        status: planned
+        implemented_in: internal/rtk/compress.go (Compress with ContentCode type, StripComments/StripBodies)
+        status: partial (basic implementation, needs more language support)
 
       - name: command_classification_rewrite
         what: Static rule table (regex→rtk_cmd) + rewrite_command() stripping sudo/env/git-opts + exclude_commands + transparent_prefixes

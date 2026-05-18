@@ -205,6 +205,8 @@ typedef struct {
     OpArg args[MAX_ARGS];
     int fd_in;
     int fd_out;
+    char result[4096];  /* Output buffer for operation results */
+    size_t result_len;
 } OpPacketEx;
 
 /* ============================================================================

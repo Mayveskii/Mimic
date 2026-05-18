@@ -188,10 +188,25 @@ func (s *Server) handleRequest(req JSONRPCRequest) *JSONRPCResponse {
 			return resp
 		}
 
-		jsonOut, _ := json.MarshalIndent(wr.FinalOutput, "", "  ")
+		// Extract meaningful result for the model
+		var resultText string
+		if outputMap, ok := wr.FinalOutput.(map[string]interface{}); ok {
+			if result := outputMap["result"]; result != nil {
+				if cr, ok := result.(cgo.ChainResult); ok && cr.Result != "" {
+					resultText = cr.Result
+				} else {
+					jsonBytes, _ := json.Marshal(result)
+					resultText = string(jsonBytes)
+				}
+			}
+		}
+		if resultText == "" {
+			jsonOut, _ := json.MarshalIndent(wr.FinalOutput, "", "  ")
+			resultText = string(jsonOut)
+		}
 		resp.Result = map[string]interface{}{
 			"content": []map[string]string{
-				{"type": "text", "text": string(jsonOut)},
+				{"type": "text", "text": resultText},
 			},
 		}
 		return resp

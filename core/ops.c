@@ -13,6 +13,12 @@
 #include <libgen.h>
 #include <stdint.h>
 #include <signal.h>
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+#include <openssl/sha.h>
+#include <openssl/md5.h>
+#pragma GCC diagnostic pop
+#include <sys/wait.h>
 
 /* ============================================================================
  * Static globals
@@ -755,24 +761,48 @@ static int exec_mmap_alloc(OpPacketEx* packet) {
 }
 
 static int exec_mmap_free(OpPacketEx* packet) {
+    int64_t ptr_val = arg_value_int(packet, "ptr", 0);
     int64_t size = arg_value_int(packet, "size", 0);
-    (void)size;
-    /* In real impl: ptr from packet. Here simplified. */
+    if (ptr_val == 0 || size <= 0) return ERR_BAD_ARGS;
+    if (munmap((void*)(uintptr_t)ptr_val, (size_t)size) != 0) {
+        return ERR_EXEC_FAIL;
+    }
     return ERR_OK;
 }
 
 static int exec_mmap_read(OpPacketEx* packet) {
-    (void)packet;
+    int64_t ptr_val = arg_value_int(packet, "ptr", 0);
+    int64_t offset = arg_value_int(packet, "offset", 0);
+    int64_t length = arg_value_int(packet, "length", 0);
+    if (ptr_val == 0 || length <= 0 || length > 4096) return ERR_BAD_ARGS;
+    char* src = (char*)((uintptr_t)ptr_val + (size_t)offset);
+    size_t to_copy = (size_t)length;
+    if (to_copy > sizeof(packet->result) - 1) to_copy = sizeof(packet->result) - 1;
+    memcpy(packet->result, src, to_copy);
+    packet->result[to_copy] = 0;
+    packet->result_len = to_copy;
     return ERR_OK;
 }
 
 static int exec_mmap_write(OpPacketEx* packet) {
-    (void)packet;
+    int64_t ptr_val = arg_value_int(packet, "ptr", 0);
+    int64_t offset = arg_value_int(packet, "offset", 0);
+    const char* data = arg_value_string(packet, "data");
+    if (ptr_val == 0 || !data) return ERR_BAD_ARGS;
+    size_t len = strlen(data);
+    if (len > 4096) len = 4096;
+    char* dst = (char*)((uintptr_t)ptr_val + (size_t)offset);
+    memcpy(dst, data, len);
     return ERR_OK;
 }
 
 static int exec_mmap_sync(OpPacketEx* packet) {
-    (void)packet;
+    int64_t ptr_val = arg_value_int(packet, "ptr", 0);
+    int64_t size = arg_value_int(packet, "size", 0);
+    if (ptr_val == 0 || size <= 0) return ERR_BAD_ARGS;
+    if (msync((void*)(uintptr_t)ptr_val, (size_t)size, MS_SYNC) != 0) {
+        return ERR_EXEC_FAIL;
+    }
     return ERR_OK;
 }
 
@@ -813,7 +843,11 @@ static int exec_io_read(OpPacketEx* packet) {
     int fd = packet->fd_in >= 0 ? packet->fd_in : arg_value_int(packet, "fd", -1);
     int64_t length = arg_value_int(packet, "length", 0);
     if (fd < 0 || length <= 0) return ERR_BAD_ARGS;
-    /* In real impl: allocate blob buffer and read. Simplified. */
+    if (length > (int64_t)sizeof(packet->result) - 1) length = (int64_t)sizeof(packet->result) - 1;
+    ssize_t n = read(fd, packet->result, (size_t)length);
+    if (n < 0) return ERR_EXEC_FAIL;
+    packet->result[n] = 0;
+    packet->result_len = (size_t)n;
     return ERR_OK;
 }
 
@@ -1137,7 +1171,14 @@ static int exec_proc_spawn(OpPacketEx* packet) {
 }
 
 static int exec_proc_wait(OpPacketEx* packet) {
-    (void)packet;
+    int64_t pid = arg_value_int(packet, "pid", -1);
+    if (pid <= 0) return ERR_BAD_ARGS;
+    int status;
+    pid_t result = waitpid((pid_t)pid, &status, 0);
+    if (result < 0) return ERR_EXEC_FAIL;
+    int exit_code = WIFEXITED(status) ? WEXITSTATUS(status) : -1;
+    snprintf(packet->result, sizeof(packet->result), "pid=%ld, exit=%d", (long)pid, exit_code);
+    packet->result_len = strlen(packet->result);
     return ERR_OK;
 }
 
@@ -1157,13 +1198,34 @@ static int exec_proc_signal(OpPacketEx* packet) {
 static int exec_hash_sha256(OpPacketEx* packet) {
     const char* data = arg_value_string(packet, "data");
     if (!data) return ERR_BAD_ARGS;
-    /* Simplified: would compute SHA256. */
+    size_t len = strlen(data);
+    unsigned char hash[SHA256_DIGEST_LENGTH];
+    SHA256((const unsigned char*)data, len, hash);
+    char* out = packet->result;
+    size_t out_cap = sizeof(packet->result);
+    for (int i = 0; i < SHA256_DIGEST_LENGTH && (size_t)(out - packet->result) < out_cap - 3; i++) {
+        snprintf(out, out_cap - (out - packet->result), "%02x", hash[i]);
+        out += 2;
+    }
+    *out = 0;
+    packet->result_len = (size_t)(out - packet->result);
     return ERR_OK;
 }
 
 static int exec_hash_md5(OpPacketEx* packet) {
     const char* data = arg_value_string(packet, "data");
     if (!data) return ERR_BAD_ARGS;
+    size_t len = strlen(data);
+    unsigned char hash[MD5_DIGEST_LENGTH];
+    MD5((const unsigned char*)data, len, hash);
+    char* out = packet->result;
+    size_t out_cap = sizeof(packet->result);
+    for (int i = 0; i < MD5_DIGEST_LENGTH && (size_t)(out - packet->result) < out_cap - 3; i++) {
+        snprintf(out, out_cap - (out - packet->result), "%02x", hash[i]);
+        out += 2;
+    }
+    *out = 0;
+    packet->result_len = (size_t)(out - packet->result);
     return ERR_OK;
 }
 
@@ -1345,6 +1407,107 @@ static int exec_self_context_summarize(OpPacketEx* packet) {
 }
 
 /* --- Unimplemented placeholder --- */
+static int exec_git_init(OpPacketEx* packet) {
+    const char* path = arg_value_string(packet, "path");
+    if (!path) return ERR_BAD_ARGS;
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "git init %s", path);
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git init %s: %s", path, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
+static int exec_git_clone(OpPacketEx* packet) {
+    const char* url = arg_value_string(packet, "url");
+    const char* path = arg_value_string(packet, "path");
+    if (!url) return ERR_BAD_ARGS;
+    char cmd[1024];
+    if (path && path[0]) {
+        snprintf(cmd, sizeof(cmd), "git clone %s %s", url, path);
+    } else {
+        snprintf(cmd, sizeof(cmd), "git clone %s", url);
+    }
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git clone %s: %s", url, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
+static int exec_git_fetch(OpPacketEx* packet) {
+    const char* remote = arg_value_string(packet, "remote");
+    if (!remote) remote = "origin";
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "git fetch %s", remote);
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git fetch %s: %s", remote, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
+static int exec_git_push(OpPacketEx* packet) {
+    const char* remote = arg_value_string(packet, "remote");
+    const char* branch = arg_value_string(packet, "branch");
+    if (!remote) remote = "origin";
+    if (!branch) branch = "HEAD";
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "git push %s %s", remote, branch);
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git push %s %s: %s", remote, branch, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
+static int exec_git_merge(OpPacketEx* packet) {
+    const char* branch = arg_value_string(packet, "branch");
+    if (!branch) return ERR_BAD_ARGS;
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "git merge %s", branch);
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git merge %s: %s", branch, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
+static int exec_git_rebase(OpPacketEx* packet) {
+    const char* branch = arg_value_string(packet, "branch");
+    if (!branch) return ERR_BAD_ARGS;
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "git rebase %s", branch);
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git rebase %s: %s", branch, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
+static int exec_git_tag(OpPacketEx* packet) {
+    const char* name = arg_value_string(packet, "name");
+    const char* message = arg_value_string(packet, "message");
+    if (!name) return ERR_BAD_ARGS;
+    char cmd[512];
+    if (message && message[0]) {
+        snprintf(cmd, sizeof(cmd), "git tag -a %s -m '%s'", name, message);
+    } else {
+        snprintf(cmd, sizeof(cmd), "git tag %s", name);
+    }
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git tag %s: %s", name, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
+static int exec_git_reset(OpPacketEx* packet) {
+    const char* target = arg_value_string(packet, "target");
+    if (!target) target = "HEAD";
+    bool hard = arg_value_bool(packet, "hard", false);
+    char cmd[512];
+    snprintf(cmd, sizeof(cmd), "git reset %s %s", hard ? "--hard" : "", target);
+    int r = system(cmd);
+    snprintf(packet->result, sizeof(packet->result), "git reset %s: %s", target, (r == 0) ? "ok" : "fail");
+    packet->result_len = strlen(packet->result);
+    return (r == 0) ? ERR_OK : ERR_EXEC_FAIL;
+}
+
 static int exec_unimplemented(OpPacketEx* packet) {
     (void)packet;
     return ERR_EXEC_FAIL;
@@ -1541,7 +1704,7 @@ void ops_register_builtins(void) {
                 3.0f, 100.0f, 0.0f,
                 0, false, false);
     register_op(OP_GIT_PUSH, "GIT_PUSH", "Git push",
-                exec_unimplemented, OP_GIT_PUSH, NULL,
+                exec_git_push, OP_GIT_PUSH, NULL,
                 OP_FLAG_NETWORK | OP_FLAG_DANGEROUS, 0,
                 5.0f, 5000.0f, 0.0f,
                 0, false, false);
@@ -1556,37 +1719,37 @@ void ops_register_builtins(void) {
                 2.0f, 50.0f, 0.0f,
                 2, false, false);
     register_op(OP_GIT_MERGE, "GIT_MERGE", "Git merge",
-                exec_unimplemented, OP_GIT_MERGE, NULL,
+                exec_git_merge, OP_GIT_MERGE, NULL,
                 OP_FLAG_DISK | OP_FLAG_DANGEROUS, 0,
                 3.0f, 500.0f, 0.0f,
                 0, false, false);
     register_op(OP_GIT_REBASE, "GIT_REBASE", "Git rebase",
-                exec_unimplemented, OP_GIT_REBASE, NULL,
+                exec_git_rebase, OP_GIT_REBASE, NULL,
                 OP_FLAG_DISK | OP_FLAG_DANGEROUS, 0,
                 3.0f, 500.0f, 0.0f,
                 0, false, false);
     register_op(OP_GIT_TAG, "GIT_TAG", "Git tag",
-                exec_unimplemented, OP_GIT_TAG, NULL,
+                exec_git_tag, OP_GIT_TAG, NULL,
                 OP_FLAG_DISK, 0,
                 2.0f, 50.0f, 0.0f,
                 1, false, false);
     register_op(OP_GIT_RESET, "GIT_RESET", "Git reset",
-                exec_unimplemented, OP_GIT_RESET, NULL,
+                exec_git_reset, OP_GIT_RESET, NULL,
                 OP_FLAG_DISK | OP_FLAG_DANGEROUS, 0,
                 3.0f, 200.0f, 0.0f,
                 0, false, false);
     register_op(OP_GIT_INIT, "GIT_INIT", "Git init",
-                exec_unimplemented, OP_GIT_INIT, NULL,
+                exec_git_init, OP_GIT_INIT, NULL,
                 OP_FLAG_DISK, 0,
                 2.0f, 100.0f, 0.0f,
                 2, false, false);
     register_op(OP_GIT_CLONE, "GIT_CLONE", "Git clone",
-                exec_unimplemented, OP_GIT_CLONE, NULL,
+                exec_git_clone, OP_GIT_CLONE, NULL,
                 OP_FLAG_NETWORK | OP_FLAG_DISK, 0,
                 10.0f, 30000.0f, 0.0f,
                 1, false, false);
     register_op(OP_GIT_FETCH, "GIT_FETCH", "Git fetch",
-                exec_unimplemented, OP_GIT_FETCH, NULL,
+                exec_git_fetch, OP_GIT_FETCH, NULL,
                 OP_FLAG_NETWORK, 0,
                 5.0f, 10000.0f, 0.0f,
                 2, false, false);

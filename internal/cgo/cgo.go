@@ -2,7 +2,7 @@ package cgo
 
 /*
 #cgo CFLAGS: -I../../core
-#cgo LDFLAGS: -L../../core -lcore -lm
+#cgo LDFLAGS: -L../../core -lcore -lm -lcrypto
 
 #include <stdlib.h>
 #include "ops.h"
@@ -17,6 +17,7 @@ extern void cgo_free_packets(OpPacketEx* arr);
 extern const char* cgo_get_error_msg(ValidationResult* vr);
 extern ValidationResult cgo_validate_chain(OpPacketEx* packets, size_t count, ExecContext* ctx);
 extern int cgo_execute_chain(OpPacketEx* packets, size_t count, ExecContext* ctx);
+extern const char* cgo_get_packet_result(OpPacketEx* packets, size_t idx);
 */
 import "C"
 import (
@@ -52,6 +53,7 @@ type ChainResult struct {
 	ErrorMessage string
 	EnergyUsed   float32
 	LatencyUS    float32
+	Result       string // Output from the last packet's execution
 }
 
 // EncodeChain converts Go packets to C packets for validation/execution.
@@ -154,6 +156,13 @@ func ExecuteChain(packets []Packet, budgetTokens, budgetTimeMS float32) (ChainRe
 		ErrorMessage: msg,
 		EnergyUsed:   float32(vr.total_energy),
 		LatencyUS:    float32(vr.estimated_latency_us),
+	}
+
+	// Capture result from last packet
+	if len(packets) > 0 {
+		lastIdx := C.size_t(len(packets) - 1)
+		cResult := C.cgo_get_packet_result((*C.OpPacketEx)(ptr), lastIdx)
+		cr.Result = C.GoString(cResult)
 	}
 
 	if result != C.ERR_OK {

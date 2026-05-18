@@ -2,6 +2,7 @@
 
 CC = gcc
 CFLAGS = -Wall -Wextra -O3 -fPIC -Icore
+LDFLAGS = -Lcore -lcore -lm -lcrypto
 GO = go
 GOFLAGS = -trimpath
 
@@ -22,7 +23,7 @@ $(CORE_LIB): $(CORE_OBJS)
 	ar rcs $@ $^
 
 core-test: $(CORE_LIB)
-	$(CC) $(CFLAGS) -o core/test_runner core/test_ops.c -Lcore -lcore -lm
+	$(CC) $(CFLAGS) -o core/test_runner core/test_ops.c -Lcore -lcore -lm -lcrypto
 	./core/test_runner
 
 # ============================================================================
