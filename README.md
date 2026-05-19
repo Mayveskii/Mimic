@@ -1,5 +1,6 @@
 Happy how , my dear friends, from cloud ! This is quite sad that persons that were against this repo's being borned now are watchiong this, but the same time it's a big pleasure to be dropped from your ship.
 So it's borned , awaitingg for cost$/token reduce so soon , guys )) Have a good time with it!
+So credible thanks guys that are being true, this ain't gonna happen without you.
 
 
 # Mimic — MCP Server for Deterministic AI-Agent Tool Orchestration
