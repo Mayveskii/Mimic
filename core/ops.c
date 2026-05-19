@@ -1123,13 +1123,27 @@ static int exec_build_clean(OpPacketEx* packet) {
     return exec_cmd_capture(packet, cmd);
 }
 
-/* --- Git stubs (simplified) --- */
+/* --- Git (cwd-aware) --- */
 static int exec_git_status(OpPacketEx* packet) {
-    return exec_cmd_capture(packet, "git status --short 2>&1");
+    const char* dir = arg_value_string(packet, "dir");
+    char cmd[512];
+    if (dir && dir[0]) {
+        snprintf(cmd, sizeof(cmd), "cd %s && git status --short 2>&1", dir);
+    } else {
+        snprintf(cmd, sizeof(cmd), "git status --short 2>&1");
+    }
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_diff(OpPacketEx* packet) {
-    return exec_cmd_capture(packet, "git diff --stat 2>&1");
+    const char* dir = arg_value_string(packet, "dir");
+    char cmd[512];
+    if (dir && dir[0]) {
+        snprintf(cmd, sizeof(cmd), "cd %s && git diff --stat 2>&1", dir);
+    } else {
+        snprintf(cmd, sizeof(cmd), "git diff --stat 2>&1");
+    }
+    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_add(OpPacketEx* packet) {
