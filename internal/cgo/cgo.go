@@ -81,10 +81,17 @@ func EncodeChain(packets []Packet) unsafe.Pointer {
 				cv := C.CString(val)
 				C.cgo_set_arg_string(cp, idx, ck, cv)
 				C.free(unsafe.Pointer(cv))
-			case int:
-				C.cgo_set_arg_int(cp, idx, ck, C.int64_t(val))
-			case int64:
-				C.cgo_set_arg_int(cp, idx, ck, C.int64_t(val))
+case int, int64, float64:
+    var intVal int64
+    switch v := val.(type) {
+    case int:
+        intVal = int64(v)
+    case int64:
+        intVal = v
+    case float64:
+        intVal = int64(v)
+    }
+    C.cgo_set_arg_int(cp, idx, ck, C.int64_t(intVal))
 			case bool:
 				vint := 0
 				if val {
@@ -183,6 +190,7 @@ func GetAvailableTools() []string {
     "NET_HTTP_GET", "NET_HTTP_POST", "NET_TCP_CLOSE",
     "PROC_SPAWN", "PROC_WAIT", "PROC_KILL", "PROC_SIGNAL",
     "HASH_SHA256", "HASH_MD5",
+    "FILE_EDIT", "FILE_INSERT", "FILE_DELETE_RANGE",
     "SESS_BUDGET_CHECK", "ORCH_VALIDATE",
   }
 }

@@ -5,6 +5,7 @@ package mesh
 import (
 	"bufio"
 	"encoding/gob"
+	"encoding/json"
 	"fmt"
 	"math"
 	"os"
@@ -100,6 +101,7 @@ type PatternSlot struct {
 // MeshRegistry holds all loaded domain maps.
 type MeshRegistry struct {
 	Maps         []*SemanticMap
+	textSlots    []*TextSlot               // ADR-005: text-native slots
 	mu           sync.RWMutex
 	EmbedCache   map[string][EmbedDim]int8 // query text → cached embed
 	filterDomain string                     // optional domain constraint
@@ -109,6 +111,7 @@ type MeshRegistry struct {
 func NewRegistry() *MeshRegistry {
 	return &MeshRegistry{
 		Maps:       make([]*SemanticMap, 0),
+		textSlots:  make([]*TextSlot, 0),
 		EmbedCache: make(map[string][EmbedDim]int8),
 	}
 }
@@ -151,11 +154,20 @@ func LoadGraphBinary(path string) (*SemanticMap, error) {
 		if len(n.EmbedRaw) == EmbedDim {
 			copy(n.EmbedInt8[:], n.EmbedRaw)
 		}
+		// Fallback: gob files often store description in Task when Invariant is empty
+		invariant := n.Invariant
+		if invariant == "" && n.Task != "" {
+			invariant = n.Task
+		}
+		why := n.WhyWorked
+		if why == "" && n.TestSignal != "" {
+			why = n.TestSignal
+		}
 		slot := PatternSlot{
 			ID:         n.ID,
 			DomainID:   n.Domain,
-			Invariant:  n.Invariant,
-			WhyWorked:  n.WhyWorked,
+			Invariant:  invariant,
+			WhyWorked:  why,
 			SourceRepo: n.SourceRepo,
 			EmbedInt8:  n.EmbedInt8,
 			ActionBytes: n.ActionBytes,
@@ -258,8 +270,50 @@ func CosineSimilarityInt8(a, b [EmbedDim]int8) float64 {
 	return float64(dot) / (math.Sqrt(float64(normA)) * math.Sqrt(float64(normB)))
 }
 
-// LoadAllGraphs loads all .graph.gob files from a directory.
+// SetDomainFilter restricts queries to a single domain.
+func (mr *MeshRegistry) SetDomainFilter(domain string) {
+	mr.mu.Lock()
+	defer mr.mu.Unlock()
+	mr.filterDomain = domain
+}
+
+// ClearDomainFilter removes domain restriction.
+func (mr *MeshRegistry) ClearDomainFilter() {
+	mr.mu.Lock()
+	defer mr.mu.Unlock()
+	mr.filterDomain = ""
+}
+
+// LookupSlotByID finds a slot by its SHA256 ID across all maps.
+func (mr *MeshRegistry) LookupSlotByID(id string) (*PatternSlot, *SemanticMap) {
+	mr.mu.RLock()
+	defer mr.mu.RUnlock()
+	for _, m := range mr.Maps {
+		for i := range m.Slots {
+			if m.Slots[i].ID == id {
+				return &m.Slots[i], m
+			}
+		}
+	}
+	return nil, nil
+}
 func (mr *MeshRegistry) LoadAllGraphs(dir string) error {
+	// ADR-005: prefer text-native slots if data/mesh/text/ exists
+	textDir := filepath.Join(dir, "..", "text")
+	if stat, err := os.Stat(textDir); err == nil && stat.IsDir() {
+		fmt.Fprintf(os.Stderr, "[mesh] loading text-native slots from %s\n", textDir)
+		slots, err := LoadAllTextSlots(textDir)
+		if err != nil {
+			return fmt.Errorf("load text slots: %w", err)
+		}
+		mr.mu.Lock()
+		mr.textSlots = slots
+		mr.mu.Unlock()
+		fmt.Fprintf(os.Stderr, "[mesh] loaded %d text-native slots\n", len(slots))
+		return nil
+	}
+
+	// Fallback to legacy gob format
 	entries, err := os.ReadDir(dir)
 	if err != nil {
 		return err
@@ -279,4 +333,70 @@ func (mr *MeshRegistry) LoadAllGraphs(dir string) error {
 		mr.mu.Unlock()
 	}
 	return nil
+}
+
+// RegistryNode is the JSON format in invariant_registry.json.
+type RegistryNode struct {
+	ID          string   `json:"id"`
+	Invariant   string   `json:"invariant"`
+	WhyWorked   string   `json:"why_worked"`
+	Domain      string   `json:"domain"`
+	SourceRepo  string   `json:"source_repo"`
+	UsageCount  uint64   `json:"usage_count"`
+	Task        string   `json:"task"`
+	Diff        string   `json:"diff"`
+	TestSignal  string   `json:"test_signal"`
+	FilesChanged []string `json:"files_changed"`
+}
+
+// LoadRegistry overlays invariant text from a JSON registry onto loaded slots.
+func (mr *MeshRegistry) LoadRegistry(path string) error {
+	data, err := os.ReadFile(path)
+	if err != nil {
+		return fmt.Errorf("read registry: %w", err)
+	}
+	var wrapper struct {
+		Nodes    []RegistryNode `json:"nodes"`
+		Supers   []any          `json:"supers"`
+		UpdatedAt string        `json:"updated_at"`
+	}
+	if err := json.Unmarshal(data, &wrapper); err != nil {
+		return fmt.Errorf("parse registry: %w", err)
+	}
+	lookup := make(map[string]RegistryNode, len(wrapper.Nodes))
+	for _, n := range wrapper.Nodes {
+		lookup[n.ID] = n
+	}
+	mr.mu.Lock()
+	defer mr.mu.Unlock()
+	for _, m := range mr.Maps {
+		for i := range m.Slots {
+			s := &m.Slots[i]
+			if r, ok := lookup[s.ID]; ok {
+				if r.Invariant != "" {
+					s.Invariant = r.Invariant
+				}
+				if r.WhyWorked != "" {
+					s.WhyWorked = r.WhyWorked
+				}
+				if r.Domain != "" {
+					s.DomainID = r.Domain
+				}
+				if r.SourceRepo != "" {
+					s.SourceRepo = r.SourceRepo
+				}
+				if r.UsageCount > 0 {
+					s.UsageCount = r.UsageCount
+				}
+			}
+		}
+	}
+	return nil
+}
+
+// ListGraphs returns all loaded SemanticMaps. Used by migration tools.
+func (mr *MeshRegistry) ListGraphs() []*SemanticMap {
+	mr.mu.RLock()
+	defer mr.mu.RUnlock()
+	return mr.Maps
 }

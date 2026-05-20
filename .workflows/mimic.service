@@ -1,0 +1,20 @@
+[Unit]
+Description=Mimic MCP Server (v0.3)
+After=network.target mimic-embed.service
+Wants=mimic-embed.service
+
+[Service]
+Type=simple
+ExecStart=/opt/mimic/bin/mimic serve --tcp :1337
+WorkingDirectory=/opt/mimic
+Environment=MIMIC_WORKING_DIR=/opt/mimic
+Environment=MIMIC_MESH_DIR=/opt/mimic/data/mesh/graphs
+Environment=MIMIC_EMBED_ENDPOINT=http://localhost:1137
+Environment=MIMIC_TCP_ADDR=:1337
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

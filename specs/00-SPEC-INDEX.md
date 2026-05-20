@@ -14,6 +14,8 @@ Reading order. Every document has a number. Read in order.
 08-MODULES.md             ← Per-module: what, resources, connections, state.
 09-DISTILLATION-ARTIFACTS.md ← Domain coverage, atomic artifacts, feedback, multimodality, precision formula.
 10-QUALITY-GATES.md      ← Quality axis conditions (QAC-1..13), anti-pattern polarity, measured thresholds, efficiency metrics.
+11-CONFIGURATION.md      ← Every customizable variable: name | type | default | scope | invariant | source | description.
+12-EXA-RESEARCH.md       ← How models use Exa tools: discovery, extraction, synthesis workflow.
 ```
 
 ## Source Repository Analysis (per-repo spec cards)
@@ -84,3 +86,36 @@ control:                              # HOW application correctness is tracked
 - 09-DISTILLATION-ARTIFACTS.md → repos-manifest.yaml (coverage targets)
 - 09-DISTILLATION-ARTIFACTS.md → decision-patterns.yaml (decision survival)
 - 09-DISTILLATION-ARTIFACTS.md → artifact.proto (deep cache exchange format)
+
+## Architecture Documentation (docs/architecture/)
+
+Operational and strategic docs for running and evolving Mimic in production:
+
+| Document | Purpose | Audience |
+|----------|---------|----------|
+| DEPLOYMENT.md | Docker Compose, systemd units, bootstrap scripts, resource requirements | DevOps, SRE |
+| MESH_PERFORMANCE.md | Query latency analysis, HNSW/IVF migration plan, tiered storage | Back-end engineer |
+| ROADMAP_AUTONOMY.md | 4-stage autonomy roadmap (passive → proactive → generative → autonomous) | Product, architect |
+| ACTIONBYTES_SPEC.md | Embryo binary patch format (`!`-delimited decoder spec) | Core contributor |
+
+## Architecture & Strategy (docs/architecture/)
+
+Cross-cutting documents for production ops and long-term evolution:
+
+```
+docs/architecture/DEPLOYMENT.md         ← Docker Compose, systemd, bootstrap, resource requirements
+docs/architecture/MESH_PERFORMANCE.md   ← From brute-force to HNSW/IVF; tiered storage
+docs/architecture/ROADMAP_AUTONOMY.md   ← Stage 0→4: passive tool → autonomous agent
+docs/adr/005-text-native-mesh.md        ← ADR-005: markdown slots (GiT text-token analogy)
+```
+
+## GiT ↔ Mimic Mapping
+
+| GiT Principle | Mimic Implementation |
+|---------------|---------------------|
+| Universal text tokens (vision→text) | TextSlot markdown (gob→text, ADR-005) |
+| Multi-task joint training | Cross-domain edges (SlotLink, qdrant-primary) |
+| Auto-regressive generation | ValidatePlan + generative OpPacket chains |
+| Zero-shot | Mesh.AutoApply with adaptive threshold |
+| Emergence (tasks improve each other) | Self-improving mesh via session logging |
+

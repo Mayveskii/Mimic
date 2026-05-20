@@ -1,0 +1,76 @@
+{
+  "name": "git-atomic-commit",
+  "version": "1.0",
+  "description": "Stage, verify, and commit changes safely",
+  "intent": "Commit files without breaking the repository",
+  "steps": [
+    {
+      "step": 1,
+      "tool": "GIT_STATUS",
+      "description": "Check current working tree state",
+      "arguments": {
+        "dir": "{{project_dir}}"
+      },
+      "save_result_as": "git_status"
+    },
+    {
+      "step": 2,
+      "tool": "GIT_DIFF",
+      "description": "Review what will be committed",
+      "arguments": {
+        "dir": "{{project_dir}}"
+      },
+      "save_result_as": "diff_output"
+    },
+    {
+      "step": 3,
+      "tool": "GIT_ADD",
+      "description": "Stage specified files",
+      "arguments": {
+        "path": "{{file_pattern}}"
+      },
+      "condition": "git_status shows modifications"
+    },
+    {
+      "step": 4,
+      "tool": "GIT_COMMIT",
+      "description": "Create commit with message",
+      "arguments": {
+        "message": "{{commit_message}}"
+      },
+      "precondition": "diff_output is not empty"
+    }
+  ],
+  "parameters": {
+    "project_dir": {
+      "type": "string",
+      "required": true,
+      "description": "Git repository root directory",
+      "default": "."
+    },
+    "file_pattern": {
+      "type": "string",
+      "required": false,
+      "description": "Files to stage (e.g., '.', 'src/', '*.go')",
+      "default": "."
+    },
+    "commit_message": {
+      "type": "string",
+      "required": true,
+      "description": "Conventional commit message"
+    }
+  },
+  "invariants": [
+    "Working tree must not have conflicts",
+    "Commit message must not be empty",
+    "Files must exist before staging"
+  ],
+  "rollback": {
+    "on_step_failure": "git_reset_soft",
+    "command": "git reset HEAD~1 --soft"
+  },
+  "energy_estimate": {
+    "tokens": 8,
+    "latency_us": 15000
+  }
+}

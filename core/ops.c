@@ -19,12 +19,6 @@
 #include <openssl/md5.h>
 #pragma GCC diagnostic pop
 #include <sys/wait.h>
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
-#include <openssl/sha.h>
-#include <openssl/md5.h>
-#pragma GCC diagnostic pop
-#include <sys/wait.h>
 
 /* ============================================================================
  * Command execution with output capture
@@ -114,6 +108,9 @@ static void init_energy_costs(void) {
     g_energy_costs[OP_SYS_FILE_DELETE][0] = 1.0f;   g_energy_costs[OP_SYS_FILE_DELETE][1] = 20.0f;   g_energy_costs[OP_SYS_FILE_DELETE][2] = 0.0f;
     g_energy_costs[OP_SYS_CHMOD][0] = 1.0f;        g_energy_costs[OP_SYS_CHMOD][1] = 10.0f;         g_energy_costs[OP_SYS_CHMOD][2] = 0.0f;
     g_energy_costs[OP_SYS_FILE_READ][0] = 2.0f;    g_energy_costs[OP_SYS_FILE_READ][1] = 50.0f;     g_energy_costs[OP_SYS_FILE_READ][2] = 4096.0f;
+    g_energy_costs[OP_FILE_EDIT][0] = 5.0f;        g_energy_costs[OP_FILE_EDIT][1] = 200.0f;       g_energy_costs[OP_FILE_EDIT][2] = 0.0f;
+    g_energy_costs[OP_FILE_INSERT][0] = 5.0f;       g_energy_costs[OP_FILE_INSERT][1] = 200.0f;      g_energy_costs[OP_FILE_INSERT][2] = 0.0f;
+    g_energy_costs[OP_FILE_DELETE_RANGE][0] = 5.0f; g_energy_costs[OP_FILE_DELETE_RANGE][1] = 200.0f; g_energy_costs[OP_FILE_DELETE_RANGE][2] = 0.0f;
     g_energy_costs[OP_SYS_ENV_GET][0] = 1.0f;       g_energy_costs[OP_SYS_ENV_GET][1] = 1.0f;        g_energy_costs[OP_SYS_ENV_GET][2] = 0.0f;
     g_energy_costs[OP_SYS_ENV_SET][0] = 1.0f;       g_energy_costs[OP_SYS_ENV_SET][1] = 2.0f;        g_energy_costs[OP_SYS_ENV_SET][2] = 0.0f;
     g_energy_costs[OP_SYS_EXEC][0] = 5.0f;          g_energy_costs[OP_SYS_EXEC][1] = 10000.0f;      g_energy_costs[OP_SYS_EXEC][2] = 0.0f;
@@ -307,6 +304,9 @@ static const struct { OpCode code; const char* name; } g_opcode_names[] = {
     { OP_SYS_EXEC, "SYS_EXEC" }, { OP_SYS_ENV_GET, "SYS_ENV_GET" },
     { OP_SYS_ENV_SET, "SYS_ENV_SET" }, { OP_SYS_FILE_EXISTS, "SYS_FILE_EXISTS" },
     { OP_SYS_FILE_READ, "SYS_FILE_READ" },
+    { OP_FILE_EDIT, "FILE_EDIT" },
+    { OP_FILE_INSERT, "FILE_INSERT" },
+    { OP_FILE_DELETE_RANGE, "FILE_DELETE_RANGE" },
     { OP_SYS_DIR_CREATE, "SYS_DIR_CREATE" }, { OP_SYS_DIR_REMOVE, "SYS_DIR_REMOVE" },
     { OP_SYS_FILE_COPY, "SYS_FILE_COPY" }, { OP_SYS_FILE_MOVE, "SYS_FILE_MOVE" },
     { OP_SYS_FILE_DELETE, "SYS_FILE_DELETE" }, { OP_SYS_CHMOD, "SYS_CHMOD" },
@@ -938,6 +938,217 @@ static int exec_sys_file_read(OpPacketEx* packet) {
     
     packet->result[n] = '\0';
     packet->result_len = (size_t)n;
+    return ERR_OK;
+}
+
+/* ============================================================================
+ * File Editing Operations (0x8B-0x8D)
+ * ============================================================================ */
+static int exec_file_edit(OpPacketEx* packet) {
+    const char* path = arg_value_string(packet, "path");
+    const char* oldString = arg_value_string(packet, "oldString");
+    const char* newString = arg_value_string(packet, "newString");
+    
+    if (!path || !oldString) return ERR_BAD_ARGS;
+    if (!newString) newString = "";
+    
+    /* Read entire file */
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        snprintf(packet->result, sizeof(packet->result), "error: cannot open %s", path);
+        packet->result_len = strlen(packet->result);
+        return ERR_EXEC_FAIL;
+    }
+    
+    char* content = (char*)malloc(1024 * 1024); /* 1MB max file size for editing */
+    if (!content) {
+        close(fd);
+        return ERR_EXEC_FAIL;
+    }
+    
+    size_t total = 0;
+    ssize_t n;
+    while ((n = read(fd, content + total, 1024 * 1024 - total - 1)) > 0) {
+        total += (size_t)n;
+    }
+    close(fd);
+    content[total] = '\0';
+    
+    /* Find oldString */
+    char* pos = strstr(content, oldString);
+    if (!pos) {
+        free(content);
+        snprintf(packet->result, sizeof(packet->result), "error: oldString not found in %s", path);
+        packet->result_len = strlen(packet->result);
+        return ERR_EXEC_FAIL;
+    }
+    
+    /* Build new content */
+    size_t oldLen = strlen(oldString);
+    size_t newLen = strlen(newString);
+    size_t newTotal = total - oldLen + newLen;
+    
+    if (newTotal >= 1024 * 1024) {
+        free(content);
+        snprintf(packet->result, sizeof(packet->result), "error: result too large");
+        packet->result_len = strlen(packet->result);
+        return ERR_EXEC_FAIL;
+    }
+    
+    char* newContent = (char*)malloc(newTotal + 1);
+    if (!newContent) {
+        free(content);
+        return ERR_EXEC_FAIL;
+    }
+    
+    size_t prefixLen = (size_t)(pos - content);
+    memcpy(newContent, content, prefixLen);
+    memcpy(newContent + prefixLen, newString, newLen);
+    memcpy(newContent + prefixLen + newLen, pos + oldLen, total - prefixLen - oldLen);
+    newContent[newTotal] = '\0';
+    
+    /* Write back */
+    fd = open(path, O_WRONLY | O_TRUNC);
+    if (fd < 0) {
+        free(content);
+        free(newContent);
+        snprintf(packet->result, sizeof(packet->result), "error: cannot write %s", path);
+        packet->result_len = strlen(packet->result);
+        return ERR_EXEC_FAIL;
+    }
+    
+    write(fd, newContent, newTotal);
+    close(fd);
+    
+    free(content);
+    free(newContent);
+    
+    snprintf(packet->result, sizeof(packet->result), "edited: %s (replaced %zu bytes with %zu bytes)", path, oldLen, newLen);
+    packet->result_len = strlen(packet->result);
+    return ERR_OK;
+}
+
+static int exec_file_insert(OpPacketEx* packet) {
+    const char* path = arg_value_string(packet, "path");
+    const char* text = arg_value_string(packet, "text");
+    int64_t offset = arg_value_int(packet, "offset", -1);
+    
+    if (!path || !text || offset < 0) return ERR_BAD_ARGS;
+    
+    /* Read file */
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) {
+        snprintf(packet->result, sizeof(packet->result), "error: cannot open %s", path);
+        packet->result_len = strlen(packet->result);
+        return ERR_EXEC_FAIL;
+    }
+    
+    char* content = (char*)malloc(1024 * 1024);
+    if (!content) {
+        close(fd);
+        return ERR_EXEC_FAIL;
+    }
+    
+    size_t total = 0;
+    ssize_t n;
+    while ((n = read(fd, content + total, 1024 * 1024 - total - 1)) > 0) {
+        total += (size_t)n;
+    }
+    close(fd);
+    content[total] = '\0';
+    
+    if ((size_t)offset > total) offset = (int64_t)total;
+    
+    size_t textLen = strlen(text);
+    size_t newTotal = total + textLen;
+    
+    char* newContent = (char*)malloc(newTotal + 1);
+    if (!newContent) {
+        free(content);
+        return ERR_EXEC_FAIL;
+    }
+    
+    memcpy(newContent, content, (size_t)offset);
+    memcpy(newContent + offset, text, textLen);
+    memcpy(newContent + offset + textLen, content + offset, total - (size_t)offset);
+    newContent[newTotal] = '\0';
+    
+    /* Write back */
+    fd = open(path, O_WRONLY | O_TRUNC);
+    if (fd < 0) {
+        free(content);
+        free(newContent);
+        return ERR_EXEC_FAIL;
+    }
+    write(fd, newContent, newTotal);
+    close(fd);
+    
+    free(content);
+    free(newContent);
+    
+    snprintf(packet->result, sizeof(packet->result), "inserted: %zu bytes at offset %ld in %s", textLen, (long)offset, path);
+    packet->result_len = strlen(packet->result);
+    return ERR_OK;
+}
+
+static int exec_file_delete_range(OpPacketEx* packet) {
+    const char* path = arg_value_string(packet, "path");
+    int64_t start = arg_value_int(packet, "start", -1);
+    int64_t end = arg_value_int(packet, "end", -1);
+    
+    if (!path || start < 0 || end < 0 || start >= end) return ERR_BAD_ARGS;
+    
+    /* Read file */
+    int fd = open(path, O_RDONLY);
+    if (fd < 0) return ERR_EXEC_FAIL;
+    
+    char* content = (char*)malloc(1024 * 1024);
+    if (!content) {
+        close(fd);
+        return ERR_EXEC_FAIL;
+    }
+    
+    size_t total = 0;
+    ssize_t n;
+    while ((n = read(fd, content + total, 1024 * 1024 - total - 1)) > 0) {
+        total += (size_t)n;
+    }
+    close(fd);
+    content[total] = '\0';
+    
+    if ((size_t)end > total) end = (int64_t)total;
+    if (start >= end) {
+        free(content);
+        return ERR_BAD_ARGS;
+    }
+    
+    size_t deleteLen = (size_t)(end - start);
+    size_t newTotal = total - deleteLen;
+    
+    char* newContent = (char*)malloc(newTotal + 1);
+    if (!newContent) {
+        free(content);
+        return ERR_EXEC_FAIL;
+    }
+    
+    memcpy(newContent, content, (size_t)start);
+    memcpy(newContent + start, content + end, total - (size_t)end);
+    newContent[newTotal] = '\0';
+    
+    fd = open(path, O_WRONLY | O_TRUNC);
+    if (fd < 0) {
+        free(content);
+        free(newContent);
+        return ERR_EXEC_FAIL;
+    }
+    write(fd, newContent, newTotal);
+    close(fd);
+    
+    free(content);
+    free(newContent);
+    
+    snprintf(packet->result, sizeof(packet->result), "deleted: %zu bytes from %s [%ld:%ld]", deleteLen, path, (long)start, (long)end);
+    packet->result_len = strlen(packet->result);
     return ERR_OK;
 }
 
@@ -1659,6 +1870,21 @@ void ops_register_builtins(void) {
                 OP_FLAG_SAFE | OP_FLAG_READONLY, 0,
                 2.0f, 50.0f, 4096.0f,
                 3, true, true);
+    register_op(OP_FILE_EDIT, "FILE_EDIT", "Edit file: replace oldString with newString. Atomic.",
+                exec_file_edit, OP_FILE_EDIT, NULL,
+                OP_FLAG_DISK | OP_FLAG_ATOMIC, 0,
+                5.0f, 200.0f, 0.0f,
+                2, false, true);
+    register_op(OP_FILE_INSERT, "FILE_INSERT", "Insert text at offset in file. Atomic.",
+                exec_file_insert, OP_FILE_INSERT, NULL,
+                OP_FLAG_DISK | OP_FLAG_ATOMIC, 0,
+                5.0f, 200.0f, 0.0f,
+                2, false, true);
+    register_op(OP_FILE_DELETE_RANGE, "FILE_DELETE_RANGE", "Delete text range [start:end]. Atomic.",
+                exec_file_delete_range, OP_FILE_DELETE_RANGE, NULL,
+                OP_FLAG_DISK | OP_FLAG_ATOMIC, 0,
+                5.0f, 200.0f, 0.0f,
+                2, false, true);
     register_op(OP_SYS_DIR_CREATE, "SYS_DIR_CREATE", "Create directory",
                 exec_sys_dir_create, OP_SYS_DIR_REMOVE, NULL,
                 OP_FLAG_DISK, 0,
@@ -2071,9 +2297,23 @@ void ops_register_builtins(void) {
                 1.0f, 5.0f, 0.0f,
                 3, true, true);
     register_op(OP_SELF_CONTEXT_SUMMARIZE, "SELF_CONTEXT_SUMMARIZE", "Summarize context",
-                exec_self_context_summarize, OP_SELF_CONTEXT_SUMMARIZE, NULL,
+                    exec_self_context_summarize, OP_SELF_CONTEXT_SUMMARIZE, NULL,
+                    OP_FLAG_SAFE, 0,
+                    5.0f, 200.0f, 0.0f,
+                    3, true, true);
+
+    /* Mesh */
+    register_op(OP_MESH_QUERY, "MESH_QUERY", "Query mesh for proven patterns",
+                exec_mesh_query, OP_MESH_QUERY, NULL,
+                OP_FLAG_SAFE | OP_FLAG_READONLY, 0,
+                10.0f, 5000.0f, 0.0f,
+                3, true, true);
+
+    /* Pattern Execution */
+    register_op(OP_EXECUTE_PATTERN, "EXECUTE_PATTERN", "Execute ActionBytes from a mesh slot",
+                exec_execute_pattern, OP_EXECUTE_PATTERN, NULL,
                 OP_FLAG_SAFE, 0,
-                5.0f, 200.0f, 0.0f,
+                5.0f, 5000.0f, 0.0f,
                 3, true, true);
 }
 

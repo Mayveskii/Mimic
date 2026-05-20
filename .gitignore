@@ -2,8 +2,9 @@
 project_context_main/
 
 # Binaries
-bin/
+bin/mimic
 dist/
+dist-bin/
 *.o
 *.a
 *.so
@@ -30,6 +31,12 @@ Thumbs.db
 *.key
 *.pem
 
+# Node / npm
+node_modules/
+package-lock.json
+# Keep package.json in repo (it IS source code)
+!package.json
+
 # Large data files (downloaded from GitHub Releases on first run)
 data/seeds/
 data/distilled/
@@ -52,3 +59,11 @@ Mimic_server/
 file1.txt
 file2.txt
 libnano_ops.so
+
+# User-specific local config
+.mimic/
+
+# Generated mesh graphs (large binary files)
+data/mesh/graphs/
+
+# Verification tool (should be tracked, not ignored)

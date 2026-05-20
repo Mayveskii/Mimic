@@ -1,0 +1,59 @@
+{
+  "name": "explore-codebase",
+  "version": "1.0",
+  "description": "Read multiple files to understand codebase structure",
+  "intent": "Gather context for code changes",
+  "steps": [
+    {
+      "step": 1,
+      "tool": "SYS_FILE_READ",
+      "description": "Read primary target file",
+      "arguments": {
+        "path": "{{primary_file}}",
+        "limit": 4096
+      },
+      "save_result_as": "primary_content"
+    },
+    {
+      "step": 2,
+      "tool": "SYS_FILE_READ",
+      "description": "Read related file (if specified)",
+      "arguments": {
+        "path": "{{related_file}}",
+        "limit": 4096
+      },
+      "condition": "{{related_file}} is not empty",
+      "optional": true
+    },
+    {
+      "step": 3,
+      "tool": "SYS_FILE_EXISTS",
+      "description": "Check if test file exists",
+      "arguments": {
+        "path": "{{test_file}}"
+      },
+      "optional": true
+    }
+  ],
+  "parameters": {
+    "primary_file": {
+      "type": "string",
+      "required": true,
+      "description": "Main file to read"
+    },
+    "related_file": {
+      "type": "string",
+      "required": false,
+      "description": "Secondary file for context"
+    },
+    "test_file": {
+      "type": "string",
+      "required": false,
+      "description": "Path to corresponding test file"
+    }
+  },
+  "energy_estimate": {
+    "tokens": 6,
+    "latency_us": 10000
+  }
+}

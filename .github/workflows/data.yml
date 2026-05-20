@@ -1,0 +1,158 @@
+name: Data Pipeline
+# Slow, cron-triggered CI for sync repos, distill, and auto-ingestion.
+# Separated from code CI to avoid destructive overhead on every push.
+# Architecture: Data produces artifacts → Code CI consumes them.
+
+on:
+  schedule:
+    # Weekly at Sunday 02:00 UTC
+    - cron: '0 2 * * 0'
+  workflow_dispatch:
+    inputs:
+      skip_sync:
+        description: 'Skip repo sync step'
+        type: boolean
+        default: false
+      skip_distill:
+        description: 'Skip distillation step'
+        type: boolean
+        default: false
+      skip_reach:
+        description: 'Skip reach (Exa auto-ingestion) step'
+        type: boolean
+        default: false
+
+env:
+  DATA_RELEASE_TAG: data-latest
+  DISTILL_BATCH_SIZE: 10
+  EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+  MIMIC_AUTO_RESEARCH: true
+  MIMIC_SEED_DIR: data/seeds
+  MIMIC_AUTO_RESEARCH_MAX_RESULTS: 5
+
+jobs:
+  # 1. Repository Sync
+  sync-repos:
+    runs-on: ubuntu-latest
+    if: github.event.inputs.skip_sync != 'true'
+    outputs:
+      updated: ${{ steps.sync.outputs.updated }}
+      new_sha: ${{ steps.sync.outputs.new_sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Python deps
+        run: |
+          sudo apt-get update && sudo apt-get install -y git
+          pip install pyyaml requests
+      - name: Sync repository list
+        id: sync
+        run: |
+          python3 scripts/sync_repos.py \
+            --manifest mimicrya/repos-manifest.yaml \
+            --output mimicrya/repos-manifest.yaml
+          if git diff --quiet mimicrya/repos-manifest.yaml; then
+            echo "updated=false" >> $GITHUB_OUTPUT
+          else
+            echo "updated=true" >> $GITHUB_OUTPUT
+            git config user.name "Mimic Bot"
+            git config user.email "bot@mayveskii.dev"
+            git add mimicrya/repos-manifest.yaml
+            git commit -m "data(sync): update repo SHAs $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+  # 2. Distillation
+  distill:
+    needs: sync-repos
+    if: (needs.sync-repos.outputs.updated == 'true' || github.event.inputs.skip_sync == 'true') && github.event.inputs.skip_distill != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install deps
+        run: |
+          sudo apt-get update && sudo apt-get install -y git gcc make libssl-dev python3-dev
+          pip install pyyaml gitpython
+      - name: Run distillation
+        run: |
+          python3 data/extraction/distill_pipeline.py \
+            --batch-size ${{ env.DISTILL_BATCH_SIZE }} \
+            --output data/distilled/
+      - name: Validate quality gates
+        run: |
+          python3 data/extraction/quality_gate.py \
+            --slots data/distilled/mesh_slots.json \
+            --min-precision 0.8 \
+            --qac all
+      - name: Package data
+        run: |
+          bash scripts/package-data.sh ${{ env.DATA_RELEASE_TAG }}
+      - name: Upload data artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mesh-data
+          path: dist/mimic-data-*.tar.gz
+
+  # 3. Reach — Auto-ingestion via Exa for repos with 0 slots
+  reach:
+    needs: sync-repos
+    if: github.event.inputs.skip_reach != 'true'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Install Python deps
+        run: |
+          pip install requests
+      - name: Run reach (auto-ingestion for pending repos)
+        run: |
+          python3 scripts/reach.py \
+            --manifest mimicrya/repos-manifest.yaml \
+            --seeds ${{ env.MIMIC_SEED_DIR }} \
+            --max-results ${{ env.MIMIC_AUTO_RESEARCH_MAX_RESULTS }}
+        env:
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+      - name: Commit new seeds
+        run: |
+          if [ -n "$(git status --porcelain ${{ env.MIMIC_SEED_DIR }})" ]; then
+            git config user.name "Mimic Bot"
+            git config user.email "bot@mayveskii.dev"
+            git add ${{ env.MIMIC_SEED_DIR }}
+            git commit -m "data(reach): auto-ingestion seeds $(date -u +%Y-%m-%d)"
+            git push
+          fi
+
+  # 4. Publish Data Release (GitHub Release with data bundle)
+  publish-data-release:
+    needs: [distill, reach]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+      - name: Download data artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mesh-data
+          path: artifacts/
+      - name: Update data-latest release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ env.DATA_RELEASE_TAG }}
+          files: artifacts/*
+          name: "Mimic Data Bundle (latest)"
+          body: |
+            ## Automated Data Pipeline Output
+            - **Generated:** $(date -u)
+            - **Repos synced:** from repos-manifest.yaml
+            - **Slots distilled:** see mesh_slots.json inside
+            - **Seeds reached:** from Exa auto-ingestion
+
+            To use:
+            ```bash
+            ./install.sh --data-only
+            # or
+            docker run -e MIMIC_CACHE_ENABLED=true mayveskii/mimic:latest serve
+            ```
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

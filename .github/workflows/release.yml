@@ -11,7 +11,8 @@ on:
         required: true
 
 env:
-  REGISTRY: ghcr.io
+  REGISTRY_GHCR: ghcr.io
+  REGISTRY_DOCKERHUB: docker.io
   IMAGE_NAME: mayveskii/mimic
 
 jobs:
@@ -86,8 +87,8 @@ jobs:
           name: mesh-data
           path: dist/mimic-data-*
 
-  # 4. Build Docker image
-  build-docker:
+  # 4. Build Docker image — GitHub Container Registry
+  build-docker-ghcr:
     needs: test
     runs-on: ubuntu-latest
     permissions:
@@ -100,14 +101,14 @@ jobs:
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY }}
+          registry: ${{ env.REGISTRY_GHCR }}
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
         with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          images: ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME }}
           tags: |
             type=ref,event=tag
             type=raw,value=latest,enable={{is_default_branch}}
@@ -122,9 +123,74 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
-  # 5. Create GitHub Release with all assets
+  # 5. Build Docker image — Docker Hub
+  build-docker-hub:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY_DOCKERHUB }}
+          username: mayevskii
+          password: ${{ secrets.DOCKER }}
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=tag
+            type=raw,value=latest,enable={{is_default_branch}}
+      - name: Build and push
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          platforms: linux/amd64,linux/arm64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+  # 6. Publish npm package
+  publish-npm:
+    needs: [build-binaries]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - name: Sync version from tag
+        run: |
+          VERSION=${{ github.ref_name || inputs.tag }}
+          VERSION=${VERSION#v}  # strip leading v
+          npm version "$VERSION" --no-git-tag-version
+      - name: Download binaries
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+          merge-multiple: true
+      - name: Move binaries into package
+        run: |
+          mkdir -p dist-bin
+          cp artifacts/mimic-linux-amd64 dist-bin/
+          cp artifacts/mimic-darwin-amd64 dist-bin/
+          cp artifacts/mimic-darwin-arm64 dist-bin/
+      - name: Publish to npm
+        run: npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM }}
+        if: github.event_name != 'pull_request'
+
+  # 7. Create GitHub Release with all assets
   release:
-    needs: [build-binaries, package-data, build-docker]
+    needs: [build-binaries, package-data, build-docker-ghcr, build-docker-hub, publish-npm]
     runs-on: ubuntu-latest
     permissions:
       contents: write
@@ -151,9 +217,19 @@ jobs:
             curl -sSL https://raw.githubusercontent.com/Mayveskii/Mimic/main/install.sh | bash
             ```
 
-            **Docker:**
+            **npm / npx:**
+            ```bash
+            npx @mayveskii/mimic serve
+            ```
+
+            **Docker (GitHub Container Registry):**
             ```bash
             docker run -p 1337:1337 ghcr.io/mayveskii/mimic:${{ github.ref_name || inputs.tag }}
+            ```
+
+            **Docker Hub:**
+            ```bash
+            docker run -p 1337:1337 mayveskii/mimic:${{ github.ref_name || inputs.tag }}
             ```
 
             ### Assets
@@ -163,12 +239,17 @@ jobs:
             | `mimic-linux-amd64` | Linux x86_64 binary |
             | `mimic-darwin-amd64` | macOS Intel binary |
             | `mimic-darwin-arm64` | macOS Apple Silicon |
-            | `mimic-data-*.tar.gz` | Mesh data bundle (13,611 slots) |
+            | `mimic-data-*.tar.gz` | Mesh data bundle (distilled slots) |
+
+            ### Registries
+            - **npm:** https://www.npmjs.com/package/@mayveskii/mimic
+            - **Docker Hub:** https://hub.docker.com/r/mayveskii/mimic
+            - **ghcr.io:** https://ghcr.io/mayveskii/mimic
 
             ### What changed
             See full changelog in release notes.
 
             ### Deep Cache Stats
-            - **Slots:** 13,611
+            - **Slots:** dynamic (see `MESH_STATUS` tool)
             - **Avg Precision:** 0.8500
             - **Avg Survival:** 0.8500

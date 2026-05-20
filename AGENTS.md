@@ -20,31 +20,71 @@ Mimic/
 ├── BRANCH-MAP.md          ← Branch topology, merge rules, per-branch scope
 ├── specs/                 ← All documentation (numbered, ordered)
 │   ├── 00-SPEC-INDEX.md   ← Map of all docs + spec card schema
-│   ├── 01-AGENTS.md       ← Rules for agents
 │   ├── ...through 08-MODULES.md
 │   └── sources/*.md       ← 19 per-repo spec cards
 ├── mimicrya/
 │   ├── behavior-sources.yaml  ← Mayveskii/* repos: which behaviors Mimic borrows
 │   └── repos-manifest.yaml    ← Production repos: distillation status
-├── docs/adr/              ← Architecture Decision Records
+├── docs/adr/              ← Architecture Decision Records (ADR-001..005)
+├── docs/architecture/     ← Deployment, performance, autonomy roadmap
+│   ├── DEPLOYMENT.md
+│   ├── MESH_PERFORMANCE.md
+│   ├── ROADMAP_AUTONOMY.md
+│   └── ACTIONBYTES_SPEC.md
 ├── core/                  ← C-core (ops.c, ops.h, exec_*.c, bmap/)
+│   ├── ops.h              ← 96 OpCodes
+│   ├── ops.c
+│   ├── mesh_op.c          ← OP_MESH_QUERY (0xC0)
+│   └── pattern_op.c       ← OP_EXECUTE_PATTERN (0xD0)
 ├── internal/
-│   ├── mcp/               ← MCP server (JSON-RPC, stdio/SSE/HTTP)
-│   ├── tool/              ← MCP tool registry
-│   ├── cgo/               ← CGO bridge → core/
+│   ├── mcp/               ← MCP server (JSON-RPC, stdio/TCP)
+│   │   ├── mcp.go         ← Server, fast path routing
+│   │   ├── tool_schemas.go← 49 tool schemas with Group field
+│   │   ├── mesh_handler.go← MESH_QUERY, EXECUTE_PATTERN, MESH_AUTO_APPLY
+│   │   ├── projectmap_handler.go ← PROJECT_MAP_*, WORKSPACE_SYNTHESIZE
+│   │   ├── plan_handler.go← PLAN_GENERATE (validates via C-core)
+│   │   ├── exa_handler.go ← EXA_SEARCH web research
+│   │   └── tcp.go         ← TCPTransport, ServeTCP
+│   ├── tool/              ← MCP tool registry (legacy)
+│   ├── cgo/               ← CGO bridge Go↔C
+│   ├── embed/             ← TextEmbedding service client (int8 + float32)
+│   ├── qdrant/            ← Qdrant REST client (vector search fallback)
+│   ├── mesh/              ← Mesh registry, gob loader, ActionBytes decoder, text-native slots
+│   │   ├── actionbytes.go ← !-delimited binary patch decoder
+│   │   ├── text_slot.go   ← Markdown-native slots (ADR-005)
+│   │   └── query.go       ← Hybrid search (qdrant primary → local fallback)
+│   ├── projectmap/        ← SQLite+FTS5 indexer + workspace synthesizer
+│   │   ├── projectmap.go  ← DB schema, WAL mode, symbol search
+│   │   ├── scanner.go     ← Go regex parser (funcs, types, imports)
+│   │   └── synthesize.go  ← Workspace → .mimic/workspace.graph.gob
 │   ├── orchestrator/      ← Workflow state machine
+│   │   └── plan.go        ← Plan generation, ValidatePlan, conflict matrix
 │   ├── session/           ← Agent sessions
+│   │   └── logger.go      ← JSONL session logging, pattern extraction
 │   └── quality/           ← 2-vote verify, denial tracking
-├── cmd/mimic/main.go      ← Entrypoint
+├── cmd/mimic/main.go              ← Entrypoint (serve, serve --tcp :1337)
+├── cmd/migrate-gob-to-text/main.go ← ADR-005: gob → text-native migration tool
 ├── data/
 │   ├── extraction/        ← Distillation scripts
 │   ├── seeds/             ← Initial slots
+│   ├── mesh/
+│   │   ├── graphs/        ← 18 domain gob files
+│   │   └── registry/      ← invariant_registry.json (curated text overlay)
 │   └── matrices/          ← Conflict/energy matrices
-├── test/                  ← Integration tests
+├── test/
+│   ├── battlefield/
+│   │   ├── mesh_injection_benchmark.py   ← 4/4 PASS
+│   │   ├── gonkagate_e2e_test.py         ← 6/6 PASS
+│   │   ├── mimic_heavy_e2e_test.py       ← K8s, refactor, data flow, migration
+│   │   ├── gonkagate_limits_test.py      ← Qwen 200K token stress test
+│   │   └── three_tier_benchmark.py       ← (requires OpenRouter)
+│   └── integration/
 ├── Makefile               ← build, test, lint, check, distill, release
 ├── .github/workflows/     ← ci.yml, release.yml, distill.yml
 ├── go.mod
-└── Dockerfile
+├── Dockerfile
+└── .workflows/
+    └── mimic.service      ← systemd unit template
 ```
 
 ## Reading the Project (for any agent)
@@ -59,6 +99,9 @@ Mimic/
 8. Read specs/07-RESOURCES.md — complete resource map, OpPacket translation
 9. Read specs/08-MODULES.md — per-module documentation, connections, state
 10. Read specs/sources/*.md — per-repo spec cards: advantages → applications → control
+11. Read docs/architecture/DEPLOYMENT.md — production deployment guide (Docker Compose, systemd, bootstrap)
+12. Read docs/architecture/MESH_PERFORMANCE.md — scaling plan, bottlenecks, HNSW migration
+13. Read docs/architecture/ROADMAP_AUTONOMY.md — from passive tool to autonomous agent (4 stages)
 
 ## Two Sources of Knowledge
 

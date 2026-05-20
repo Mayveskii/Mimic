@@ -1,11 +1,14 @@
 package mcp
 
+import "strings"
+
 // ToolSchema определяет JSON Schema для инструмента, совместимый с OpenAI function calling
 // и MCP spec. Это решает проблему: модель не знает какие параметры нужны.
 type ToolSchema struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description"`
 	InputSchema map[string]interface{} `json:"inputSchema"`
+	Group       string                 `json:"group,omitempty"`
 }
 
 // DefaultSchemas содержит схемы для всех реализованных инструментов.
@@ -610,6 +613,253 @@ var DefaultSchemas = []ToolSchema{
 			"required": []string{"data"},
 		},
 	},
+
+	// ── Mesh Operations ────────────────────────────────────────────────
+	{
+		Name:        "MESH_QUERY",
+		Group:       "mesh",
+		Description: "Query the invariant mesh for a pattern. Returns top-K similar slots with invariants and ActionBytes.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"query": map[string]interface{}{
+					"type":        "string",
+					"description": "Natural language query describing the problem or intent",
+				},
+				"domain": map[string]interface{}{
+					"type":        "string",
+					"description": "Optional domain filter (e.g. go, git, distributed, service_mesh)",
+				},
+				"topK": map[string]interface{}{
+					"type":        "integer",
+					"description": "Number of results to return (1-20, default 5)",
+					"default":     5,
+					"minimum":     1,
+					"maximum":     20,
+				},
+			},
+			"required": []string{"query"},
+		},
+	},
+	{
+		Name:        "EXECUTE_PATTERN",
+		Group:       "mesh",
+		Description: "Execute a pattern from the mesh by slot ID. Decodes ActionBytes and returns tool call sequence.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"slot_id": map[string]interface{}{
+					"type":        "string",
+					"description": "Hex mesh slot ID to execute",
+				},
+				"format": map[string]interface{}{
+					"type":        "string",
+					"description": "Output format: json (default), hex, or summary",
+					"enum":        []string{"json", "hex", "summary"},
+					"default":     "json",
+				},
+			},
+			"required": []string{"slot_id"},
+		},
+	},
+
+	// ── Auto-Apply Pattern ─────────────────────────────────────────────
+	{
+		Name:        "MESH_AUTO_APPLY",
+		Group:       "mesh",
+		Description: "Query mesh for a pattern and automatically apply the best match if it has ActionBytes. Combines MESH_QUERY + EXECUTE_PATTERN in one call.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"query": map[string]interface{}{
+					"type":        "string",
+					"description": "Natural language query describing the problem or intent",
+				},
+				"domain": map[string]interface{}{
+					"type":        "string",
+					"description": "Optional domain filter (e.g. go, git, distributed, service_mesh)",
+				},
+				"similarity_threshold": map[string]interface{}{
+					"type":        "number",
+					"description": "Minimum similarity to auto-apply (default 0.5)",
+					"default":     0.5,
+				},
+			},
+			"required": []string{"query"},
+		},
+	},
+
+	// ── Mesh Status ────────────────────────────────────────────────────
+	{
+		Name:        "MESH_STATUS",
+		Group:       "mesh",
+		Description: "Check mesh health: loaded graphs, total slots, embed service status.",
+		InputSchema: map[string]interface{}{
+			"type":       "object",
+			"properties": map[string]interface{}{},
+		},
+	},
+
+	// ── ProjectMap Operations ──────────────────────────────────────────
+	{
+		Name:        "PROJECT_MAP_INDEX",
+		Group:       "project",
+		Description: "Index the current project into the ProjectMap (SQLite+FTS5). Scans all code files.",
+		InputSchema: map[string]interface{}{
+			"type":       "object",
+			"properties": map[string]interface{}{},
+		},
+	},
+	{
+		Name:        "PROJECT_MAP_STATUS",
+		Group:       "project",
+		Description: "Return ProjectMap statistics: total files, symbols, imports, last index time.",
+		InputSchema: map[string]interface{}{
+			"type":       "object",
+			"properties": map[string]interface{}{},
+		},
+	},
+	{
+		Name:        "PROJECT_MAP_QUERY_SYMBOL",
+		Group:       "project",
+		Description: "Query ProjectMap for a symbol by name or type. Returns files and line numbers.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"name": map[string]interface{}{
+					"type":        "string",
+					"description": "Symbol name (exact or partial)",
+				},
+				"type": map[string]interface{}{
+					"type":        "string",
+					"description": "Symbol type: func, type, method, interface, struct, var, const",
+				},
+			},
+		},
+	},
+	{
+		Name:        "PROJECT_MAP_SEARCH_TEXT",
+		Group:       "project",
+		Description: "Full-text search across all indexed file content using FTS5.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"query": map[string]interface{}{
+					"type":        "string",
+					"description": "Search query (FTS5 syntax supported)",
+				},
+				"limit": map[string]interface{}{
+					"type":        "integer",
+					"description": "Max results (default 20)",
+					"default":     20,
+				},
+			},
+			"required": []string{"query"},
+		},
+	},
+	{
+		Name:        "WORKSPACE_SYNTHESIZE",
+		Group:       "project",
+		Description: "Auto-distill the current workspace into a mesh graph. Extracts exported symbols, generates embeddings, stores in .mimic/workspace.graph.gob.",
+		InputSchema: map[string]interface{}{
+			"type":       "object",
+			"properties": map[string]interface{}{},
+		},
+	},
+
+	// ── Exa / External Knowledge Operations ────────────────────────────
+	{
+		Name:        "EXA_SEARCH",
+		Group:       "network",
+		Description: "Search the web via Exa.ai. Returns titles, URLs, and highlights. Requires EXA_API_KEY env var. Safe and readonly.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"query": map[string]interface{}{
+					"type":        "string",
+					"description": "Search query string",
+				},
+				"numResults": map[string]interface{}{
+					"type":        "integer",
+					"description": "Number of results (1-100). Default: 10",
+					"default":     10,
+				},
+				"type": map[string]interface{}{
+					"type":        "string",
+					"description": "Search type: auto (default), neural, keyword",
+					"enum":        []string{"auto", "neural", "keyword"},
+					"default":     "auto",
+				},
+			},
+			"required": []string{"query"},
+		},
+	},
+	{
+		Name:        "EXA_FETCH",
+		Group:       "network",
+		Description: "Fetch markdown content from URLs via Exa.ai. Supports content extraction and max character limits. Requires EXA_API_KEY.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"urls": map[string]interface{}{
+					"type":        "array",
+					"description": "List of URLs to fetch (max 100)",
+					"items": map[string]interface{}{
+						"type": "string",
+					},
+				},
+				"maxChars": map[string]interface{}{
+					"type":        "integer",
+					"description": "Max characters per URL result. 0 = unlimited",
+					"default":     0,
+				},
+			},
+			"required": []string{"urls"},
+		},
+	},
+	{
+		Name:        "MIMIC_RESEARCH",
+		Group:       "mesh",
+		Description: "One-shot research: Exa search + fetch + RTK compression. Returns concise summary of web findings. Depth 'shallow' = titles+URLs only. Depth 'deep' = fetch and compress content. Requires EXA_API_KEY.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"topic": map[string]interface{}{
+					"type":        "string",
+					"description": "Research topic or question",
+				},
+				"depth": map[string]interface{}{
+					"type":        "string",
+					"description": "shallow (titles+URLs) or deep (fetch+compress content)",
+					"enum":        []string{"shallow", "deep"},
+					"default":     "shallow",
+				},
+			},
+			"required": []string{"topic"},
+		},
+	},
+
+	// ── Plan Generation ────────────────────────────────────────────────
+	{
+		Name:        "PLAN_GENERATE",
+		Group:       "plan",
+		Description: "Generate a validated multi-step plan for a goal. LLM proposes, C-core validates conflicts and budget.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"goal": map[string]interface{}{
+					"type":        "string",
+					"description": "High-level goal or task description",
+				},
+				"max_steps": map[string]interface{}{
+					"type":        "integer",
+					"description": "Maximum number of steps (default 10)",
+					"default":     10,
+				},
+			},
+			"required": []string{"goal"},
+		},
+	},
 }
 
 // SchemaMap быстрый lookup по имени инструмента
@@ -620,4 +870,52 @@ func init() {
 	for _, s := range DefaultSchemas {
 		SchemaMap[s.Name] = s
 	}
+}
+
+// ContextKeywords maps query terms to relevant tool groups.
+var ContextKeywords = map[string][]string{
+	"build":     {"build"},
+	"compile":   {"build"},
+	"test":      {"build", "system"},
+	"git":       {"git"},
+	"branch":    {"git"},
+	"commit":    {"git"},
+	"deploy":    {"build", "network"},
+	"kill":      {"process"},
+	"spawn":     {"process"},
+	"mesh":      {"mesh"},
+	"pattern":   {"mesh"},
+	"project":   {"project", "system", "mesh"},
+	"index":     {"project", "system"},
+	"research":  {"mesh", "network"},
+	"exa":       {"network"},
+	"web":       {"network"},
+	"search":    {"network", "mesh"},
+	"fetch":     {"network"},
+}
+
+// ToolsForContext selects relevant tools based on keywords in the query.
+func ToolsForContext(query string) []ToolSchema {
+	q := strings.ToLower(query)
+	matched := make(map[string]bool)
+	for kw, groups := range ContextKeywords {
+		if strings.Contains(q, kw) {
+			for _, g := range groups {
+				matched[g] = true
+			}
+		}
+	}
+	// Default: expose all safe (readonly + mesh) + system groups
+	if len(matched) == 0 {
+		matched["system"] = true
+		matched["mesh"] = true
+		matched["hash"] = true
+	}
+	var out []ToolSchema
+	for _, s := range DefaultSchemas {
+		if matched[s.Group] {
+			out = append(out, s)
+		}
+	}
+	return out
 }

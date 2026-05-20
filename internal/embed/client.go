@@ -45,6 +45,19 @@ type Int8Response struct {
 	LatencyMs float64 `json:"latency_ms"`
 }
 
+// EmbedFloat32 returns float32[384] embedding for text.
+func (c *Client) EmbedFloat32(text string) ([]float32, error) {
+	emb, err := c.Embed(text)
+	if err != nil {
+		return nil, err
+	}
+	out := make([]float32, len(emb))
+	for i, v := range emb {
+		out[i] = float32(v)
+	}
+	return out, nil
+}
+
 // Embed returns float32[384] embedding for text.
 func (c *Client) Embed(text string) ([]float64, error) {
 	body, _ := json.Marshal(map[string]string{"text": text})

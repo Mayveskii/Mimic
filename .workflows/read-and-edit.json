@@ -1,0 +1,82 @@
+{
+  "name": "read-and-edit",
+  "version": "1.0",
+  "description": "Read a file, make targeted edits, verify changes",
+  "intent": "Safe file modification with atomic replacements",
+  "steps": [
+    {
+      "step": 1,
+      "tool": "SYS_FILE_READ",
+      "description": "Read file to understand current content",
+      "arguments": {
+        "path": "{{file_path}}",
+        "limit": 4096
+      },
+      "save_result_as": "original_content"
+    },
+    {
+      "step": 2,
+      "tool": "FILE_EDIT",
+      "description": "Apply first atomic edit",
+      "arguments": {
+        "path": "{{file_path}}",
+        "oldString": "{{old_string_1}}",
+        "newString": "{{new_string_1}}"
+      },
+      "condition": "{{old_string_1}} is not empty"
+    },
+    {
+      "step": 3,
+      "tool": "FILE_EDIT",
+      "description": "Apply second atomic edit (if needed)",
+      "arguments": {
+        "path": "{{file_path}}",
+        "oldString": "{{old_string_2}}",
+        "newString": "{{new_string_2}}"
+      },
+      "condition": "{{old_string_2}} is not empty",
+      "optional": true
+    },
+    {
+      "step": 4,
+      "tool": "SYS_FILE_READ",
+      "description": "Verify all edits applied correctly",
+      "arguments": {
+        "path": "{{file_path}}",
+        "limit": 4096
+      },
+      "assert": "result contains new_string_1"
+    }
+  ],
+  "parameters": {
+    "file_path": {
+      "type": "string",
+      "required": true
+    },
+    "old_string_1": {
+      "type": "string",
+      "required": true,
+      "description": "Exact text to replace (first edit)"
+    },
+    "new_string_1": {
+      "type": "string",
+      "required": true
+    },
+    "old_string_2": {
+      "type": "string",
+      "required": false,
+      "description": "Exact text to replace (second edit, optional)"
+    },
+    "new_string_2": {
+      "type": "string",
+      "required": false
+    }
+  },
+  "rollback": {
+    "on_step_failure": "restore_from_git"
+  },
+  "energy_estimate": {
+    "tokens": 12,
+    "latency_us": 20000
+  }
+}

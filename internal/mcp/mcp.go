@@ -10,6 +10,7 @@ import (
 
 	"github.com/Mayveskii/Mimic/internal/cgo"
 	"github.com/Mayveskii/Mimic/internal/orchestrator"
+	"github.com/Mayveskii/Mimic/internal/tool/exa"
 )
 
 // Transport handles JSON-RPC message I/O
@@ -72,9 +73,14 @@ type JSONRPCError struct {
 
 // Server is an MCP server that exposes c-core operations as tools via the orchestrator
 type Server struct {
-	transport    Transport
-	tools        []Tool
-	orchestrator *orchestrator.Orchestrator
+	transport          Transport
+	tools              []Tool
+	orchestrator       *orchestrator.Orchestrator
+	workingDir         string
+	meshHandler        *MeshHandler
+	projectMapHandler  *ProjectMapHandler
+	exaHandler         *ExaHandler
+	planHandler        *PlanHandler
 }
 
 // Tool describes an available operation
@@ -82,13 +88,19 @@ type Tool struct {
 	Name        string                 `json:"name"`
 	Description string                 `json:"description,omitempty"`
 	InputSchema map[string]interface{} `json:"inputSchema,omitempty"`
+	Group       string                 `json:"group,omitempty"`
 }
 
-// NewServer creates an MCP server with a default budget
-func NewServer(t Transport) *Server {
+// NewServer creates an MCP server.
+func NewServer(t Transport, workingDir, meshDir, embedEndpoint string) *Server {
 	s := &Server{
-		transport:    t,
-		orchestrator: orchestrator.NewOrchestrator(10000.0, 1000000.0),
+		transport:         t,
+		orchestrator:      orchestrator.NewOrchestrator(10000.0, 1000000.0),
+		workingDir:        workingDir,
+		meshHandler:       NewMeshHandler(meshDir, embedEndpoint),
+		projectMapHandler: NewProjectMapHandler(workingDir, embedEndpoint),
+		exaHandler:        NewExaHandler(exa.LoadConfigFromEnv()),
+		planHandler:       NewPlanHandler(),
 	}
 	s.buildTools()
 	return s
@@ -100,6 +112,7 @@ func (s *Server) buildTools() {
 			Name:        schema.Name,
 			Description: schema.Description,
 			InputSchema: schema.InputSchema,
+			Group:       schema.Group,
 		}
 		s.tools = append(s.tools, t)
 	}
@@ -158,7 +171,24 @@ func (s *Server) handleRequest(req JSONRPCRequest) *JSONRPCResponse {
 		return nil // No response for notifications
 
 	case "tools/list":
-		resp.Result = map[string]interface{}{"tools": s.tools}
+		var params struct {
+			Context string `json:"context,omitempty"`
+		}
+		_ = json.Unmarshal(req.Params, &params)
+		tools := s.tools
+		if params.Context != "" {
+			schemas := ToolsForContext(params.Context)
+			tools = nil
+			for _, sc := range schemas {
+				tools = append(tools, Tool{
+					Name:        sc.Name,
+					Description: sc.Description,
+					InputSchema: sc.InputSchema,
+					Group:       sc.Group,
+				})
+			}
+		}
+		resp.Result = map[string]interface{}{"tools": tools}
 		return resp
 
 	case "tools/call":
@@ -168,6 +198,64 @@ func (s *Server) handleRequest(req JSONRPCRequest) *JSONRPCResponse {
 		}
 		if err := json.Unmarshal(req.Params, &params); err != nil {
 			resp.Error = &JSONRPCError{Code: -32602, Message: "Invalid params: " + err.Error()}
+			return resp
+		}
+
+		// Route mesh tools through Go handler (not C-core)
+		if params.Name == "MESH_QUERY" {
+			resp.Result = s.meshHandler.HandleMeshQuery(params.Arguments)
+			return resp
+		}
+		if params.Name == "MESH_STATUS" {
+			resp.Result = s.meshHandler.HandleMeshStatus()
+			return resp
+		}
+		if params.Name == "EXECUTE_PATTERN" {
+			resp.Result = s.meshHandler.HandleExecutePattern(params.Arguments)
+			return resp
+		}
+
+		// Route project map tools
+		if params.Name == "PROJECT_MAP_INDEX" {
+			resp.Result = s.projectMapHandler.HandleIndex()
+			return resp
+		}
+		if params.Name == "PROJECT_MAP_STATUS" {
+			resp.Result = s.projectMapHandler.HandleStatus()
+			return resp
+		}
+		if params.Name == "PROJECT_MAP_QUERY_SYMBOL" {
+			resp.Result = s.projectMapHandler.HandleQuerySymbol(params.Arguments)
+			return resp
+		}
+		if params.Name == "PROJECT_MAP_SEARCH_TEXT" {
+			resp.Result = s.projectMapHandler.HandleSearchText(params.Arguments)
+			return resp
+		}
+		if params.Name == "WORKSPACE_SYNTHESIZE" {
+			resp.Result = s.projectMapHandler.HandleSynthesize()
+			return resp
+		}
+		if params.Name == "MESH_AUTO_APPLY" {
+			resp.Result = s.meshHandler.HandleMeshAutoApply(params.Arguments)
+			return resp
+		}
+		if params.Name == "PLAN_GENERATE" {
+			resp.Result = s.planHandler.HandleGeneratePlan(params.Arguments)
+			return resp
+		}
+
+		// Route Exa tools
+		if params.Name == "EXA_SEARCH" {
+			resp.Result = s.exaHandler.HandleExaSearch(params.Arguments)
+			return resp
+		}
+		if params.Name == "EXA_FETCH" {
+			resp.Result = s.exaHandler.HandleExaFetch(params.Arguments)
+			return resp
+		}
+		if params.Name == "MIMIC_RESEARCH" {
+			resp.Result = s.exaHandler.HandleMimicResearch(params.Arguments)
 			return resp
 		}
 
@@ -208,5 +296,21 @@ func (s *Server) handleRequest(req JSONRPCRequest) *JSONRPCResponse {
 	default:
 		resp.Error = &JSONRPCError{Code: -32601, Message: "Method not found: " + req.Method}
 		return resp
+	}
+}
+
+// WithTransport clones s with a new transport for TCP multi-client use.
+// Handlers (mesh, projectMap, tools, orchestrator) are shared — only the
+// transport and per-connection state are replaced.
+func (s *Server) WithTransport(t Transport) *Server {
+	return &Server{
+		transport:         t,
+		tools:             s.tools,
+		orchestrator:      s.orchestrator,
+		workingDir:        s.workingDir,
+		meshHandler:       s.meshHandler,
+		projectMapHandler: s.projectMapHandler,
+		exaHandler:        s.exaHandler,
+		planHandler:       s.planHandler,
 	}
 }

@@ -1,0 +1,55 @@
+{
+  "name": "@mayveskii/mimic",
+  "version": "0.0.1",
+  "description": "Mimic MCP Server — deterministic AI-agent tool orchestration with C-core and Go orchestrator",
+  "main": "index.js",
+  "bin": {
+    "mimic": "./bin/mimic.js"
+  },
+  "scripts": {
+    "postinstall": "node scripts/install.js",
+    "prepublishOnly": "npm test",
+    "test": "node scripts/test.js"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "mcp",
+    "ai-agent",
+    "orchestration",
+    "mimic",
+    "llm-tools",
+    "c-core",
+    "deterministic"
+  ],
+  "author": "Mayveskii",
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "os": [
+    "darwin",
+    "linux",
+    "win32"
+  ],
+  "cpu": [
+    "x64",
+    "arm64"
+  ],
+  "publishConfig": {
+    "access": "public",
+    "registry": "https://registry.npmjs.org"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Mayveskii/Mimic.git"
+  },
+  "bugs": {
+    "url": "https://github.com/Mayveskii/Mimic/issues"
+  },
+  "homepage": "https://github.com/Mayveskii/Mimic#readme"
+}

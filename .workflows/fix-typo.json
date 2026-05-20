@@ -1,0 +1,64 @@
+{
+  "name": "fix-typo",
+  "version": "1.0",
+  "description": "Fix a typo in a file and verify the change",
+  "intent": "Safe typo correction with verification",
+  "steps": [
+    {
+      "step": 1,
+      "tool": "SYS_FILE_READ",
+      "description": "Read the file to locate the typo",
+      "arguments": {
+        "path": "{{file_path}}",
+        "limit": 4096
+      },
+      "save_result_as": "file_content"
+    },
+    {
+      "step": 2,
+      "tool": "FILE_EDIT",
+      "description": "Replace typo with correct spelling",
+      "arguments": {
+        "path": "{{file_path}}",
+        "oldString": "{{typo}}",
+        "newString": "{{correction}}"
+      },
+      "precondition": "file_content contains typo"
+    },
+    {
+      "step": 3,
+      "tool": "SYS_FILE_READ",
+      "description": "Verify the fix by reading the file again",
+      "arguments": {
+        "path": "{{file_path}}",
+        "limit": 4096
+      },
+      "assert": "result contains correction AND NOT result contains typo"
+    }
+  ],
+  "parameters": {
+    "file_path": {
+      "type": "string",
+      "description": "Path to the file with the typo",
+      "required": true
+    },
+    "typo": {
+      "type": "string",
+      "description": "The incorrect text to find",
+      "required": true
+    },
+    "correction": {
+      "type": "string",
+      "description": "The correct replacement text",
+      "required": true
+    }
+  },
+  "rollback": {
+    "on_step_failure": "restore_previous_state",
+    "restore_command": "git checkout -- {{file_path}}"
+  },
+  "energy_estimate": {
+    "tokens": 8,
+    "latency_us": 15000
+  }
+}

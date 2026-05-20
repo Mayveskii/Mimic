@@ -1,0 +1,62 @@
+{
+  "name": "build-and-test",
+  "version": "1.0",
+  "description": "Compile project and run tests",
+  "intent": "Verify code correctness after changes",
+  "steps": [
+    {
+      "step": 1,
+      "tool": "BUILD_COMPILE",
+      "description": "Build the project",
+      "arguments": {
+        "target": "{{build_target}}",
+        "flags": "{{build_flags}}"
+      }
+    },
+    {
+      "step": 2,
+      "tool": "BUILD_TEST",
+      "description": "Run tests",
+      "arguments": {
+        "dir": "{{test_dir}}",
+        "filter": "{{test_filter}}"
+      },
+      "precondition": "step_1 succeeded"
+    }
+  ],
+  "parameters": {
+    "build_target": {
+      "type": "string",
+      "required": false,
+      "default": "all",
+      "description": "Make target or build target"
+    },
+    "build_flags": {
+      "type": "string",
+      "required": false,
+      "description": "Additional compiler flags"
+    },
+    "test_dir": {
+      "type": "string",
+      "required": false,
+      "default": ".",
+      "description": "Directory to run tests in"
+    },
+    "test_filter": {
+      "type": "string",
+      "required": false,
+      "description": "Test name pattern to filter"
+    }
+  },
+  "invariants": [
+    "Compilation must succeed before test",
+    "Test timeout must be set"
+  ],
+  "rollback": {
+    "on_step_failure": "BUILD_CLEAN"
+  },
+  "energy_estimate": {
+    "tokens": 15,
+    "latency_us": 60000
+  }
+}

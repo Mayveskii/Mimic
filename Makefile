@@ -1,4 +1,4 @@
-.PHONY: all build test lint check distill release clean
+.PHONY: all build test lint check check-config semantics-check distill release clean
 
 CC = gcc
 CFLAGS = -Wall -Wextra -O3 -fPIC -Icore
@@ -58,10 +58,22 @@ semantics-check:
 	@python3 scripts/semantics_check.py 2>/dev/null || echo "semantics_check: script not found, skipping"
 
 # ============================================================================
+# Configuration drift detection
+# ============================================================================
+
+check-config:
+	@echo "Checking 11-CONFIGURATION.md vs codebase..."
+	@python3 scripts/check_config_consistency.py \
+		--spec specs/11-CONFIGURATION.md \
+		--env .env.example \
+		--code internal/config/,internal/mcp/,core/ops.h,Makefile,Dockerfile 2>/dev/null \
+	|| echo "check-config: script not found, skipping"
+
+# ============================================================================
 # Full check
 # ============================================================================
 
-check: lint test semantics-check
+check: lint test semantics-check check-config
 	@echo "All checks passed."
 
 # ============================================================================
@@ -79,6 +91,12 @@ distill-decisions:
 
 distill-multimodal:
 	@python3 data/extraction/extract_multimodal.py --repo-dir "$(REPO_DIR)" --repo "$(REPO)" --commit "$(COMMIT)" --output "data/seeds/$(REPO_SAFE)-multimodal.json"
+
+distill-reach:
+	@python3 scripts/reach.py \
+		--manifest mimicrya/repos-manifest.yaml \
+		--seeds data/seeds \
+		--max-results 5
 
 coverage:
 	@python3 data/extraction/compute_coverage.py --manifest mimicrya/repos-manifest.yaml --behaviors mimicrya/behavior-sources.yaml
@@ -124,11 +142,18 @@ release-all: clean build package-data docker
 	@echo "  2. Docker images:"
 	@echo "     - ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)"
 	@echo "     - ghcr.io/mayveskii/mimic:latest"
+	@echo "     - docker.io/mayveskii/mimic:$(RELEASE_VERSION)"
+	@echo "     - docker.io/mayveskii/mimic:latest"
+	@echo ""
+	@echo "  3. npm package:"
+	@echo "     - @mayveskii/mimic@$(RELEASE_VERSION)"
 	@echo ""
 	@echo "  Upload commands:"
 	@echo "     gh release create $(RELEASE_VERSION) --generate-notes"
 	@echo "     gh release upload $(RELEASE_VERSION) dist/*"
 	@echo "     docker push ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)"
+	@echo "     docker push docker.io/mayveskii/mimic:$(RELEASE_VERSION)"
+	@echo "     npm publish --access public"
 	@echo "═══════════════════════════════════════════════════════════════"
 
 # ============================================================================
@@ -139,10 +164,24 @@ docker:
 	docker build -t mimic:latest .
 	docker tag mimic:latest ghcr.io/mayveskii/mimic:latest
 	docker tag mimic:latest ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)
+	docker tag mimic:latest mayveskii/mimic:latest
+	docker tag mimic:latest mayveskii/mimic:$(RELEASE_VERSION)
 
 docker-push: docker
 	docker push ghcr.io/mayveskii/mimic:latest
 	docker push ghcr.io/mayveskii/mimic:$(RELEASE_VERSION)
+	docker push mayveskii/mimic:latest
+	docker push mayveskii/mimic:$(RELEASE_VERSION)
+
+# ============================================================================
+# npm
+# ============================================================================
+
+npm-publish:
+	cd . && npm publish --access public
+
+npm-dry-run:
+	cd . && npm publish --dry-run
 
 # ============================================================================
 # Release (legacy — binaries only)
@@ -166,8 +205,9 @@ release:
 
 clean:
 	rm -f $(CORE_OBJS) $(CORE_LIB) core/test_runner
-	rm -rf bin/ dist/
+	rm -rf bin/ dist/ dist-bin/ node_modules/
 	$(GO) clean
+
 # ============================================================================
 # Quality Infrastructure
 # ============================================================================

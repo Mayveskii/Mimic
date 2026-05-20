@@ -132,6 +132,9 @@ typedef enum {
     OP_SYS_FILE_DELETE  = 0x88,
     OP_SYS_CHMOD        = 0x89,
     OP_SYS_FILE_READ    = 0x8A,
+    OP_FILE_EDIT        = 0x8B,  /* Replace text in file: oldString -> newString */
+    OP_FILE_INSERT      = 0x8C,  /* Insert text at offset */
+    OP_FILE_DELETE_RANGE = 0x8D, /* Delete text range [start, end] */
 
     /* Session / Orchestrator (0x90-0x9A) */
     OP_SESS_BUDGET_CHECK    = 0x90,
@@ -168,6 +171,14 @@ typedef enum {
     OP_SELF_STRATEGY_PIVOT      = 0xB3,
     OP_SELF_PROGRESS_ASSESS     = 0xB4,
     OP_SELF_CONTEXT_SUMMARIZE   = 0xB5,
+
+    /* Mesh Operations (0xC0-0xCF) */
+    OP_MESH_QUERY   = 0xC0,
+    OP_MESH_INSERT  = 0xC1,
+    OP_MESH_UPDATE  = 0xC2,
+
+    /* Pattern Execution (0xD0-0xDF) */
+    OP_EXECUTE_PATTERN = 0xD0,
 
     OP_MAX = 0xFF
 } OpCode;
@@ -318,5 +329,11 @@ uint64_t ops_compute_state_hash(ExecContext* ctx);
  * ============================================================================ */
 bool session_has_explicit_allow(OpCode opcode, uint32_t chain_id);
 bool session_has_2vote_verify(uint32_t chain_id);
+
+/* Mesh lookup forward declaration */
+int exec_mesh_query(OpPacketEx* packet);
+
+/* Pattern execution forward declaration */
+int exec_execute_pattern(OpPacketEx* packet);
 
 #endif /* MIMIC_OPS_H */

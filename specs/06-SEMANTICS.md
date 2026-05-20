@@ -162,6 +162,112 @@ Added to `specs-v2/c-core/OPCODE_SPEC.md`:
 | git_scenarios | 5 | 0 | 0 | 5 |
 | **Total** | **141** | **58** | **33** | **50** |
 
+---
+
+## Go Layer: Exa API (internal/tool/exa/)
+
+| Function | Input | Output | Invariant | Source | Status |
+|----------|-------|--------|-----------|--------|--------|
+| exa.LoadConfigFromEnv | — | Config | all env vars parsed, defaults applied | exa-mcp-server | ✅ Implemented |
+| exa.Config.Disabled | — | bool | APIKey empty → true | exa-mcp-server | ✅ Implemented |
+| exa.NewClient | Config | *Client / nil | cfg.Disabled → nil | exa-mcp-server | ✅ Implemented |
+| Client.Search | query, numResults, type | *SearchResponse / error | numResults ∈ [1,100], query non-empty | exa-mcp-server | ✅ Implemented |
+| Client.Fetch | urls[], maxChars | *ContentsResponse / error | len(urls) ≤ 100 | exa-mcp-server | ✅ Implemented |
+| Client.post | path, body | []byte / error | retry ≤ RetryMax, backoff = base*2^attempt | exa-mcp-server | ✅ Implemented |
+
+## Go Layer: Exa MCP Handlers (internal/mcp/)
+
+| Function | Input | Output | Invariant | Source | Status |
+|----------|-------|--------|-----------|--------|--------|
+| NewExaHandler | exa.Config | *ExaHandler | client nil if disabled | exa-mcp-server | ✅ Implemented |
+| ExaHandler.HandleExaSearch | args map | JSON-RPC result | returns isError=true if disabled or invalid params | exa-mcp-server | ✅ Implemented |
+| ExaHandler.HandleExaFetch | args map | JSON-RPC result | urls array required; maxChars optional | exa-mcp-server | ✅ Implemented |
+| ExaHandler.HandleMimicResearch | args map | JSON-RPC result | topic required; depth ∈ {shallow,deep} | exa-mcp-server | ✅ Implemented |
+| ExaHandler.disabled | — | error result | message explains missing EXA_API_KEY | exa-mcp-server | ✅ Implemented |
+
+## Go Layer: RTK Compression (internal/rtk/)
+
+| Function | Input | Output | Invariant | Source | Status |
+|----------|-------|--------|-----------|--------|--------|
+| Compress | output string, ContentType, Config | string | result ≤ MaxLines, ≤ MaxChars if set | rtk-ai | ✅ Implemented |
+| DetectContentType | sample string | ContentType | never empty | rtk-ai | ✅ Implemented |
+| stripAnsi | text | string | removes all \x1b\[[0-9;]*m | rtk-ai | ✅ Implemented |
+| collapseBlanks | text | string | 3+ newlines → 1 | rtk-ai | ✅ Implemented |
+| headTailSplit | lines[], Config | string | HeadLines + TailLines ≤ MaxLines | rtk-ai | ✅ Implemented |
+
+## Configuration (specs/11-CONFIGURATION.md)
+
+| Variable | Type | Scope | Invariant | Source | Status |
+|----------|------|-------|-----------|--------|--------|
+| MIMIC_PORT | uint16 | env, runtime | >0 && <65535 | go-service-template-rest | ✅ Documented |
+| MIMIC_BUDGET_TOKENS | uint64 | env, session | >0 && ≤10B | code-mode | ✅ Documented |
+| MIMIC_RTK_ENABLED | bool | env, runtime | true/false | rtk-ai | ✅ Documented |
+| EXA_API_KEY | string | env, secret | len==0 or ≥20 | exa-mcp-server | ✅ Documented |
+| EXA_BASE_URL | string | env, runtime | valid HTTPS URL | exa-mcp-server | ✅ Documented |
+| MIMIC_AUTO_RESEARCH | bool | env, runtime | true/false | ADR-0009 | ✅ Documented |
+
+---
+
+## Completeness Summary
+
+| Module | Total Functions | Implemented | Stubs | Pending |
+|--------|----------------|-------------|-------|---------|
+| ops.c core | 23 | 23 | 0 | 0 |
+| ops.c executors (I/O, System, Build, Git basics, Network basics, Process basics) | 35 | 35 | 0 | 0 |
+| ops.c stubs (research, self-mgmt, advanced git/network) | 33 | 0 | 33 | 0 |
+| Exa client + handlers | 9 | 9 | 0 | 0 |
+| RTK compression | 4 | 4 | 0 | 0 |
+| libbmap.a | 39 | 0 | 0 | 39 |
+| CGO bridge | 6 | 0 | 0 | 6 |
+| git_scenarios | 5 | 0 | 0 | 5 |
+| **Total** | **154** | **71** | **33** | **50** |
+
 Core execution engine: **COMPLETE** (91 OpCodes registered, validation, rollback, tests passing)
+Exa + RTK: **COMPLETE** (13 functions implemented, tested, documented)
 Storage layer (bmap): **PENDING** (next priority)
 CGO bridge: **PENDING** (after bmap)
+
+---
+
+## Three Phases (v0.3–v0.5) — GiT Analogy
+
+### Phase A: Text-Native Mesh (ADR-005)
+Direct analogy to GiT: universal text representation instead of domain-specific modules.
+
+| Function | Input | Output | Invariant | Source | Status |
+|----------|-------|--------|-----------|--------|--------|
+| TextSlot.ToMarkdown | TextSlot | []byte markdown | Self-contained, round-trip parseable | text_slot.go | ✅ Implemented |
+| ParseTextSlot | []byte markdown | *TextSlot | All fields populated or zero values | text_slot.go | ✅ Implemented |
+| LoadAllTextSlots | dir path | []*TextSlot | Walk .md files recursively | text_slot.go | ✅ Implemented |
+
+**Semantics**: Every slot is a markdown document with `# Slot: <id>` header, `## Invariant`, `## Actions`, `## Cross-Domain Links`, `## Embedding` (base64 int8[384]), `## Metadata`. LLM can read mesh directly. `6-20×` smaller than gob (1.9 GB → ~200 MB).
+
+### Phase B: Qdrant-Primary + Cross-Domain Edges
+
+| Function | Input | Output | Invariant | Source | Status |
+|----------|-------|--------|-----------|--------|--------|
+| MeshRegistry.Query | queryText, topK, embedFn, floatEmbedFn, qdrantClient | *MeshResult | Qdrant first, local fallback | query.go | ✅ Implemented |
+| MeshRegistry.TraverseEdges | startID, maxDepth | []SlotLink | BFS over Slot.Links, no cycles | query.go | ✅ Implemented |
+
+**Semantics**: `Query()` now hits qdrant HNSW index first (~10 ms, 180 K vectors). If `< 3` results, falls back to local int8 brute force (textSlots or gob Maps). `TraverseEdges()` enables cross-domain emergence: `go-error-handling` ─[similar_to]→ `k8s-health-check`.
+
+### Phase C: Generative Chains
+
+| Function | Input | Output | Invariant | Source | Status |
+|----------|-------|--------|-----------|--------|--------|
+| ValidatePlan | *Plan, budget | error | Conflict matrix + C-core packet check + budget | plan.go | ✅ Implemented |
+| GeneratePlanFromGoal | goal, []ToolSchema | *Plan | Stub: will call LLM in production | plan.go | ⏳ Stub |
+| Logger.Log | LogEntry | error | Append JSONL atomically | logger.go | ✅ Implemented |
+| ExtractPatterns | path string | []Pattern | Group by goal, retention filter | logger.go | ⏳ Stub |
+| PlanHandler.HandleGeneratePlan | args map | map result | Delegates to GeneratePlanFromGoal + ValidatePlan | plan_handler.go | ✅ Implemented |
+
+**Semantics**: LLM generates multi-step `OpPacket` chain → Mimic validates via C-core (`ValidatePlan` checks conflict matrix, energy cost, packet serialization) → execute with checkpoints → on success, log session → `ExtractPatterns` converts to new `TextSlot`. Self-improving mesh without human curation.
+
+---
+
+**GiT ↔ Mimic mapping**:
+- GiT text tokens → TextSlot markdown
+- GiT multi-task joint training → Cross-domain edges (SlotLink)
+- GiT auto-regressive generation → ValidatePlan + generative chains
+- GiT zero-shot → Mesh.AutoApply with adaptive threshold
+

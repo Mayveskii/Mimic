@@ -1,0 +1,76 @@
+name: Test Exa Tools
+# Separate workflow for integration testing Exa MCP tools.
+# Requires EXA_API_KEY secret to be set.
+
+on:
+  push:
+    branches: [dev, main]
+    paths:
+      - 'internal/tool/exa/**'
+      - 'internal/mcp/exa_handler.go'
+      - '.github/workflows/test-exa.yml'
+  pull_request:
+    branches: [dev, main]
+  workflow_dispatch:
+
+jobs:
+  # Job 1: Go unit tests (no external API needed)
+  unit-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Install deps
+        run: sudo apt-get update && sudo apt-get install -y gcc make libssl-dev
+      - name: Build C-core
+        run: make $(CORE_LIB)
+      - name: Run Exa unit tests
+        run: go test -v ./internal/tool/exa/
+
+  # Job 2: Integration test with real Exa API
+  integration-test:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    if: secrets.EXA_API_KEY != ''
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: '1.22'
+      - name: Install deps
+        run: |
+          sudo apt-get update && sudo apt-get install -y gcc make libssl-dev python3
+      - name: Build Mimic
+        run: make build
+      - name: Run Exa integration test
+        env:
+          EXA_API_KEY: ${{ secrets.EXA_API_KEY }}
+        run: |
+          set -a
+          EXA_API_KEY="${{ secrets.EXA_API_KEY }}"
+          python3 test/battlefield/exa_integration_test.py
+      - name: Upload results
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: exa-test-results
+          path: test-results/
+
+  # Job 3: npm + Docker smoke tests (dry-run)
+  distribution-smoke:
+    needs: unit-test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          registry-url: 'https://registry.npmjs.org'
+      - name: npm install (dry-run)
+        run: npm ci --dry-run || true
+      - name: npm test script
+        run: node scripts/test.js || true
+      - name: Docker build test
+        run: docker build -t mimic:test .
