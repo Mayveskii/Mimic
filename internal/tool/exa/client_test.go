@@ -48,9 +48,9 @@ func TestSearchSuccess(t *testing.T) {
 		if r.URL.Path != "/search" {
 			t.Errorf("expected /search, got %s", r.URL.Path)
 		}
-		auth := r.Header.Get("Authorization")
-		if !strings.HasPrefix(auth, "Bearer ") {
-			t.Errorf("expected Bearer auth, got %s", auth)
+		auth := r.Header.Get("x-api-key")
+		if auth == "" {
+			t.Errorf("expected x-api-key auth, got none")
 		}
 
 		resp := SearchResponse{
