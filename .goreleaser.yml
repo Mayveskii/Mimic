@@ -1,0 +1,93 @@
+# GoReleaser configuration for Mimic
+# Builds: Go binary with CGO (C-core)
+# Publishes: GitHub Release, GHCR
+
+version: 2
+
+project_name: mimic
+
+before:
+  hooks:
+    - go mod tidy
+    - go mod verify
+    - make core/libcore.a
+
+builds:
+  - id: mimic
+    main: ./cmd/mimic
+    binary: mimic
+    env:
+      - CGO_ENABLED=1
+    goos:
+      - linux
+    goarch:
+      - amd64
+    flags:
+      - -trimpath
+    ldflags:
+      - -s -w
+      - -X main.version={{.Version}}
+      - -X main.commit={{.FullCommit}}
+      - -X main.date={{.CommitDate}}
+
+archives:
+  - id: mimic
+    formats: [tar.gz]
+    name_template: >-
+      {{ .ProjectName }}_
+      {{- .Version }}_
+      {{- .Os }}_
+      {{- .Arch }}
+    files:
+      - README.md
+      - AGENTS.md
+      - LICENSE
+
+checksum:
+  name_template: "checksums.txt"
+  algorithm: sha256
+
+changelog:
+  sort: asc
+  filters:
+    exclude:
+      - "^docs:"
+      - "^test:"
+      - "^style:"
+      - "Merge pull request"
+      - "Merge branch"
+
+dockers:
+  - image_templates:
+      - "ghcr.io/mayveskii/{{ .ProjectName }}:{{ .Tag }}"
+      - "ghcr.io/mayveskii/{{ .ProjectName }}:latest"
+    dockerfile: Dockerfile
+    use: buildx
+    build_flag_templates:
+      - "--platform=linux/amd64"
+      - "--label=org.opencontainers.image.created={{.Date}}"
+      - "--label=org.opencontainers.image.title={{.ProjectName}}"
+      - "--label=org.opencontainers.image.revision={{.FullCommit}}"
+      - "--label=org.opencontainers.image.version={{.Version}}"
+      - "--label=org.opencontainers.image.source={{.GitURL}}"
+
+release:
+  github:
+    owner: Mayveskii
+    name: Mimic
+  draft: false
+  prerelease: false
+  name_template: "Mimic {{ .Tag }}"
+  footer: |
+    ## Docker Images
+    ```bash
+    docker run -p 1337:1337 ghcr.io/mayveskii/mimic:{{ .Tag }}
+    ```
+
+    ## npm
+    ```bash
+    npx @mayveskii/mimic serve
+    ```
+  extra_files:
+    - glob: ./README.md
+    - glob: ./AGENTS.md

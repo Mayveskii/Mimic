@@ -4,250 +4,37 @@ on:
   push:
     tags:
       - 'v*'
-  workflow_dispatch:
-    inputs:
-      tag:
-        description: 'Version tag (e.g., v0.1.0)'
-        required: true
 
-env:
-  REGISTRY_GHCR: ghcr.io
-  REGISTRY_DOCKERHUB: docker.io
-  IMAGE_NAME: mayveskii/mimic
+permissions:
+  contents: write
+  packages: write
 
 jobs:
-  # 1. Build and test
-  test:
+  release:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
       - uses: actions/setup-go@v5
         with:
           go-version: '1.23'
-      - name: Install deps
+
+      - name: Install build deps
         run: sudo apt-get update && sudo apt-get install -y gcc make libssl-dev
-      - name: Build & Test
-        run: make check
-      - name: C-core tests
-        run: make core-test
 
-  # 2. Build binaries for multiple platforms
-  build-binaries:
-    needs: test
-    runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        include:
-          - os: linux
-            arch: amd64
-# Darwin builds require osxcross (not available in standard runners)
-# TODO: add macOS runner or osxcross toolchain for darwin/amd64 and darwin/arm64
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with:
-          go-version: '1.23'
-      - name: Install deps
-        run: sudo apt-get update && sudo apt-get install -y gcc make libssl-dev
-      - name: Build binary
-        env:
-          GOOS: ${{ matrix.os }}
-          GOARCH: ${{ matrix.arch }}
-        run: |
-          make build
-          mkdir -p dist
-          cp bin/mimic dist/mimic-${{ matrix.os }}-${{ matrix.arch }}
-          sha256sum dist/mimic-${{ matrix.os }}-${{ matrix.arch }} > dist/mimic-${{ matrix.os }}-${{ matrix.arch }}.sha256
-      - name: Upload artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: binary-${{ matrix.os }}-${{ matrix.arch }}
-          path: dist/mimic-${{ matrix.os }}-${{ matrix.arch }}*
-
-  # 3. Package mesh data
-  package-data:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Install Python
-        uses: actions/setup-python@v5
-        with:
-          python-version: '3.11'
-      - name: Run distillation
-        run: python3 data/extraction/distill_pipeline.py
-      - name: Package data
-        run: |
-          bash scripts/package-data.sh ${{ github.ref_name || inputs.tag }}
-      - name: Upload data artifact
-        uses: actions/upload-artifact@v4
-        with:
-          name: mesh-data
-          path: dist/mimic-data-*
-
-  # 4. Build Docker image — GitHub Container Registry
-  build-docker-ghcr:
-    needs: test
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      packages: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
       - name: Login to GitHub Container Registry
         uses: docker/login-action@v3
         with:
-          registry: ${{ env.REGISTRY_GHCR }}
+          registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY_GHCR }}/${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=tag
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
 
-  # 5. Build Docker image — Docker Hub
-  build-docker-hub:
-    needs: test
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v3
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
+      - uses: goreleaser/goreleaser-action@v6
         with:
-          registry: ${{ env.REGISTRY_DOCKERHUB }}
-          username: mayevskii
-          password: ${{ secrets.DOCKER }}
-      - name: Extract metadata
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.IMAGE_NAME }}
-          tags: |
-            type=ref,event=tag
-            type=raw,value=latest,enable={{is_default_branch}}
-      - name: Build and push
-        uses: docker/build-push-action@v5
-        with:
-          context: .
-          platforms: linux/amd64,linux/arm64
-          push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}
-          cache-from: type=gha
-          cache-to: type=gha,mode=max
-
-  # 6. Publish npm package
-  publish-npm:
-    needs: [build-binaries]
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          registry-url: 'https://registry.npmjs.org'
-      - name: Sync version from tag
-        run: |
-          VERSION=${{ github.ref_name || inputs.tag }}
-          VERSION=${VERSION#v}  # strip leading v
-          npm version "$VERSION" --no-git-tag-version
-      - name: Download binaries
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts/
-          merge-multiple: true
-      - name: Move binaries into package
-        run: |
-          mkdir -p dist-bin
-          cp artifacts/mimic-linux-amd64 dist-bin/
-          cp artifacts/mimic-darwin-amd64 dist-bin/
-          cp artifacts/mimic-darwin-arm64 dist-bin/
-      - name: Publish to npm
-        run: npm publish --access public
+          distribution: goreleaser
+          version: '~> v2'
+          args: release --clean
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM }}
-        if: github.event_name != 'pull_request'
-
-  # 7. Create GitHub Release with all assets
-  release:
-    needs: [build-binaries, package-data, build-docker-ghcr, build-docker-hub, publish-npm]
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-    steps:
-      - uses: actions/checkout@v4
-      - name: Download all artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts/
-          merge-multiple: true
-      - name: Create Release
-        uses: softprops/action-gh-release@v2
-        with:
-          files: artifacts/*
-          generate_release_notes: true
-          name: Mimic ${{ github.ref_name || inputs.tag }}
-          body: |
-            ## Mimic MCP Server ${{ github.ref_name || inputs.tag }}
-
-            ### Installation
-
-            **One-liner (macOS/Linux):**
-            ```bash
-            curl -sSL https://raw.githubusercontent.com/Mayveskii/Mimic/main/install.sh | bash
-            ```
-
-            **npm / npx:**
-            ```bash
-            npx @mayveskii/mimic serve
-            ```
-
-            **Docker (GitHub Container Registry):**
-            ```bash
-            docker run -p 1337:1337 ghcr.io/mayveskii/mimic:${{ github.ref_name || inputs.tag }}
-            ```
-
-            **Docker Hub:**
-            ```bash
-            docker run -p 1337:1337 mayveskii/mimic:${{ github.ref_name || inputs.tag }}
-            ```
-
-            ### Assets
-
-            | Asset | Description |
-            |-------|-------------|
-            | `mimic-linux-amd64` | Linux x86_64 binary |
-            | `mimic-darwin-amd64` | macOS Intel binary |
-            | `mimic-darwin-arm64` | macOS Apple Silicon |
-            | `mimic-data-*.tar.gz` | Mesh data bundle (distilled slots) |
-
-            ### Registries
-            - **npm:** https://www.npmjs.com/package/@mayveskii/mimic
-            - **Docker Hub:** https://hub.docker.com/r/mayveskii/mimic
-            - **ghcr.io:** https://ghcr.io/mayveskii/mimic
-
-            ### What changed
-            See full changelog in release notes.
-
-            ### Deep Cache Stats
-            - **Slots:** dynamic (see `MESH_STATUS` tool)
-            - **Avg Precision:** 0.8500
-            - **Avg Survival:** 0.8500
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
