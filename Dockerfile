@@ -12,7 +12,7 @@
 # All ports can be overridden via ENV variables at runtime
 
 ## Stage 1: Builder
-FROM golang:1.22-bookworm AS builder
+FROM golang:1.23-bookworm AS builder
 
 # Install build dependencies
 RUN apt-get update && apt-get install -y --no-install-recommends \
