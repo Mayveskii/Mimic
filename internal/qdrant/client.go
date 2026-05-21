@@ -36,11 +36,11 @@ func NewClient(endpoint, collection string) *Client {
 
 // SearchResult is a single match from Qdrant.
 type SearchResult struct {
-	ID       string                 `json:"id"`
-	Score    float64                `json:"score"`
-	Payload  map[string]interface{} `json:"payload"`
-	Vector   []float64              `json:"vector,omitempty"`
-	Version  uint64                 `json:"version"`
+	ID      string                 `json:"id"`
+	Score   float64                `json:"score"`
+	Payload map[string]interface{} `json:"payload"`
+	Vector  []float64              `json:"vector,omitempty"`
+	Version uint64                 `json:"version"`
 }
 
 // Search performs vector similarity search.

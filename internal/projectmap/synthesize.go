@@ -15,9 +15,9 @@ import (
 // It reads symbols from the project map, generates embeddings via the embed service,
 // and creates a mesh-compatible graph at .mimic/workspace.graph.gob.
 type WorkspaceSynthesizer struct {
-	pm           *ProjectMap
-	embedFn      mesh.EmbedFunc // func(text) -> int8[384]
-	outputPath   string
+	pm         *ProjectMap
+	embedFn    mesh.EmbedFunc // func(text) -> int8[384]
+	outputPath string
 }
 
 // NewSynthesizer creates a synthesizer for a workspace.

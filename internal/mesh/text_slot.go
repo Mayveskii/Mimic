@@ -13,14 +13,14 @@ import (
 // TextSlot is a markdown-native mesh slot. Self-contained, human-readable,
 // LLM-parseable. Replaces binary gob InvariantNode.
 type TextSlot struct {
-	ID          string
-	Domain      string
-	Invariant   string
-	Context     string
-	Actions     []string      // One per line, e.g. "SYS_FILE_READ path=/tmp"
-	Links       []SlotLink    // Cross-domain edges
-	Embed       [EmbedDim]int8
-	Metadata    map[string]string
+	ID        string
+	Domain    string
+	Invariant string
+	Context   string
+	Actions   []string   // One per line, e.g. "SYS_FILE_READ path=/tmp"
+	Links     []SlotLink // Cross-domain edges
+	Embed     [EmbedDim]int8
+	Metadata  map[string]string
 }
 
 // SlotLink represents a cross-domain relationship.

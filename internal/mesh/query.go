@@ -168,7 +168,7 @@ func (mr *MeshRegistry) TraverseEdges(startID string, maxDepth int) []SlotLink {
 	if len(mr.textSlots) == 0 {
 		return nil
 	}
-	
+
 	var result []SlotLink
 	visited := make(map[string]bool)
 	queue := []string{startID}
@@ -178,11 +178,11 @@ func (mr *MeshRegistry) TraverseEdges(startID string, maxDepth int) []SlotLink {
 	for len(queue) > 0 {
 		current := queue[0]
 		queue = queue[1:]
-		
+
 		if depth[current] >= maxDepth {
 			continue
 		}
-		
+
 		for _, ts := range mr.textSlots {
 			if ts.ID == current {
 				for _, link := range ts.Links {

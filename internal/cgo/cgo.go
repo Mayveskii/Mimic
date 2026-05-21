@@ -81,17 +81,17 @@ func EncodeChain(packets []Packet) unsafe.Pointer {
 				cv := C.CString(val)
 				C.cgo_set_arg_string(cp, idx, ck, cv)
 				C.free(unsafe.Pointer(cv))
-case int, int64, float64:
-    var intVal int64
-    switch v := val.(type) {
-    case int:
-        intVal = int64(v)
-    case int64:
-        intVal = v
-    case float64:
-        intVal = int64(v)
-    }
-    C.cgo_set_arg_int(cp, idx, ck, C.int64_t(intVal))
+			case int, int64, float64:
+				var intVal int64
+				switch v := val.(type) {
+				case int:
+					intVal = int64(v)
+				case int64:
+					intVal = v
+				case float64:
+					intVal = int64(v)
+				}
+				C.cgo_set_arg_int(cp, idx, ck, C.int64_t(intVal))
 			case bool:
 				vint := 0
 				if val {
@@ -180,19 +180,19 @@ func ExecuteChain(packets []Packet, budgetTokens, budgetTimeMS float32) (ChainRe
 
 // GetAvailableTools returns a list of registered opcodes as tool names.
 func GetAvailableTools() []string {
-  return []string{
-    "SYS_FILE_EXISTS", "SYS_FILE_READ", "SYS_DIR_CREATE", "SYS_DIR_REMOVE",
-    "SYS_FILE_COPY", "SYS_FILE_MOVE", "SYS_FILE_DELETE",
-    "SYS_CHMOD", "SYS_ENV_GET", "SYS_ENV_SET", "SYS_EXEC",
-    "IO_OPEN", "IO_CLOSE", "IO_READ", "IO_WRITE", "IO_SEEK",
-    "BUILD_COMPILE", "BUILD_LINK", "BUILD_TEST", "BUILD_DEPLOY", "BUILD_CLEAN",
-    "GIT_STATUS", "GIT_DIFF", "GIT_ADD", "GIT_COMMIT", "GIT_CHECKOUT", "GIT_BRANCH",
-    "NET_HTTP_GET", "NET_HTTP_POST", "NET_TCP_CLOSE",
-    "PROC_SPAWN", "PROC_WAIT", "PROC_KILL", "PROC_SIGNAL",
-    "HASH_SHA256", "HASH_MD5",
-    "FILE_EDIT", "FILE_INSERT", "FILE_DELETE_RANGE",
-    "SESS_BUDGET_CHECK", "ORCH_VALIDATE",
-  }
+	return []string{
+		"SYS_FILE_EXISTS", "SYS_FILE_READ", "SYS_DIR_CREATE", "SYS_DIR_REMOVE",
+		"SYS_FILE_COPY", "SYS_FILE_MOVE", "SYS_FILE_DELETE",
+		"SYS_CHMOD", "SYS_ENV_GET", "SYS_ENV_SET", "SYS_EXEC",
+		"IO_OPEN", "IO_CLOSE", "IO_READ", "IO_WRITE", "IO_SEEK",
+		"BUILD_COMPILE", "BUILD_LINK", "BUILD_TEST", "BUILD_DEPLOY", "BUILD_CLEAN",
+		"GIT_STATUS", "GIT_DIFF", "GIT_ADD", "GIT_COMMIT", "GIT_CHECKOUT", "GIT_BRANCH",
+		"NET_HTTP_GET", "NET_HTTP_POST", "NET_TCP_CLOSE",
+		"PROC_SPAWN", "PROC_WAIT", "PROC_KILL", "PROC_SIGNAL",
+		"HASH_SHA256", "HASH_MD5",
+		"FILE_EDIT", "FILE_INSERT", "FILE_DELETE_RANGE",
+		"SESS_BUDGET_CHECK", "ORCH_VALIDATE",
+	}
 }
 
 // PacketFromToolCall converts an MCP tool call name and arguments into a Packet.

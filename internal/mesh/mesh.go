@@ -59,36 +59,36 @@ type InvariantEdge struct {
 
 // SemanticMap is the runtime in-memory representation of a domain graph.
 type SemanticMap struct {
-	Name        string
-	Domain      string
-	Polarity    string // "plus" | "minus" | "edge" | "history" | "neutral"
-	Slots       []PatternSlot
-	Centroid    [EmbedDim]int8
-	Prior       float64
-	Edges       []InvariantEdge
+	Name     string
+	Domain   string
+	Polarity string // "plus" | "minus" | "edge" | "history" | "neutral"
+	Slots    []PatternSlot
+	Centroid [EmbedDim]int8
+	Prior    float64
+	Edges    []InvariantEdge
 
 	mu sync.RWMutex
 }
 
 // PatternSlot is a proven pattern usable by agents.
 type PatternSlot struct {
-	ID             string
-	DomainID       string
-	Invariant      string
-	WhyWorked      string
-	SourceRepo     string
-	CommitHash     string
-	Message        string
-	EmbedInt8      [EmbedDim]int8
-	ActionBytes    []byte
-	ActionHash     [32]byte
-	ExpectedChecks uint32
-	FeatureBits    uint32
-	SuccessRateBps uint16
-	UsageCount     uint64
+	ID               string
+	DomainID         string
+	Invariant        string
+	WhyWorked        string
+	SourceRepo       string
+	CommitHash       string
+	Message          string
+	EmbedInt8        [EmbedDim]int8
+	ActionBytes      []byte
+	ActionHash       [32]byte
+	ExpectedChecks   uint32
+	FeatureBits      uint32
+	SuccessRateBps   uint16
+	UsageCount       uint64
 	CoherenceBpsMean uint16
-	VerifiedCycle  bool
-	Analogies      []string
+	VerifiedCycle    bool
+	Analogies        []string
 
 	// Provenance
 	Task         string
@@ -101,10 +101,10 @@ type PatternSlot struct {
 // MeshRegistry holds all loaded domain maps.
 type MeshRegistry struct {
 	Maps         []*SemanticMap
-	textSlots    []*TextSlot               // ADR-005: text-native slots
+	textSlots    []*TextSlot // ADR-005: text-native slots
 	mu           sync.RWMutex
 	EmbedCache   map[string][EmbedDim]int8 // query text → cached embed
-	filterDomain string                     // optional domain constraint
+	filterDomain string                    // optional domain constraint
 }
 
 // NewRegistry creates an empty mesh registry.
@@ -164,23 +164,23 @@ func LoadGraphBinary(path string) (*SemanticMap, error) {
 			why = n.TestSignal
 		}
 		slot := PatternSlot{
-			ID:         n.ID,
-			DomainID:   n.Domain,
-			Invariant:  invariant,
-			WhyWorked:  why,
-			SourceRepo: n.SourceRepo,
-			EmbedInt8:  n.EmbedInt8,
-			ActionBytes: n.ActionBytes,
+			ID:             n.ID,
+			DomainID:       n.Domain,
+			Invariant:      invariant,
+			WhyWorked:      why,
+			SourceRepo:     n.SourceRepo,
+			EmbedInt8:      n.EmbedInt8,
+			ActionBytes:    n.ActionBytes,
 			ExpectedChecks: n.ExpectedChecks,
-			FeatureBits: n.FeatureBits,
-			UsageCount: n.UsageCount,
-			VerifiedCycle: n.SuccessCount > 0,
-			Analogies:  analogies[n.ID],
-			Task:       n.Task,
-			Diff:       n.Diff,
-			TestSignal: n.TestSignal,
-			FilesChanged: n.FilesChanged,
-			CreatedAt:  n.CreatedAt,
+			FeatureBits:    n.FeatureBits,
+			UsageCount:     n.UsageCount,
+			VerifiedCycle:  n.SuccessCount > 0,
+			Analogies:      analogies[n.ID],
+			Task:           n.Task,
+			Diff:           n.Diff,
+			TestSignal:     n.TestSignal,
+			FilesChanged:   n.FilesChanged,
+			CreatedAt:      n.CreatedAt,
 		}
 		sm.Slots = append(sm.Slots, slot)
 	}
@@ -240,9 +240,9 @@ func (sm *SemanticMap) Lookup(query [EmbedDim]int8, topK int) []LookupResult {
 	results := make([]LookupResult, topK)
 	for i := 0; i < topK; i++ {
 		results[i] = LookupResult{
-			Slot:      sm.Slots[hits[i].idx],
+			Slot:       sm.Slots[hits[i].idx],
 			Similarity: hits[i].sim,
-			MapName:   sm.Name,
+			MapName:    sm.Name,
 		}
 	}
 	return results
@@ -337,15 +337,15 @@ func (mr *MeshRegistry) LoadAllGraphs(dir string) error {
 
 // RegistryNode is the JSON format in invariant_registry.json.
 type RegistryNode struct {
-	ID          string   `json:"id"`
-	Invariant   string   `json:"invariant"`
-	WhyWorked   string   `json:"why_worked"`
-	Domain      string   `json:"domain"`
-	SourceRepo  string   `json:"source_repo"`
-	UsageCount  uint64   `json:"usage_count"`
-	Task        string   `json:"task"`
-	Diff        string   `json:"diff"`
-	TestSignal  string   `json:"test_signal"`
+	ID           string   `json:"id"`
+	Invariant    string   `json:"invariant"`
+	WhyWorked    string   `json:"why_worked"`
+	Domain       string   `json:"domain"`
+	SourceRepo   string   `json:"source_repo"`
+	UsageCount   uint64   `json:"usage_count"`
+	Task         string   `json:"task"`
+	Diff         string   `json:"diff"`
+	TestSignal   string   `json:"test_signal"`
 	FilesChanged []string `json:"files_changed"`
 }
 
@@ -356,9 +356,9 @@ func (mr *MeshRegistry) LoadRegistry(path string) error {
 		return fmt.Errorf("read registry: %w", err)
 	}
 	var wrapper struct {
-		Nodes    []RegistryNode `json:"nodes"`
-		Supers   []any          `json:"supers"`
-		UpdatedAt string        `json:"updated_at"`
+		Nodes     []RegistryNode `json:"nodes"`
+		Supers    []any          `json:"supers"`
+		UpdatedAt string         `json:"updated_at"`
 	}
 	if err := json.Unmarshal(data, &wrapper); err != nil {
 		return fmt.Errorf("parse registry: %w", err)

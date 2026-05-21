@@ -73,14 +73,14 @@ type JSONRPCError struct {
 
 // Server is an MCP server that exposes c-core operations as tools via the orchestrator
 type Server struct {
-	transport          Transport
-	tools              []Tool
-	orchestrator       *orchestrator.Orchestrator
-	workingDir         string
-	meshHandler        *MeshHandler
-	projectMapHandler  *ProjectMapHandler
-	exaHandler         *ExaHandler
-	planHandler        *PlanHandler
+	transport         Transport
+	tools             []Tool
+	orchestrator      *orchestrator.Orchestrator
+	workingDir        string
+	meshHandler       *MeshHandler
+	projectMapHandler *ProjectMapHandler
+	exaHandler        *ExaHandler
+	planHandler       *PlanHandler
 }
 
 // Tool describes an available operation

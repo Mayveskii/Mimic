@@ -26,13 +26,13 @@ import (
 
 // TurnResult captures one iteration of the loop
 type TurnResult struct {
-	Turn        int                    `json:"turn"`
-	ToolName    string                 `json:"tool_name"`
-	Arguments   map[string]interface{} `json:"arguments"`
-	RawOutput   string                 `json:"raw_output"`
-	Compressed  string                 `json:"compressed,omitempty"`
-	LatencyMs   int64                  `json:"latency_ms"`
-	Error       string                 `json:"error,omitempty"`
+	Turn       int                    `json:"turn"`
+	ToolName   string                 `json:"tool_name"`
+	Arguments  map[string]interface{} `json:"arguments"`
+	RawOutput  string                 `json:"raw_output"`
+	Compressed string                 `json:"compressed,omitempty"`
+	LatencyMs  int64                  `json:"latency_ms"`
+	Error      string                 `json:"error,omitempty"`
 }
 
 // ChainResult captures the complete multi-turn execution
@@ -62,17 +62,17 @@ func (e *MCPExecutor) Execute(ctx context.Context, name string, args map[string]
 
 // LoopConfig controls multi-turn behavior
 type LoopConfig struct {
-	MaxTurns        int   // Maximum iterations (safety)
-	CompressThreshold int // Bytes; above this, apply RTK compression
-	BudgetTokens    int   // Max total tokens before graceful stop
-	BudgetTimeMs    int64 // Max total time
+	MaxTurns          int   // Maximum iterations (safety)
+	CompressThreshold int   // Bytes; above this, apply RTK compression
+	BudgetTokens      int   // Max total tokens before graceful stop
+	BudgetTimeMs      int64 // Max total time
 }
 
 var DefaultLoopConfig = LoopConfig{
-	MaxTurns:        10,
+	MaxTurns:          10,
 	CompressThreshold: 2048,
-	BudgetTokens:    100000,
-	BudgetTimeMs:    60000,
+	BudgetTokens:      100000,
+	BudgetTimeMs:      60000,
 }
 
 // ModelCaller abstracts the LLM API (OpenRouter, OpenAI, etc.)
@@ -82,16 +82,16 @@ type ModelCaller interface {
 
 // Message for LLM chat format
 type Message struct {
-	Role    string     `json:"role"`
-	Content string     `json:"content"`
+	Role      string     `json:"role"`
+	Content   string     `json:"content"`
 	ToolCalls []ToolCall `json:"tool_calls,omitempty"`
 }
 
 // ToolCall from model response
 type ToolCall struct {
-	ID       string          `json:"id"`
-	Type     string          `json:"type"`
-	Function FunctionCall    `json:"function"`
+	ID       string       `json:"id"`
+	Type     string       `json:"type"`
+	Function FunctionCall `json:"function"`
 }
 
 // FunctionCall details
@@ -162,9 +162,9 @@ func MultiTurnLoop(
 			if err := json.Unmarshal([]byte(tc.Function.Arguments), &args); err != nil {
 				// Invalid arguments from model — record and continue
 				chain.Turns = append(chain.Turns, TurnResult{
-					Turn:     turn,
-					ToolName: tc.Function.Name,
-					Error:    fmt.Sprintf("invalid JSON arguments: %v", err),
+					Turn:      turn,
+					ToolName:  tc.Function.Name,
+					Error:     fmt.Sprintf("invalid JSON arguments: %v", err),
 					LatencyMs: time.Since(turnStart).Milliseconds(),
 				})
 				continue
@@ -174,10 +174,10 @@ func MultiTurnLoop(
 			output, err := executor.Execute(ctx, tc.Function.Name, args)
 			if err != nil {
 				chain.Turns = append(chain.Turns, TurnResult{
-					Turn:     turn,
-					ToolName: tc.Function.Name,
+					Turn:      turn,
+					ToolName:  tc.Function.Name,
 					Arguments: args,
-					Error:    err.Error(),
+					Error:     err.Error(),
 					LatencyMs: time.Since(turnStart).Milliseconds(),
 				})
 				// Feed error back to model

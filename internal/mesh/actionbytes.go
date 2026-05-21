@@ -80,8 +80,9 @@ func decodeJSON(data []byte) ([]PatchEntry, error) {
 
 // decodeEmbryoBinary parses the embryo binary patch format.
 // Format observed from etcd data:
-//   Entry := '!' (0x21) + opcode(1) + path_len(1) + path(N) + '\0' + content(M)
-//   where content is the rest until the next '!' or EOF.
+//
+//	Entry := '!' (0x21) + opcode(1) + path_len(1) + path(N) + '\0' + content(M)
+//	where content is the rest until the next '!' or EOF.
 func decodeEmbryoBinary(data []byte) ([]PatchEntry, error) {
 	// Find all '!' positions
 	var positions []int

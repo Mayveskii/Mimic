@@ -195,7 +195,6 @@ func formatMeshResult(result *mesh.MeshResult) string {
 	return b.String()
 }
 
-
 // HandleMeshAutoApply queries mesh and auto-applies the best matching pattern.
 func (h *MeshHandler) HandleMeshAutoApply(args map[string]interface{}) map[string]interface{} {
 	if h.registry == nil {
