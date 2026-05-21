@@ -1,14 +1,47 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/http"
 	"os"
 	"path/filepath"
+	"strings"
+	"time"
 
 	"github.com/Mayveskii/Mimic/internal/cgo"
 	"github.com/Mayveskii/Mimic/internal/mcp"
 	"github.com/Mayveskii/Mimic/internal/tool/exa"
 )
+
+var (
+	version = "dev"
+	commit  = "unknown"
+	date    = "unknown"
+)
+
+func checkUpdate() {
+	client := &http.Client{Timeout: 5 * time.Second}
+	resp, err := client.Get("https://api.github.com/repos/Mayveskii/Mimic/releases/latest")
+	if err != nil {
+		return
+	}
+	defer resp.Body.Close()
+
+	var release struct {
+		TagName string `json:"tag_name"`
+	}
+	if err := json.NewDecoder(resp.Body).Decode(&release); err != nil {
+		return
+	}
+
+	latest := strings.TrimPrefix(release.TagName, "v")
+	current := strings.TrimPrefix(version, "v")
+	if latest != "" && latest != current && current != "dev" {
+		fmt.Fprintf(os.Stderr, "mimic: update available: v%s → v%s\n", current, latest)
+		fmt.Fprintf(os.Stderr, "mimic: run: curl -sSL https://raw.githubusercontent.com/Mayveskii/Mimic/main/install.sh | bash\n")
+	}
+}
 
 func determineWorkingDir() string {
 	// Priority 1: explicit env override (for containers, systemd, etc.)
@@ -20,12 +53,9 @@ func determineWorkingDir() string {
 	}
 
 	// Priority 2: directory of the executable
-	// If mimic is installed at /opt/mimic/bin/mimic, workingDir = /opt/mimic
-	// If installed at /usr/local/bin/mimic, workingDir = /usr/local/bin
 	exe, err := os.Executable()
 	if err == nil {
 		exeDir := filepath.Dir(exe)
-		// If binary lives in a bin/ directory, use the parent as project root
 		if filepath.Base(exeDir) == "bin" {
 			if parent := filepath.Dir(exeDir); parent != "" {
 				return parent
@@ -39,13 +69,25 @@ func determineWorkingDir() string {
 		return cwd
 	}
 
-	// Fallback: current directory
 	return "."
 }
 
 func main() {
+	if len(os.Args) > 1 && os.Args[1] == "--check-update" {
+		checkUpdate()
+		return
+	}
+
+	if len(os.Args) > 1 && os.Args[1] == "version" {
+		fmt.Printf("mimic %s (commit %s, built %s)\n", version, commit, date)
+		return
+	}
+
 	if len(os.Args) > 1 && os.Args[1] == "serve" {
 		workingDir := determineWorkingDir()
+
+		// Check for updates (non-blocking, best-effort)
+		go checkUpdate()
 
 		// Load .env files BEFORE any config reading (so EXA_API_KEY etc. are available)
 		exa.EnsureEnvLoaded()
