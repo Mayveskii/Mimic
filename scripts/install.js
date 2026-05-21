@@ -1,127 +1,139 @@
-const https = require("https");
-const fs = require("fs");
-const path = require("path");
-const crypto = require("crypto");
-const { execSync } = require("child_process");
+#!/usr/bin/env node
 
-const pkg = require("../package.json");
+/**
+ * Postinstall script for @mayveskii/mimic
+ * Downloads the correct binary from GitHub Release
+ */
 
-// Map Node platform/arch to release asset names
-const platformMap = {
-  darwin: "darwin",
-  linux: "linux",
-  win32: "windows",
-};
+const https = require('https');
+const fs = require('fs');
+const path = require('path');
+const os = require('os');
+const { execSync } = require('child_process');
 
-const archMap = {
-  x64: "amd64",
-  arm64: "arm64",
-};
+function errorExit(message) {
+  console.error(`[mimic] Error: ${message}`);
+  process.exit(1);
+}
 
-function getAssetName() {
-  const platform = platformMap[process.platform];
-  const arch = archMap[process.arch];
-  if (!platform || !arch) {
-    throw new Error(
-      `Unsupported platform: ${process.platform} ${process.arch}. ` +
-        `Supported: linux/darwin/win32 on x64/arm64.`
-    );
+function info(message) {
+  console.log(`[mimic] ${message}`);
+}
+
+const platform = os.platform();
+const arch = os.arch();
+
+if (platform !== 'linux' || arch !== 'x64') {
+  errorExit(`Unsupported platform: ${platform}/${arch}. This package currently only supports linux/x64.`);
+}
+
+const packageJsonPath = path.join(__dirname, '..', 'package.json');
+let version;
+
+try {
+  const pkg = JSON.parse(fs.readFileSync(packageJsonPath, 'utf8'));
+  version = pkg.version;
+} catch (err) {
+  errorExit(`Failed to read package.json: ${err.message}`);
+}
+
+const binDir = path.join(__dirname, '..', 'bin');
+const binaryPath = path.join(binDir, 'mimic');
+const tarUrl = `https://github.com/Mayveskii/Mimic/releases/download/v${version}/mimic_v${version}_linux_amd64.tar.gz`;
+const tarPath = path.join(binDir, `mimic_v${version}_linux_amd64.tar.gz`);
+
+// If binary already exists, skip download
+if (fs.existsSync(binaryPath)) {
+  info('Binary already exists, skipping download.');
+  process.exit(0);
+}
+
+info(`Downloading mimic binary v${version} for linux/amd64...`);
+
+try {
+  if (!fs.existsSync(binDir)) {
+    fs.mkdirSync(binDir, { recursive: true });
   }
-  return `mimic-${platform}-${arch}`;
+} catch (err) {
+  errorExit(`Failed to create bin directory: ${err.message}`);
 }
 
-function getVersion() {
-  // Allow env override for testing/dev installs
-  return process.env.MIMIC_VERSION || pkg.version;
-}
-
-function download(url, dest) {
+function downloadFile(url, dest) {
   return new Promise((resolve, reject) => {
     const file = fs.createWriteStream(dest);
     https
-      .get(url, { timeout: 30000 }, (res) => {
-        if (res.statusCode === 302 || res.statusCode === 301) {
-          download(res.headers.location, dest).then(resolve).catch(reject);
+      .get(url, { timeout: 30000 }, (response) => {
+        if (response.statusCode === 301 || response.statusCode === 302) {
+          const redirectUrl = response.headers.location;
+          if (!redirectUrl) {
+            reject(new Error('Redirect received but no Location header'));
+            return;
+          }
+          file.close();
+          fs.unlinkSync(dest);
+          downloadFile(redirectUrl, dest)
+            .then(resolve)
+            .catch(reject);
           return;
         }
-        if (res.statusCode !== 200) {
-          reject(new Error(`Download failed: HTTP ${res.statusCode} for ${url}`));
+
+        if (response.statusCode !== 200) {
+          file.close();
+          fs.unlinkSync(dest);
+          reject(new Error(`Download failed with HTTP ${response.statusCode}`));
           return;
         }
-        res.pipe(file);
-        file.on("finish", () => {
+
+        response.pipe(file);
+        file.on('finish', () => {
           file.close(resolve);
         });
       })
-      .on("error", (err) => {
-        fs.unlink(dest, () => {});
+      .on('error', (err) => {
+        fs.unlinkSync(dest);
         reject(err);
+      })
+      .on('timeout', () => {
+        file.close();
+        fs.unlinkSync(dest);
+        reject(new Error('Download request timed out'));
       });
   });
 }
 
-async function verifySha256(filePath, shaUrl) {
+(async () => {
   try {
-    const shaData = await new Promise((resolve, reject) => {
-      https
-        .get(shaUrl, { timeout: 10000 }, (res) => {
-          let data = "";
-          res.on("data", (chunk) => (data += chunk));
-          res.on("end", () => resolve(data));
-        })
-        .on("error", reject);
-    });
-    const expected = shaData.trim().split(/\s+/)[0];
-    const actual = crypto
-      .createHash("sha256")
-      .update(fs.readFileSync(filePath))
-      .digest("hex");
-    if (expected !== actual) {
-      throw new Error(
-        `SHA256 mismatch: expected ${expected}, got ${actual}`
-      );
+    await downloadFile(tarUrl, tarPath);
+    info('Download complete. Extracting...');
+
+    try {
+      execSync(`tar -xzf "${tarPath}" -C "${binDir}"`, { stdio: 'inherit' });
+    } catch (err) {
+      errorExit(`Failed to extract archive: ${err.message}`);
     }
-    console.log("[mimic] SHA256 verified.");
-  } catch (e) {
-    console.warn(`[mimic] SHA256 verification skipped: ${e.message}`);
+
+    // Clean up tar.gz
+    try {
+      fs.unlinkSync(tarPath);
+    } catch (err) {
+      info(`Warning: could not remove temporary archive: ${err.message}`);
+    }
+
+    // Make binary executable
+    try {
+      fs.chmodSync(binaryPath, 0o755);
+    } catch (err) {
+      errorExit(`Failed to make binary executable: ${err.message}`);
+    }
+
+    info('Installation complete. Binary available at bin/mimic');
+  } catch (err) {
+    // Clean up partial download if exists
+    if (fs.existsSync(tarPath)) {
+      try {
+        fs.unlinkSync(tarPath);
+      } catch {}
+    }
+    errorExit(`Network error during download: ${err.message}`);
   }
-}
-
-async function install() {
-  const version = getVersion();
-  const asset = getAssetName();
-  const releaseBase = `https://github.com/Mayveskii/Mimic/releases/download/v${version}`;
-  const binUrl = `${releaseBase}/${asset}`;
-  const shaUrl = `${releaseBase}/${asset}.sha256`;
-
-  const targetDir = path.join(__dirname, "..", "bin");
-  if (!fs.existsSync(targetDir)) {
-    fs.mkdirSync(targetDir, { recursive: true });
-  }
-
-  const targetPath = path.join(
-    targetDir,
-    process.platform === "win32" ? "mimic-native.exe" : "mimic-native"
-  );
-
-  if (fs.existsSync(targetPath)) {
-    console.log("[mimic] Binary already exists.");
-    return;
-  }
-
-  console.log(`[mimic] Downloading ${asset} v${version}...`);
-  await download(binUrl, targetPath);
-
-  await verifySha256(targetPath, shaUrl);
-
-  if (process.platform !== "win32") {
-    fs.chmodSync(targetPath, 0o755);
-  }
-
-  console.log(`[mimic] Installed to ${targetPath}`);
-}
-
-install().catch((err) => {
-  console.error(`[mimic] Install failed: ${err.message}`);
-  process.exit(1);
-});
+})();

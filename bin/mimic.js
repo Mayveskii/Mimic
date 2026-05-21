@@ -1,35 +1,29 @@
 #!/usr/bin/env node
 
 /**
- * bin/mimic.js — npm wrapper for Mimic binary.
- * Spawns the platform-native binary downloaded by scripts/install.js.
+ * Wrapper script for @mayveskii/mimic
+ * Transparently forwards all arguments to the downloaded native binary.
  */
 
-const { spawn } = require("child_process");
-const path = require("path");
-const fs = require("fs");
+const { spawn } = require('child_process');
+const path = require('path');
 
-const binaryName = process.platform === "win32" ? "mimic-native.exe" : "mimic-native";
-const binaryPath = path.join(__dirname, binaryName);
+const binaryPath = path.join(__dirname, 'mimic');
 
-function run() {
-  if (!fs.existsSync(binaryPath)) {
-    console.error("[mimic] Native binary not found. Running postinstall...");
-    require("../scripts/install.js");
-    if (!fs.existsSync(binaryPath)) {
-      console.error("[mimic] Failed to install native binary.");
-      process.exit(1);
-    }
-  }
+const child = spawn(binaryPath, process.argv.slice(2), {
+  stdio: 'inherit',
+  windowsHide: true,
+});
 
-  const child = spawn(binaryPath, process.argv.slice(2), {
-    stdio: "inherit",
-    env: process.env,
-  });
-
-  child.on("exit", (code) => {
+child.on('exit', (code, signal) => {
+  if (signal) {
+    process.kill(process.pid, signal);
+  } else {
     process.exit(code ?? 0);
-  });
-}
+  }
+});
 
-run();
+child.on('error', (err) => {
+  console.error(`[mimic] Failed to run binary: ${err.message}`);
+  process.exit(1);
+});
