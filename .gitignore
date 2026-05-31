@@ -67,3 +67,5 @@ libnano_ops.so
 data/mesh/graphs/
 
 # Verification tool (should be tracked, not ignored)
+/mimic
+bin/mimic.js

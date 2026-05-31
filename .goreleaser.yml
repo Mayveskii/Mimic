@@ -83,11 +83,6 @@ release:
     ```bash
     docker run -p 1337:1337 ghcr.io/mayveskii/mimic:{{ .Tag }}
     ```
-
-    ## npm
-    ```bash
-    npx @mayveskii/mimic serve
-    ```
   extra_files:
     - glob: ./README.md
     - glob: ./AGENTS.md
