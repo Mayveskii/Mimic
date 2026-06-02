@@ -20,8 +20,10 @@ builds:
       - CGO_ENABLED=1
     goos:
       - linux
+      # future: - darwin
     goarch:
       - amd64
+      # future: - arm64
     flags:
       - -trimpath
     ldflags:
@@ -83,6 +85,11 @@ release:
     ```bash
     docker run -p 1337:1337 ghcr.io/mayveskii/mimic:{{ .Tag }}
     ```
+
+    ## npm (future)
+    # ```bash
+    # npx @mayveskii/mimic serve
+    # ```
   extra_files:
     - glob: ./README.md
     - glob: ./AGENTS.md

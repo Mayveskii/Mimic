@@ -192,6 +192,7 @@ func GetAvailableTools() []string {
 		"HASH_SHA256", "HASH_MD5",
 		"FILE_EDIT", "FILE_INSERT", "FILE_DELETE_RANGE",
 		"SESS_BUDGET_CHECK", "ORCH_VALIDATE",
+		"MESH_STORE", "MESH_LOAD",
 	}
 }
 

@@ -69,3 +69,4 @@ data/mesh/graphs/
 # Verification tool (should be tracked, not ignored)
 /mimic
 bin/mimic.js
+.agents/
