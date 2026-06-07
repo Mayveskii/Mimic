@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "envoyproxy/envoy",
+  "query": "github envoyproxy/envoy proxy, filter chain, xDS",
+  "fetched_at": "2026-06-07T06:19:05.010269Z",
+  "search_results": [
+    {
+      "title": "Feature : Listener Filter Chain Discovery Service · Pull Request #25473 · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/pull/25473",
+      "id": "https://github.com/envoyproxy/envoy/pull/25473"
+    },
+    {
+      "title": "Feature : Listener Filter Chain Discovery Service · Pull Request #23096 · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/pull/23096",
+      "id": "https://github.com/envoyproxy/envoy/pull/23096"
+    },
+    {
+      "title": "FilterChain Discovery Service (FDS) · Issue #4540 · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/issues/4540",
+      "id": "https://github.com/envoyproxy/envoy/issues/4540"
+    },
+    {
+      "title": "api/XDS_PROTOCOL.md at 32e4d286668731594eb5c81ed664bd144d8d2d88 · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/blob/32e4d286668731594eb5c81ed664bd144d8d2d88/api/XDS_PROTOCOL.md",
+      "id": "https://github.com/envoyproxy/envoy/blob/32e4d286668731594eb5c81ed664bd144d8d2d88/api/XDS_PROTOCOL.md"
+    },
+    {
+      "title": "http: new filter chain filter · Pull Request #42912 · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/pull/42912",
+      "id": "https://github.com/envoyproxy/envoy/pull/42912"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/envoyproxy/envoy/pull/25473",
+      "title": "Feature : Listener Filter Chain Discovery Service · Pull Request #25473 · envoyproxy/envoy",
+      "text": "# Pull Request: envoyproxy/envoy #25473\n\n- Repository: envoyproxy/envoy | Cloud-native high-performance edge/middle/service proxy | 28K stars | C++\n\n## Feature : Listener Filter Chain Discovery Service\n\n- Author: [@rakeshdatta](https://github.com/rakeshdatta)\n- State: closed\n- Labels: stale, waiting, api\n- Source branch: feat_listener_fcds\n- Target branch: main\n- Assignees: [@adisuissa](https://github.com/adisuissa)\n- Mergeable: unstable\n- Commits: 7\n- Additions: 952\n- Deletions: 52\n- Changed files: 15\n- Created: 2023-02-09T18:27:55Z\n- Updated: 2023-06-23T08:01:43Z\n- Closed: 2023-06-23T08:01:43Z\n\n**Commit Message**: Feature: Listener Filter Chain Discovery Service\n**Additional Description:** \nThis is an updated version of this PR: https://github.com/envoyproxy/envoy/pull/23096\n\nRepresenting tenants as filter-chains in envoy, its essential to be able to dynamically and independently load the tenant (filter chain) configs. To achieve that, this feature introduces anothe xDS called Filter"
+    },
+    {
+      "url": "https://github.com/envoyproxy/envoy/pull/23096",
+      "title": "Feature : Listener Filter Chain Discovery Service · Pull Request #23096 · envoyproxy/envoy",
+      "text": "# Pull Request: envoyproxy/envoy #23096\n\n- Repository: envoyproxy/envoy | Cloud-native high-performance edge/middle/service proxy | 28K stars | C++\n\n## Feature : Listener Filter Chain Discovery Service\n\n- Author: [@rakeshdatta](https://github.com/rakeshdatta)\n- State: closed\n- Labels: stale, waiting, api\n- Source branch: rakeshdatta_fcds_feature\n- Target branch: main\n- Assignees: [@adisuissa](https://github.com/adisuissa), [@htuch](https://github.com/htuch)\n- Mergeable: dirty\n- Commits: 3\n- Additions: 667\n- Deletions: 41\n- Changed files: 16\n- Created: 2022-09-13T23:17:50Z\n- Updated: 2023-01-27T04:01:15Z\n- Closed: 2023-01-27T04:01:15Z\n\n**Commit Message**: Feature: Listener Filter Chain Discovery Service (SoTW)\n**Additional Description:** \nRepresenting tenants as filter-chains in envoy, its essential to be able to dynamically and independently load the tenant (filter chain) configs. To achieve that, this feature introduces anothe xDS called Filter Chain Discovery Service, which allows th"
+    },
+    {
+      "url": "https://github.com/envoyproxy/envoy/issues/4540",
+      "title": "FilterChain Discovery Service (FDS) · Issue #4540 · envoyproxy/envoy",
+      "text": "# Issue: envoyproxy/envoy #4540\n\n- Repository: envoyproxy/envoy | Cloud-native high-performance edge/middle/service proxy | 28K stars | C++\n\n## FilterChain Discovery Service (FDS)\n\n- Author: [@htuch](https://github.com/htuch)\n- Association: MEMBER\n- State: open\n- Labels: design proposal, help wanted, api/v3\n- Assignees: [@lambdai](https://github.com/lambdai)\n- Reactions: 👍 18\n- Created: 2018-09-26T20:27:01Z\n- Updated: 2022-09-13T23:29:11Z\n- Closed by: [@mattklein123](https://github.com/mattklein123)\n\nIn order to support filter chain updates without forcing a full listener drain, it's been suggested we add a FilterChain Discovery Service. This would allow individual FilterChains belonging to a Listener to be independently discovered and updated.\n\nThis would also lend support to finer grained Listener resource naming for incremental and on-demand xDS (generalizing https://github.com/envoyproxy/envoy/issues/2500).\n\nOpening this issue to track any design work and ownership.\n\n@ggreenway @an"
+    }
+  ]
+}
