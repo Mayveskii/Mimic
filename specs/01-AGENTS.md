@@ -1,11 +1,5 @@
 # AGENTS.md — Mimic
 
-## What This Is
-
-Mimic is a standalone MCP server with a C-core. It is an **optional tool** that any AI-agent can call — the same way it calls bash, grep, or any other MCP tool. The agent is fully autonomous and works without Mimic. When the agent chooses to call Mimic, it gets help packaging an intent into a validated OpPacket chain — backed by distilled patterns from production code and behaviors borrowed from proven implementations.
-
-Mimic supports both short coding tasks and long-running scientific research. Context is retained without loss via RAG, session snapshots, and mesh memory.
-
 ## Rules
 
 1. No action without user permission
