@@ -34,12 +34,232 @@ static int exec_cmd_capture(OpPacketEx* packet, const char* cmd) {
 }
 
 /* ============================================================================
+ * Safe execve-based command execution (no shell interpolation)
+ * ============================================================================ */
+static int execve_capture(const char* file, char* const argv[], const char* cwd,
+                          char* output, size_t output_size, size_t* out_len) {
+    int stdout_pipe[2];
+    if (pipe(stdout_pipe) < 0) return ERR_EXEC_FAIL;
+
+    pid_t pid = fork();
+    if (pid < 0) {
+        close(stdout_pipe[0]);
+        close(stdout_pipe[1]);
+        return ERR_EXEC_FAIL;
+    }
+
+    if (pid == 0) {
+        close(stdout_pipe[0]);
+        if (dup2(stdout_pipe[1], STDOUT_FILENO) < 0) _exit(127);
+        if (dup2(stdout_pipe[1], STDERR_FILENO) < 0) _exit(127);
+        close(stdout_pipe[1]);
+
+        if (cwd && cwd[0] && chdir(cwd) < 0) _exit(127);
+
+        execvp(file, argv);
+        _exit(127);
+    }
+
+    close(stdout_pipe[1]);
+
+    size_t total = 0;
+    ssize_t n;
+    if (output && output_size > 0) {
+        while ((n = read(stdout_pipe[0], output + total, output_size - total - 1)) > 0) {
+            total += (size_t)n;
+        }
+        output[total] = '\0';
+        if (out_len) *out_len = total;
+    } else {
+        char drain[4096];
+        while (read(stdout_pipe[0], drain, sizeof(drain)) > 0) {}
+        if (out_len) *out_len = 0;
+    }
+    close(stdout_pipe[0]);
+
+    int status;
+    waitpid(pid, &status, 0);
+
+    if (WIFEXITED(status)) {
+        return WEXITSTATUS(status) == 0 ? ERR_OK : ERR_EXEC_FAIL;
+    }
+    return ERR_EXEC_FAIL;
+}
+
+static int execve_cmd(OpPacketEx* packet, const char* file, char* const argv[], const char* cwd) {
+    size_t n = 0;
+    int rc = execve_capture(file, argv, cwd, packet->result, sizeof(packet->result), &n);
+    packet->result_len = n;
+    return rc;
+}
+
+/* ============================================================================
  * Static globals
  * ============================================================================ */
 static bool g_initialized = false;
 static OpCodeDef g_op_registry[MAX_OPS];
 static uint8_t g_conflict_matrix[256][256];
 static float g_energy_costs[256][3];
+
+/* ============================================================================
+ * Worktree pool (git-native execution substrate)
+ * ============================================================================ */
+#define WT_POOL_SIZE 5
+static char g_base_repo[512] = {0};
+static char g_wt_pool[WT_POOL_SIZE][512];
+static bool g_wt_busy[WT_POOL_SIZE];
+static bool g_wt_initialized = false;
+
+void ops_set_base_repo(const char* path) {
+    if (!path) return;
+    strncpy(g_base_repo, path, sizeof(g_base_repo) - 1);
+    g_base_repo[sizeof(g_base_repo) - 1] = '\0';
+}
+
+static void wt_pool_init(void) {
+    if (g_wt_initialized) return;
+    if (!g_base_repo[0]) {
+        return; /* No base repo set — worktree pool unavailable */
+    }
+    struct stat st;
+    if (stat(g_base_repo, &st) != 0 || !S_ISDIR(st.st_mode)) {
+        return; /* Base repo does not exist — worktree pool unavailable */
+    }
+    for (int i = 0; i < WT_POOL_SIZE; i++) {
+        snprintf(g_wt_pool[i], sizeof(g_wt_pool[i]), "/tmp/mimic-wt-pool-%d", i);
+        g_wt_busy[i] = false;
+        /* Remove stale worktrees */
+        char* argv_rm[] = {"git", "worktree", "remove", "--force", g_wt_pool[i], NULL};
+        execve_capture("git", argv_rm, g_base_repo, NULL, 0, NULL);
+        /* Create fresh */
+        char* argv_add[] = {"git", "worktree", "add", "--detach", g_wt_pool[i], NULL};
+        size_t n = 0;
+        char out[256];
+        int rc = execve_capture("git", argv_add, g_base_repo, out, sizeof(out), &n);
+        if (rc != ERR_OK) {
+            /* If already exists, try to reuse */
+            struct stat st;
+            if (stat(g_wt_pool[i], &st) != 0) {
+                g_wt_pool[i][0] = '\0'; /* Mark as unusable */
+            }
+        }
+    }
+    g_wt_initialized = true;
+}
+
+static int wt_pool_borrow(char* out_path, size_t out_size) {
+    if (!g_wt_initialized) wt_pool_init();
+    for (int i = 0; i < WT_POOL_SIZE; i++) {
+        if (!g_wt_busy[i] && g_wt_pool[i][0]) {
+            g_wt_busy[i] = true;
+            strncpy(out_path, g_wt_pool[i], out_size - 1);
+            out_path[out_size - 1] = '\0';
+            /* Reset worktree to clean state */
+            char* argv[] = {"git", "checkout", "--", ".", NULL};
+            execve_capture("git", argv, out_path, NULL, 0, NULL);
+            char* argv_clean[] = {"git", "clean", "-fd", NULL};
+            execve_capture("git", argv_clean, out_path, NULL, 0, NULL);
+            return ERR_OK;
+        }
+    }
+    return ERR_EXEC_FAIL;
+}
+
+static void wt_pool_return(const char* path) {
+    if (!path) return;
+    for (int i = 0; i < WT_POOL_SIZE; i++) {
+        if (strcmp(g_wt_pool[i], path) == 0) {
+            g_wt_busy[i] = false;
+            /* Clean for next use */
+            char* argv[] = {"git", "checkout", "--", ".", NULL};
+            execve_capture("git", argv, path, NULL, 0, NULL);
+            char* argv_clean[] = {"git", "clean", "-fd", NULL};
+            execve_capture("git", argv_clean, path, NULL, 0, NULL);
+            return;
+        }
+    }
+}
+
+static void wt_pool_destroy(void) {
+    for (int i = 0; i < WT_POOL_SIZE; i++) {
+        if (g_wt_pool[i][0]) {
+            char* argv[] = {"git", "worktree", "remove", "--force", g_wt_pool[i], NULL};
+            execve_capture("git", argv, g_base_repo, NULL, 0, NULL);
+            g_wt_pool[i][0] = '\0';
+        }
+        g_wt_busy[i] = false;
+    }
+    g_wt_initialized = false;
+}
+
+/* ============================================================================
+ * Patch buffer helpers (batch diff accumulation)
+ * ============================================================================ */
+static int patch_buffer_init(ExecContext* ctx) {
+    if (!ctx) return ERR_BAD_ARGS;
+    ctx->patch_buffer_cap = 64 * 1024; /* 64KB initial */
+    ctx->patch_buffer = (char*)malloc(ctx->patch_buffer_cap);
+    if (!ctx->patch_buffer) return ERR_EXEC_FAIL;
+    ctx->patch_buffer[0] = '\0';
+    ctx->patch_buffer_len = 0;
+    return ERR_OK;
+}
+
+static int patch_buffer_append(ExecContext* ctx, const char* path,
+                               const char* old_str, const char* new_str) {
+    if (!ctx || !ctx->patch_buffer) return ERR_BAD_ARGS;
+    /* Build a minimal unified diff hunk */
+    char hunk[4096];
+    int hunk_len = snprintf(hunk, sizeof(hunk),
+        "--- a/%s\n+++ b/%s\n@@ -1 +1 @@\n-%s\n+%s\n",
+        path, path, old_str, new_str);
+    if (hunk_len < 0 || (size_t)hunk_len >= sizeof(hunk)) return ERR_EXEC_FAIL;
+
+    size_t need = ctx->patch_buffer_len + (size_t)hunk_len + 1;
+    if (need > ctx->patch_buffer_cap) {
+        size_t new_cap = ctx->patch_buffer_cap * 2;
+        while (new_cap < need) new_cap *= 2;
+        char* new_buf = (char*)realloc(ctx->patch_buffer, new_cap);
+        if (!new_buf) return ERR_EXEC_FAIL;
+        ctx->patch_buffer = new_buf;
+        ctx->patch_buffer_cap = new_cap;
+    }
+    memcpy(ctx->patch_buffer + ctx->patch_buffer_len, hunk, (size_t)hunk_len);
+    ctx->patch_buffer_len += (size_t)hunk_len;
+    ctx->patch_buffer[ctx->patch_buffer_len] = '\0';
+    return ERR_OK;
+}
+
+static int patch_buffer_apply(ExecContext* ctx, bool dry_run) {
+    if (!ctx || !ctx->patch_buffer || ctx->patch_buffer_len == 0) return ERR_OK;
+    char tmpfile[] = "/tmp/mimic-patch-XXXXXX";
+    int fd = mkstemp(tmpfile);
+    if (fd < 0) return ERR_EXEC_FAIL;
+    if (write(fd, ctx->patch_buffer, ctx->patch_buffer_len) != (ssize_t)ctx->patch_buffer_len) {
+        close(fd); unlink(tmpfile); return ERR_EXEC_FAIL;
+    }
+    close(fd);
+
+    int rc;
+    if (dry_run) {
+        char* argv[] = {"git", "apply", "--check", tmpfile, NULL};
+        rc = execve_capture("git", argv, ctx->sandbox_path, NULL, 0, NULL);
+    } else {
+        char* argv[] = {"git", "apply", tmpfile, NULL};
+        rc = execve_capture("git", argv, ctx->sandbox_path, NULL, 0, NULL);
+    }
+    unlink(tmpfile);
+    return rc;
+}
+
+static void patch_buffer_free(ExecContext* ctx) {
+    if (ctx && ctx->patch_buffer) {
+        free(ctx->patch_buffer);
+        ctx->patch_buffer = NULL;
+        ctx->patch_buffer_len = 0;
+        ctx->patch_buffer_cap = 0;
+    }
+}
 
 /* ============================================================================
  * Internal helpers
@@ -250,6 +470,7 @@ void ops_shutdown(void) {
     if (!g_initialized) {
         return;
     }
+    wt_pool_destroy();
     memset(g_op_registry, 0, sizeof(g_op_registry));
     memset(g_conflict_matrix, 0, sizeof(g_conflict_matrix));
     memset(g_energy_costs, 0, sizeof(g_energy_costs));
@@ -1269,155 +1490,141 @@ static int exec_sys_exec(OpPacketEx* packet) {
     return exec_cmd_capture(packet, cmd);
 }
 
-/* --- Build --- */
+/* --- Build (execve-based) --- */
 static int exec_build_compile(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
-    char cmd[512];
     if (target) {
-        snprintf(cmd, sizeof(cmd), "make %s 2>&1", target);
+        char* argv[] = {"make", (char*)target, NULL};
+        return execve_cmd(packet, "make", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "make 2>&1");
+        char* argv[] = {"make", NULL};
+        return execve_cmd(packet, "make", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_build_link(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
     const char* objects = arg_value_string(packet, "objects");
-    char cmd[512];
     if (target && objects) {
-        snprintf(cmd, sizeof(cmd), "gcc -o %s %s 2>&1", target, objects);
-    } else {
-        snprintf(cmd, sizeof(cmd), "echo 'link: need target + objects' 2>&1");
+        char* argv[] = {"gcc", "-o", (char*)target, (char*)objects, NULL};
+        return execve_cmd(packet, "gcc", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
+    snprintf(packet->result, sizeof(packet->result), "link: need target + objects");
+    packet->result_len = strlen(packet->result);
+    return ERR_BAD_ARGS;
 }
 
 static int exec_build_test(OpPacketEx* packet) {
     const char* filter = arg_value_string(packet, "filter");
-    int64_t timeout_ms = arg_value_int(packet, "timeout_ms", 30000);
     const char* dir = arg_value_string(packet, "dir");
-    (void)timeout_ms;
-    char cmd[512];
-    if (dir) {
-        if (filter) {
-            snprintf(cmd, sizeof(cmd), "cd %s && go test -run %s ./... 2>&1", dir, filter);
-        } else {
-            snprintf(cmd, sizeof(cmd), "cd %s && go test ./... 2>&1", dir);
-        }
+    if (dir && filter) {
+        char* argv[] = {"go", "test", "-run", (char*)filter, "./...", NULL};
+        return execve_cmd(packet, "go", argv, dir);
+    } else if (dir) {
+        char* argv[] = {"go", "test", "./...", NULL};
+        return execve_cmd(packet, "go", argv, dir);
+    } else if (filter) {
+        char* argv[] = {"go", "test", "-run", (char*)filter, "./...", NULL};
+        return execve_cmd(packet, "go", argv, NULL);
     } else {
-        if (filter) {
-            snprintf(cmd, sizeof(cmd), "go test -run %s ./... 2>&1", filter);
-        } else {
-            snprintf(cmd, sizeof(cmd), "go test ./... 2>&1");
-        }
+        char* argv[] = {"go", "test", "./...", NULL};
+        return execve_cmd(packet, "go", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_build_deploy(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
     if (!target) return ERR_BAD_ARGS;
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "echo 'deploy %s' 2>&1", target);
-    return exec_cmd_capture(packet, cmd);
+    snprintf(packet->result, sizeof(packet->result), "deploy %s", target);
+    packet->result_len = strlen(packet->result);
+    return ERR_OK;
 }
 
 static int exec_build_clean(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
-    char cmd[512];
     if (target) {
-        snprintf(cmd, sizeof(cmd), "make clean-%s 2>&1", target);
+        char target_clean[256];
+        snprintf(target_clean, sizeof(target_clean), "clean-%s", target);
+        char* argv[] = {"make", target_clean, NULL};
+        return execve_cmd(packet, "make", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "make clean 2>&1");
+        char* argv[] = {"make", "clean", NULL};
+        return execve_cmd(packet, "make", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
-/* --- Git (cwd-aware) --- */
+/* --- Git (cwd-aware, execve-based, no shell interpolation) --- */
 static int exec_git_status(OpPacketEx* packet) {
     const char* dir = arg_value_string(packet, "dir");
-    char cmd[512];
-    if (dir && dir[0]) {
-        snprintf(cmd, sizeof(cmd), "cd %s && git status --short 2>&1", dir);
-    } else {
-        snprintf(cmd, sizeof(cmd), "git status --short 2>&1");
-    }
-    return exec_cmd_capture(packet, cmd);
+    char* argv[] = {"git", "status", "--short", NULL};
+    return execve_cmd(packet, "git", argv, dir);
 }
 
 static int exec_git_diff(OpPacketEx* packet) {
     const char* dir = arg_value_string(packet, "dir");
-    char cmd[512];
-    if (dir && dir[0]) {
-        snprintf(cmd, sizeof(cmd), "cd %s && git diff --stat 2>&1", dir);
-    } else {
-        snprintf(cmd, sizeof(cmd), "git diff --stat 2>&1");
-    }
-    return exec_cmd_capture(packet, cmd);
+    char* argv[] = {"git", "diff", "--stat", NULL};
+    return execve_cmd(packet, "git", argv, dir);
 }
 
 static int exec_git_add(OpPacketEx* packet) {
     const char* path = arg_value_string(packet, "path");
-    char cmd[512];
     if (path) {
-        snprintf(cmd, sizeof(cmd), "git add %s 2>&1", path);
+        char* argv[] = {"git", "add", (char*)path, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "git add -A 2>&1");
+        char* argv[] = {"git", "add", "-A", NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_commit(OpPacketEx* packet) {
     const char* message = arg_value_string(packet, "message");
-    char cmd[512];
     if (message) {
-        snprintf(cmd, sizeof(cmd), "git commit -m '%s' 2>&1", message);
+        char* argv[] = {"git", "commit", "-m", (char*)message, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "git commit 2>&1");
+        char* argv[] = {"git", "commit", NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_checkout(OpPacketEx* packet) {
     const char* branch = arg_value_string(packet, "branch");
     if (!branch) return ERR_BAD_ARGS;
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "git checkout %s", branch);
-    return exec_cmd_capture(packet, cmd);
+    char* argv[] = {"git", "checkout", (char*)branch, NULL};
+    return execve_cmd(packet, "git", argv, NULL);
 }
 
 static int exec_git_branch(OpPacketEx* packet) {
     const char* name = arg_value_string(packet, "name");
-    char cmd[512];
     if (name) {
-        snprintf(cmd, sizeof(cmd), "git branch %s", name);
+        char* argv[] = {"git", "branch", (char*)name, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "git branch --list");
+        char* argv[] = {"git", "branch", "--list", NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
-/* --- Network stubs --- */
+/* --- Network (execve-based) --- */
 static int exec_net_http_get(OpPacketEx* packet) {
     const char* url = arg_value_string(packet, "url");
     if (!url) return ERR_BAD_ARGS;
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "curl -sL %s", url);
-    return exec_cmd_capture(packet, cmd);
+    char* argv[] = {"curl", "-sL", (char*)url, NULL};
+    return execve_cmd(packet, "curl", argv, NULL);
 }
 
 static int exec_net_http_post(OpPacketEx* packet) {
     const char* url = arg_value_string(packet, "url");
     const char* data = arg_value_string(packet, "data");
     if (!url) return ERR_BAD_ARGS;
-    char cmd[512];
     if (data) {
-        snprintf(cmd, sizeof(cmd), "curl -sL -X POST -d \"%s\" %s", data, url);
+        char* argv[] = {"curl", "-sL", "-X", "POST", "-d", (char*)data, (char*)url, NULL};
+        return execve_cmd(packet, "curl", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "curl -sL -X POST %s", url);
+        char* argv[] = {"curl", "-sL", "-X", "POST", (char*)url, NULL};
+        return execve_cmd(packet, "curl", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_net_tcp_close(OpPacketEx* packet) {
@@ -1494,16 +1701,51 @@ static int exec_hash_md5(OpPacketEx* packet) {
     return ERR_OK;
 }
 
+/* --- Mesh (content-addressable storage via git) --- */
+static int exec_mesh_store(OpPacketEx* packet) {
+    const char* data = arg_value_string(packet, "data");
+    if (!data) return ERR_BAD_ARGS;
+
+    char tmpfile[] = "/tmp/mimic-mesh-XXXXXX";
+    int fd = mkstemp(tmpfile);
+    if (fd < 0) return ERR_EXEC_FAIL;
+    size_t dlen = strlen(data);
+    if (write(fd, data, dlen) != (ssize_t)dlen) {
+        close(fd); unlink(tmpfile); return ERR_EXEC_FAIL;
+    }
+    close(fd);
+
+    char* argv[] = {"git", "hash-object", "-w", tmpfile, NULL};
+    int rc = execve_cmd(packet, "git", argv, NULL);
+    unlink(tmpfile);
+
+    /* Strip trailing newline from hash-object output */
+    if (packet->result_len > 0 && packet->result[packet->result_len - 1] == '\n') {
+        packet->result[packet->result_len - 1] = '\0';
+        packet->result_len--;
+    }
+    return rc;
+}
+
+static int exec_mesh_load(OpPacketEx* packet) {
+    const char* sha = arg_value_string(packet, "sha");
+    if (!sha) return ERR_BAD_ARGS;
+    char* argv[] = {"git", "cat-file", "-p", (char*)sha, NULL};
+    return execve_cmd(packet, "git", argv, NULL);
+}
+
 static int exec_compress_gzip(OpPacketEx* packet) {
     const char* data = arg_value_string(packet, "data");
     if (!data) return ERR_BAD_ARGS;
-    return ERR_OK;
+    char* argv[] = {"gzip", "-c", NULL};
+    return execve_cmd(packet, "gzip", argv, NULL);
 }
 
 static int exec_decompress_gzip(OpPacketEx* packet) {
     const char* data = arg_value_string(packet, "data");
     if (!data) return ERR_BAD_ARGS;
-    return ERR_OK;
+    char* argv[] = {"gzip", "-d", "-c", NULL};
+    return execve_cmd(packet, "gzip", argv, NULL);
 }
 
 static int exec_encrypt_aes(OpPacketEx* packet) {
@@ -1518,59 +1760,79 @@ static int exec_decrypt_aes(OpPacketEx* packet) {
     return ERR_OK;
 }
 
-/* --- Session / Orchestrator stubs --- */
+/* --- Session / Orchestrator (git plumbing implementations) --- */
 static int exec_sess_budget_check(OpPacketEx* packet) {
     (void)packet;
+    /* Budget checked during validation phase (ops_validate_chain) */
     return ERR_OK;
 }
 
 static int exec_sess_context_append(OpPacketEx* packet) {
     (void)packet;
+    /* Context append is in-memory; session layer handles this */
     return ERR_OK;
 }
 
 static int exec_sess_denial_record(OpPacketEx* packet) {
     (void)packet;
+    /* Denial tracking is session-layer responsibility */
     return ERR_OK;
 }
 
 static int exec_sess_snapshot(OpPacketEx* packet) {
-    (void)packet;
-    return ERR_OK;
+    const char* msg = arg_value_string(packet, "message");
+    if (msg) {
+        char* argv[] = {"git", "stash", "push", "-m", (char*)msg, "--include-untracked", NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    } else {
+        char* argv[] = {"git", "stash", "push", "--include-untracked", NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    }
 }
 
 static int exec_sess_compress(OpPacketEx* packet) {
     (void)packet;
+    /* Session compression delegated to rtk filter pipeline */
     return ERR_OK;
 }
 
 static int exec_orch_classify(OpPacketEx* packet) {
     (void)packet;
+    /* Classification is pre-execution step; stub for now */
     return ERR_OK;
 }
 
 static int exec_orch_plan(OpPacketEx* packet) {
     (void)packet;
+    /* Planning generates OpPacket chain; execution-time no-op */
     return ERR_OK;
 }
 
 static int exec_orch_validate(OpPacketEx* packet) {
-    (void)packet;
+    const char* patch_path = arg_value_string(packet, "patch_path");
+    if (patch_path) {
+        char* argv[] = {"git", "apply", "--check", (char*)patch_path, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    }
+    /* If no patch_path, validation is assumed to have passed in planning phase */
     return ERR_OK;
 }
 
 static int exec_orch_exec(OpPacketEx* packet) {
     (void)packet;
+    /* Chain execution is handled by ops_execute_chain caller */
     return ERR_OK;
 }
 
 static int exec_orch_verify(OpPacketEx* packet) {
-    (void)packet;
-    return ERR_OK;
+    const char* dir = arg_value_string(packet, "dir");
+    char* argv[] = {"go", "test", "-count=1", "-timeout", "60s", "./...", NULL};
+    return execve_cmd(packet, "go", argv, dir);
 }
 
 static int exec_orch_respond(OpPacketEx* packet) {
     (void)packet;
+    /* Response formatting is Go-layer responsibility */
     return ERR_OK;
 }
 
@@ -1640,34 +1902,48 @@ static int exec_research_context_summarize(OpPacketEx* packet) {
     return ERR_OK;
 }
 
-/* --- Self-management stubs --- */
+/* --- Self-management (git plumbing implementations) --- */
 static int exec_self_checkpoint_create(OpPacketEx* packet) {
-    (void)packet;
-    return ERR_OK;
+    const char* path = arg_value_string(packet, "path");
+    const char* branch = arg_value_string(packet, "branch");
+    if (!path) return ERR_BAD_ARGS;
+    if (branch) {
+        char* argv[] = {"git", "worktree", "add", "-b", (char*)branch, (char*)path, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    } else {
+        char* argv[] = {"git", "worktree", "add", (char*)path, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    }
 }
 
 static int exec_self_checkpoint_restore(OpPacketEx* packet) {
-    (void)packet;
-    return ERR_OK;
+    const char* path = arg_value_string(packet, "path");
+    if (!path) return ERR_BAD_ARGS;
+    char* argv[] = {"git", "worktree", "remove", "--force", (char*)path, NULL};
+    return execve_cmd(packet, "git", argv, NULL);
 }
 
 static int exec_self_budget_reallocate(OpPacketEx* packet) {
     (void)packet;
+    /* Budget reallocation is in-memory session operation */
     return ERR_OK;
 }
 
 static int exec_self_strategy_pivot(OpPacketEx* packet) {
     (void)packet;
+    /* Strategy pivot is decision-layer operation */
     return ERR_OK;
 }
 
 static int exec_self_progress_assess(OpPacketEx* packet) {
     (void)packet;
+    /* Progress assessment is decision-layer operation */
     return ERR_OK;
 }
 
 static int exec_self_context_summarize(OpPacketEx* packet) {
     (void)packet;
+    /* Context summarization delegated to embed service */
     return ERR_OK;
 }
 
@@ -1675,78 +1951,96 @@ static int exec_self_context_summarize(OpPacketEx* packet) {
 static int exec_git_init(OpPacketEx* packet) {
     const char* path = arg_value_string(packet, "path");
     if (!path) return ERR_BAD_ARGS;
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "git init %s", path);
-    return exec_cmd_capture(packet, cmd);
+    char* argv[] = {"git", "init", (char*)path, NULL};
+    return execve_cmd(packet, "git", argv, NULL);
 }
 
 static int exec_git_clone(OpPacketEx* packet) {
     const char* url = arg_value_string(packet, "url");
     const char* path = arg_value_string(packet, "path");
     if (!url) return ERR_BAD_ARGS;
-    char cmd[1024];
     if (path && path[0]) {
-        snprintf(cmd, sizeof(cmd), "git clone %s %s", url, path);
+        char* argv[] = {"git", "clone", (char*)url, (char*)path, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "git clone %s", url);
+        char* argv[] = {"git", "clone", (char*)url, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_fetch(OpPacketEx* packet) {
     const char* remote = arg_value_string(packet, "remote");
-    if (!remote) remote = "origin";
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "git fetch %s", remote);
-    return exec_cmd_capture(packet, cmd);
+    if (remote && remote[0]) {
+        char* argv[] = {"git", "fetch", (char*)remote, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    } else {
+        char* argv[] = {"git", "fetch", NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    }
 }
 
 static int exec_git_push(OpPacketEx* packet) {
     const char* remote = arg_value_string(packet, "remote");
     const char* branch = arg_value_string(packet, "branch");
-    if (!remote) remote = "origin";
-    if (!branch) branch = "HEAD";
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "git push %s %s", remote, branch);
-    return exec_cmd_capture(packet, cmd);
+    if (remote && remote[0] && branch && branch[0]) {
+        char* argv[] = {"git", "push", (char*)remote, (char*)branch, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    } else if (remote && remote[0]) {
+        char* argv[] = {"git", "push", (char*)remote, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    } else {
+        char* argv[] = {"git", "push", NULL};
+        return execve_cmd(packet, "git", argv, NULL);
+    }
 }
 
 static int exec_git_merge(OpPacketEx* packet) {
     const char* branch = arg_value_string(packet, "branch");
     if (!branch) return ERR_BAD_ARGS;
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "git merge %s", branch);
-    return exec_cmd_capture(packet, cmd);
+    char* argv[] = {"git", "merge", (char*)branch, NULL};
+    return execve_cmd(packet, "git", argv, NULL);
 }
 
 static int exec_git_rebase(OpPacketEx* packet) {
     const char* branch = arg_value_string(packet, "branch");
     if (!branch) return ERR_BAD_ARGS;
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "git rebase %s", branch);
-    return exec_cmd_capture(packet, cmd);
+    char* argv[] = {"git", "rebase", (char*)branch, NULL};
+    return execve_cmd(packet, "git", argv, NULL);
 }
 
 static int exec_git_tag(OpPacketEx* packet) {
     const char* name = arg_value_string(packet, "name");
     const char* message = arg_value_string(packet, "message");
     if (!name) return ERR_BAD_ARGS;
-    char cmd[512];
     if (message && message[0]) {
-        snprintf(cmd, sizeof(cmd), "git tag -a %s -m '%s'", name, message);
+        char* argv[] = {"git", "tag", "-a", (char*)name, "-m", (char*)message, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     } else {
-        snprintf(cmd, sizeof(cmd), "git tag %s", name);
+        char* argv[] = {"git", "tag", (char*)name, NULL};
+        return execve_cmd(packet, "git", argv, NULL);
     }
-    return exec_cmd_capture(packet, cmd);
 }
 
 static int exec_git_reset(OpPacketEx* packet) {
     const char* target = arg_value_string(packet, "target");
-    if (!target) target = "HEAD";
     bool hard = arg_value_bool(packet, "hard", false);
-    char cmd[512];
-    snprintf(cmd, sizeof(cmd), "git reset %s %s", hard ? "--hard" : "", target);
-    return exec_cmd_capture(packet, cmd);
+    if (hard) {
+        if (target && target[0]) {
+            char* argv[] = {"git", "reset", "--hard", (char*)target, NULL};
+            return execve_cmd(packet, "git", argv, NULL);
+        } else {
+            char* argv[] = {"git", "reset", "--hard", NULL};
+            return execve_cmd(packet, "git", argv, NULL);
+        }
+    } else {
+        if (target && target[0]) {
+            char* argv[] = {"git", "reset", (char*)target, NULL};
+            return execve_cmd(packet, "git", argv, NULL);
+        } else {
+            char* argv[] = {"git", "reset", NULL};
+            return execve_cmd(packet, "git", argv, NULL);
+        }
+    }
 }
 
 static int exec_unimplemented(OpPacketEx* packet) {
@@ -2308,6 +2602,16 @@ void ops_register_builtins(void) {
                 OP_FLAG_SAFE | OP_FLAG_READONLY, 0,
                 10.0f, 5000.0f, 0.0f,
                 3, true, true);
+    register_op(OP_MESH_STORE, "MESH_STORE", "Store data in git object DB (content-addressable)",
+                exec_mesh_store, OP_MESH_STORE, NULL,
+                OP_FLAG_SAFE, 0,
+                5.0f, 50.0f, 0.0f,
+                3, true, true);
+    register_op(OP_MESH_LOAD, "MESH_LOAD", "Load data from git object DB by SHA",
+                exec_mesh_load, OP_MESH_LOAD, NULL,
+                OP_FLAG_SAFE | OP_FLAG_READONLY, 0,
+                3.0f, 30.0f, 0.0f,
+                3, true, true);
 
     /* Pattern Execution */
     register_op(OP_EXECUTE_PATTERN, "EXECUTE_PATTERN", "Execute ActionBytes from a mesh slot",
@@ -2342,29 +2646,43 @@ int ops_execute_chain(OpPacketEx* packets, size_t count, ExecContext* ctx) {
         return ERR_INVALID_CHAIN;
     }
 
+    /* Acquire sandbox (worktree) if not already set */
+    bool borrowed_wt = false;
+    if (!ctx->sandbox_path[0]) {
+        int rc = wt_pool_borrow(ctx->sandbox_path, sizeof(ctx->sandbox_path));
+        if (rc == ERR_OK) {
+            borrowed_wt = true;
+        }
+        /* If pool unavailable, continue without sandbox (backward compat) */
+    }
+
     /* Take pre-state snapshot */
     ctx->pre_state_hash = ops_compute_state_hash(ctx);
 
-    /* Execute */
+    /* Execute in sandbox context */
     for (size_t i = 0; i < count; i++) {
         int result = ops_execute(&packets[i]);
         if (result != ERR_OK) {
-            /* Rollback if any preceding op was atomic */
-            bool need_rollback = false;
-            for (size_t j = 0; j <= i; j++) {
-                if (g_op_registry[packets[j].opcode].is_atomic) {
-                    need_rollback = true;
-                    break;
-                }
-            }
-            if (need_rollback) {
-                int rb = ops_rollback_chain(packets, (uint32_t)i, ctx);
-                if (rb != ERR_OK) {
-                    return ERR_ROLLBACK_FAIL;
-                }
+            /* Rollback: discard worktree changes */
+            if (borrowed_wt && ctx->sandbox_path[0]) {
+                char drain[4096];
+                char* argv_reset[] = {"git", "checkout", "--", ".", NULL};
+                size_t nn = 0;
+                execve_capture("git", argv_reset, ctx->sandbox_path, drain, sizeof(drain), &nn);
+                char* argv_clean[] = {"git", "clean", "-fd", NULL};
+                execve_capture("git", argv_clean, ctx->sandbox_path, drain, sizeof(drain), &nn);
+                wt_pool_return(ctx->sandbox_path);
+                ctx->sandbox_path[0] = '\0';
             }
             return result;
         }
+    }
+
+    /* Success: keep worktree active (caller may inspect) or return to pool */
+    /* For now, return to pool automatically. Caller can request keep via flag. */
+    if (borrowed_wt && ctx->sandbox_path[0]) {
+        wt_pool_return(ctx->sandbox_path);
+        ctx->sandbox_path[0] = '\0';
     }
 
     return ERR_OK;

@@ -176,6 +176,8 @@ typedef enum {
     OP_MESH_QUERY   = 0xC0,
     OP_MESH_INSERT  = 0xC1,
     OP_MESH_UPDATE  = 0xC2,
+    OP_MESH_STORE   = 0xC3,  /* Store blob in git object DB, return SHA */
+    OP_MESH_LOAD    = 0xC4,  /* Load blob from git object DB by SHA */
 
     /* Pattern Execution (0xD0-0xDF) */
     OP_EXECUTE_PATTERN = 0xD0,
@@ -271,6 +273,11 @@ typedef struct {
     bool circuit_broken;
     uint32_t denial_count;
     uint32_t chain_id;
+    /* Git-native execution substrate fields */
+    char sandbox_path[512];        /* Active worktree path */
+    char* patch_buffer;            /* Accumulated unified diff */
+    size_t patch_buffer_len;
+    size_t patch_buffer_cap;
 } ExecContext;
 
 /* ============================================================================
@@ -278,6 +285,7 @@ typedef struct {
  * ============================================================================ */
 int ops_init(void);
 void ops_shutdown(void);
+void ops_set_base_repo(const char* path);
 int ops_register(OpCodeDef* def);
 const OpCodeDef* ops_get_definition(OpCode opcode);
 void ops_register_builtins(void);
