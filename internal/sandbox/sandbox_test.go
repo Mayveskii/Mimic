@@ -8,36 +8,36 @@ import (
 	"testing"
 )
 
-func TestWorktreeManager_ProvisionDestroy(t *testing.T) {
-	// Create a temporary base repository
+func setupRepo(t *testing.T) string {
+	t.Helper()
 	tmpDir := t.TempDir()
 	baseRepo := filepath.Join(tmpDir, "base-repo")
 	if err := os.MkdirAll(baseRepo, 0755); err != nil {
 		t.Fatalf("mkdir base repo: %v", err)
 	}
 
-	// Init git repo
 	cmd := exec.Command("git", "init", baseRepo)
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("git init: %v\n%s", err, out)
 	}
-	cmd = exec.Command("git", "-C", baseRepo, "config", "user.email", "test@test.com")
-	_ = cmd.Run()
-	cmd = exec.Command("git", "-C", baseRepo, "config", "user.name", "Test")
-	_ = cmd.Run()
+	_ = exec.Command("git", "-C", baseRepo, "config", "user.email", "test@test.com").Run()
+	_ = exec.Command("git", "-C", baseRepo, "config", "user.name", "Test").Run()
 
-	// Create a file and commit
 	testFile := filepath.Join(baseRepo, "hello.txt")
 	if err := os.WriteFile(testFile, []byte("hello"), 0644); err != nil {
 		t.Fatalf("write file: %v", err)
 	}
-	cmd = exec.Command("git", "-C", baseRepo, "add", ".")
-	_ = cmd.Run()
+	_ = exec.Command("git", "-C", baseRepo, "add", ".").Run()
 	cmd = exec.Command("git", "-C", baseRepo, "commit", "-m", "init")
 	if out, err := cmd.CombinedOutput(); err != nil {
 		t.Fatalf("git commit: %v\n%s", err, out)
 	}
 
+	return baseRepo
+}
+
+func TestWorktreeManager_ProvisionDestroy(t *testing.T) {
+	baseRepo := setupRepo(t)
 	wm := NewWorktreeManager(baseRepo)
 
 	// Get baseline SHA
@@ -71,7 +71,7 @@ func TestWorktreeManager_ProvisionDestroy(t *testing.T) {
 	}
 
 	// Verify worktree is detached
-	cmd = exec.Command("git", "-C", wtPath, "rev-parse", "--abbrev-ref", "HEAD")
+	cmd := exec.Command("git", "-C", wtPath, "rev-parse", "--abbrev-ref", "HEAD")
 	out, err := cmd.Output()
 	if err != nil {
 		t.Fatalf("git rev-parse HEAD: %v", err)

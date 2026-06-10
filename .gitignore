@@ -3,6 +3,8 @@ project_context_main/
 
 # Binaries
 bin/mimic
+bin/playground
+playground
 dist/
 dist-bin/
 *.o
