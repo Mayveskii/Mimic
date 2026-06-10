@@ -1,6 +1,6 @@
 module github.com/Mayveskii/Mimic
 
-go 1.23.0
+go 1.26
 
 require modernc.org/sqlite v1.30.0
 
