@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "etcd-io/etcd",
+  "query": "github etcd-io/etcd RAFT consensus, distributed KV",
+  "fetched_at": "2026-06-14T06:29:32.384237Z",
+  "search_results": [
+    {
+      "title": "README.md at main · etcd-io/etcd",
+      "url": "https://github.com/etcd-io/etcd/blob/main/README.md",
+      "id": "https://github.com/etcd-io/etcd/blob/main/README.md"
+    },
+    {
+      "title": "etcd-io/raft: Raft library for maintaining a replicated state machine",
+      "url": "https://github.com/etcd-io/raft",
+      "id": "https://github.com/etcd-io/raft"
+    },
+    {
+      "title": "server/etcdserver/raft.go at main · etcd-io/etcd",
+      "url": "https://github.com/etcd-io/etcd/blob/main/server/etcdserver/raft.go",
+      "id": "https://github.com/etcd-io/etcd/blob/main/server/etcdserver/raft.go"
+    },
+    {
+      "title": "etcd/contrib/raftexample at main · etcd-io/etcd · GitHub",
+      "url": "https://github.com/etcd-io/etcd/tree/main/contrib/raftexample",
+      "id": "https://github.com/etcd-io/etcd/tree/main/contrib/raftexample"
+    },
+    {
+      "title": "raft/README.md at 4d6ebafa54ac72308f40e07dacc1fd803ceccab5 · etcd-io/etcd",
+      "url": "https://github.com/etcd-io/etcd/blob/4d6ebafa54ac72308f40e07dacc1fd803ceccab5/raft/README.md",
+      "id": "https://github.com/etcd-io/etcd/blob/4d6ebafa54ac72308f40e07dacc1fd803ceccab5/raft/README.md"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/etcd-io/etcd/blob/main/README.md",
+      "title": "README.md at main · etcd-io/etcd",
+      "text": "# File: etcd-io/etcd/README.md\n\n- Repository: etcd-io/etcd | Distributed reliable key-value store for the most critical data of a distributed system | 52K stars | Go\n- Branch: main\n\n```md\n# etcd\n\n[![Go Report Card](https://goreportcard.com/badge/github.com/etcd-io/etcd?style=flat-square)](https://goreportcard.com/report/github.com/etcd-io/etcd)\n[![Coverage](https://codecov.io/gh/etcd-io/etcd/branch/main/graph/badge.svg)](https://app.codecov.io/gh/etcd-io/etcd/tree/main)\n[![Tests](https://github.com/etcd-io/etcd/actions/workflows/tests.yaml/badge.svg)](https://github.com/etcd-io/etcd/actions/workflows/tests.yaml)\n[![codeql-analysis](https://github.com/etcd-io/etcd/actions/workflows/codeql-analysis.yml/badge.svg)](https://github.com/etcd-io/etcd/actions/workflows/codeql-analysis.yml)\n[![Docs](https://img.shields.io/badge/docs-latest-green.svg)](https://etcd.io/docs)\n[![Godoc](http://img.shields.io/badge/go-documentation-blue.svg?style=flat-square)](https://godocs.io/go.etcd.io/etcd/v3)\n["
+    },
+    {
+      "url": "https://github.com/etcd-io/raft",
+      "title": "etcd-io/raft",
+      "text": "# Repository: etcd-io/raft\n\nRaft library for maintaining a replicated state machine\n\n- Stars: 1034\n- Forks: 246\n- Watchers: 19\n- Open issues: 73\n- Primary language: Go\n- Languages: Go (90.2%), TLA (7.8%), Shell (1.9%), Makefile\n- License: Apache License 2.0 (Apache-2.0)\n- Topics: consensus, distributed-systems, raft\n- Default branch: main\n- Created: 2022-11-27T22:39:54Z\n- Last push: 2026-05-19T18:46:12Z\n- Contributors: 150 (top: ahrtr, yichengq, tbg, dependabot[bot], xiang90, pav-kv, gyuho, bmizerany, ptabor, bdarnell)\n- Releases: 1\n- Latest release: v3.6.0 (2025-02-05T19:00:43Z)\n\n---\n\n# Raft library\n\nRaft is a protocol with which a cluster of nodes can maintain a replicated state machine.\nThe state machine is kept in sync through the use of a replicated log.\nFor more details on Raft, see \"In Search of an Understandable Consensus Algorithm\"\n(https://raft.github.io/raft.pdf) by Diego Ongaro and John Ousterhout.\n\nThis Raft library is stable and feature complete. As of 2016, it is **the m"
+    },
+    {
+      "url": "https://github.com/etcd-io/etcd/blob/main/server/etcdserver/raft.go",
+      "title": "server/etcdserver/raft.go at main · etcd-io/etcd",
+      "text": "# File: etcd-io/etcd/server/etcdserver/raft.go\n\n- Repository: etcd-io/etcd | Distributed reliable key-value store for the most critical data of a distributed system | 52K stars | Go\n- Branch: main\n\n```go\n// Copyright 2015 The etcd Authors\n//\n// Licensed under the Apache License, Version 2.0 (the \"License\");\n// you may not use this file except in compliance with the License.\n// You may obtain a copy of the License at\n//\n//     http://www.apache.org/licenses/LICENSE-2.0\n//\n// Unless required by applicable law or agreed to in writing, software\n// distributed under the License is distributed on an \"AS IS\" BASIS,\n// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n// See the License for the specific language governing permissions and\n// limitations under the License.\n\npackage etcdserver\n\nimport (\n\t\"expvar\"\n\t\"fmt\"\n\t\"log\"\n\t\"sync\"\n\t\"time\"\n\n\t\"go.uber.org/zap\"\n\n\t\"go.etcd.io/etcd/client/pkg/v3/logutil\"\n\t\"go.etcd.io/etcd/pkg/v3/contention\"\n\t\"go.etcd.io/etcd/server/v3/etcdse"
+    }
+  ]
+}

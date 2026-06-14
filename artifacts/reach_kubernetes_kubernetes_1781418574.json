@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "kubernetes/kubernetes",
+  "query": "github kubernetes/kubernetes controllers, reconciliation loops, API server",
+  "fetched_at": "2026-06-14T06:29:34.913871Z",
+  "search_results": [
+    {
+      "title": "pkg/controller/framework/controller.go at 82cb4c17581752ae9f00bd746a63e529149c04b4 · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go"
+    },
+    {
+      "title": "pkg/controller/deployment/deployment_controller.go at e9b95827 · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/e9b95827/pkg/controller/deployment/deployment_controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/e9b95827/pkg/controller/deployment/deployment_controller.go"
+    },
+    {
+      "title": "pkg/controller/replicaset/replica_set.go at 5bac42bf · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/5bac42bf/pkg/controller/replicaset/replica_set.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/5bac42bf/pkg/controller/replicaset/replica_set.go"
+    },
+    {
+      "title": "pkg/controlplane/controller/kubernetesservice/controller.go at v1.35.2 · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/v1.35.2/pkg/controlplane/controller/kubernetesservice/controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/v1.35.2/pkg/controlplane/controller/kubernetesservice/controller.go"
+    },
+    {
+      "title": "pkg/controller/volume/persistentvolume/pv_controller.go at master · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/volume/persistentvolume/pv_controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/volume/persistentvolume/pv_controller.go"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go",
+      "title": "pkg/controller/framework/controller.go at 82cb4c17581752ae9f00bd746a63e529149c04b4 · kubernetes/kubernetes",
+      "text": "# File: kubernetes/kubernetes/pkg/controller/framework/controller.go\n\n- Repository: kubernetes/kubernetes | Production-Grade Container Scheduling and Management | 123K stars | Go\n- Branch: 82cb4c17581752ae9f00bd746a63e529149c04b4\n\n```go\n/*\nCopyright 2015 The Kubernetes Authors All rights reserved.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/\n\npackage framework\n\nimport (\n\t\"sync\"\n\t\"time\"\n\n\t\"k8s.io/kubernetes/pkg/client/cache\"\n\t\"k8s.io/kubernetes/pkg/runtime\"\n\tutilruntime \"k8s.io/kubernetes/pkg/util/runtime\"\n\t\"k8s."
+    },
+    {
+      "url": "https://github.com/kubernetes/kubernetes/blob/e9b95827/pkg/controller/deployment/deployment_controller.go",
+      "title": "pkg/controller/deployment/deployment_controller.go at e9b95827 · kubernetes/kubernetes",
+      "text": "# File: kubernetes/kubernetes/pkg/controller/deployment/deployment_controller.go\n\n- Repository: kubernetes/kubernetes | Production-Grade Container Scheduling and Management | 123K stars | Go\n- Branch: e9b95827\n\n```go\n/*\nCopyright 2015 The Kubernetes Authors.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/\n\n// Package deployment contains all the logic for handling Kubernetes Deployments.\n// It implements a set of strategies (rolling, recreate) for deploying an application,\n// the means to rollback to previous versio"
+    },
+    {
+      "url": "https://github.com/kubernetes/kubernetes/blob/5bac42bf/pkg/controller/replicaset/replica_set.go",
+      "title": "pkg/controller/replicaset/replica_set.go at 5bac42bf · kubernetes/kubernetes",
+      "text": "# File: kubernetes/kubernetes/pkg/controller/replicaset/replica_set.go\n\n- Repository: kubernetes/kubernetes | Production-Grade Container Scheduling and Management | 122K stars | Go\n- Branch: 5bac42bf\n\n```go\n/*\nCopyright 2016 The Kubernetes Authors.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/\n\n// ### ATTENTION ###\n//\n// This code implements both ReplicaSet and ReplicationController.\n//\n// For RC, the objects are converted on the way in and out (see ../replication/),\n// as if ReplicationController were just an ol"
+    }
+  ]
+}
