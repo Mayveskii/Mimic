@@ -1,0 +1,37 @@
+{
+  "model": "moonshotai/kimi-k2.6",
+  "status": 200,
+  "elapsed_seconds": 8.499,
+  "response": {
+    "id": "devshard-4134-13740",
+    "object": "chat.completion",
+    "created": 1781246727,
+    "model": "moonshotai/kimi-k2.6",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "finish_reason": "stop",
+        "message": {
+          "role": "assistant",
+          "content": " 1. **10**\n2. **Корнилов** и **Орлов** (по 3 обращения)\n3. **password_reset** и **software_bug** (по 3 обращения)\n4. **4,3** (43/10)\n5. **09:00–10:00** (3 обращения: s001, s002, s003)",
+          "tool_calls": [],
+          "refusal": null,
+          "function_call": null,
+          "audio": null,
+          "annotations": null
+        }
+      }
+    ],
+    "usage": {
+      "completion_tokens": 589,
+      "prompt_tokens": 1144,
+      "prompt_tokens_details": null,
+      "total_tokens": 1733,
+      "completion_tokens_details": {
+        "reasoning_tokens": 403
+      }
+    }
+  }
+}

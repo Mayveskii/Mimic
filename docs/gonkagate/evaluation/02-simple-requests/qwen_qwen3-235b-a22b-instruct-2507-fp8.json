@@ -1,0 +1,34 @@
+{
+  "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+  "status": 200,
+  "elapsed_seconds": 0.667,
+  "response": {
+    "id": "devshard-4122-18282",
+    "object": "chat.completion",
+    "created": 1781246583,
+    "model": "qwen/qwen3-235b-a22b-instruct-2507-fp8",
+    "system_fingerprint": null,
+    "service_tier": null,
+    "choices": [
+      {
+        "index": 0,
+        "finish_reason": "stop",
+        "message": {
+          "role": "assistant",
+          "content": "Привет! Я — Qwen, сверхмасштабная языковая модель, разработанная Alibaba Cloud. Я могу помогать с ответами на вопросы, писать тексты (например, рассказы, официальные письма, сценарии), выполнять логические и математические задачи, программировать, выражать мнения, играть в игры и многое другое. Могу работать с несколькими языками, включая русский, английский, китайский и другие. Готов помочь — просто скажи, что нужно!",
+          "tool_calls": [],
+          "refusal": null,
+          "function_call": null,
+          "audio": null,
+          "annotations": null
+        }
+      }
+    ],
+    "usage": {
+      "completion_tokens": 139,
+      "prompt_tokens": 33,
+      "prompt_tokens_details": null,
+      "total_tokens": 172
+    }
+  }
+}

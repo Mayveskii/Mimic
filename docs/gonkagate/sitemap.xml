@@ -1,0 +1,1145 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9" xmlns:xhtml="http://www.w3.org/1999/xhtml">
+<url>
+<loc>https://gonkagate.com/en</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru" />
+<changefreq>weekly</changefreq>
+<priority>1</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru" />
+<changefreq>weekly</changefreq>
+<priority>1</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/about</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/about" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/about" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/about" />
+<changefreq>monthly</changefreq>
+<priority>0.4</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/about</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/about" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/about" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/about" />
+<changefreq>monthly</changefreq>
+<priority>0.4</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/gonka-api</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/gonka-api" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/gonka-api" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/gonka-api" />
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/gonka-api</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/gonka-api" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/gonka-api" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/gonka-api" />
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/chat</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/chat" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/chat" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/chat" />
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/chat</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/chat" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/chat" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/chat" />
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/how-it-works</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/how-it-works" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/how-it-works" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/how-it-works" />
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/how-it-works</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/how-it-works" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/how-it-works" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/how-it-works" />
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/pricing</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/pricing" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/pricing" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/pricing" />
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/pricing</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/pricing" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/pricing" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/pricing" />
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models" />
+<changefreq>daily</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models" />
+<changefreq>daily</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/security</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/security" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/security" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/security" />
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/security</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/security" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/security" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/security" />
+<changefreq>monthly</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/privacy</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/privacy" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/privacy" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/privacy" />
+<changefreq>yearly</changefreq>
+<priority>0.2</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/privacy</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/privacy" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/privacy" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/privacy" />
+<changefreq>yearly</changefreq>
+<priority>0.2</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/terms</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/terms" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/terms" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/terms" />
+<changefreq>yearly</changefreq>
+<priority>0.2</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/terms</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/terms" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/terms" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/terms" />
+<changefreq>yearly</changefreq>
+<priority>0.2</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/disclaimer</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/disclaimer" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/disclaimer" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/disclaimer" />
+<changefreq>yearly</changefreq>
+<priority>0.2</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/disclaimer</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/disclaimer" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/disclaimer" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/disclaimer" />
+<changefreq>yearly</changefreq>
+<priority>0.2</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/api-reference/chat/send-chat-completion-request</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/chat/send-chat-completion-request" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/chat/send-chat-completion-request" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/chat/send-chat-completion-request" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/api-reference/dashboard/get-dashboard-models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/dashboard/get-dashboard-models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/dashboard/get-dashboard-models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/dashboard/get-dashboard-models" />
+<lastmod>2026-03-15T17:30:29.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/api-reference/models/get-models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/models/get-models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/models/get-models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/models/get-models" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/api-reference/public/get-public-pricing</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/public/get-public-pricing" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/public/get-public-pricing" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/public/get-public-pricing" />
+<lastmod>2026-03-15T17:30:29.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/api-reference/whoami/get-whoami</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/whoami/get-whoami" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/whoami/get-whoami" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/whoami/get-whoami" />
+<lastmod>2026-03-15T17:30:29.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/reference/error-handling</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/error-handling" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/error-handling" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/error-handling" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/reference/overview</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/overview" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/overview" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/overview" />
+<lastmod>2026-03-19T21:14:47.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/reference/parameters</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/parameters" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/parameters" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/parameters" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/reference/rate-limits</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/rate-limits" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/rate-limits" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/rate-limits" />
+<lastmod>2026-06-08T00:23:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/api/reference/streaming</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/streaming" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/streaming" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/streaming" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/authentication/api-keys</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/authentication/api-keys" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/authentication/api-keys" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/authentication/api-keys" />
+<lastmod>2026-06-06T18:56:28.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/authentication/management-api-keys</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/authentication/management-api-keys" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/authentication/management-api-keys" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/authentication/management-api-keys" />
+<lastmod>2026-06-06T18:56:28.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/faq</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/faq" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/faq" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/faq" />
+<lastmod>2026-05-09T15:37:02.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/coding-agents/claude-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/claude-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/claude-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/claude-code" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/coding-agents/cursor</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/cursor" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/cursor" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/cursor" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/coding-agents/hermes-agent</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/hermes-agent" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/hermes-agent" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/hermes-agent" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/coding-agents/kilo-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/kilo-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/kilo-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/kilo-code" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/coding-agents/mimo-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/mimo-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/mimo-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/mimo-code" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/coding-agents/openclaw</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/openclaw" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/openclaw" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/openclaw" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/coding-agents/opencode</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/opencode" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/opencode" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/opencode" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/aider</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/aider" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/aider" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/aider" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/awesome-gonkagate</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/awesome-gonkagate" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/awesome-gonkagate" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/awesome-gonkagate" />
+<lastmod>2026-03-19T21:14:47.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/cline</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/cline" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/cline" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/cline" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/frameworks-and-integrations-overview</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/frameworks-and-integrations-overview" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/frameworks-and-integrations-overview" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/frameworks-and-integrations-overview" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/langchain</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/langchain" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/langchain" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/langchain" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/llamaindex</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/llamaindex" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/llamaindex" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/llamaindex" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/n8n</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/n8n" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/n8n" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/n8n" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/pydanticai</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/pydanticai" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/pydanticai" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/pydanticai" />
+<lastmod>2026-03-18T17:52:34.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/roo-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/roo-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/roo-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/roo-code" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/tanstack-ai</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/tanstack-ai" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/tanstack-ai" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/tanstack-ai" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/community/vercel-ai-sdk</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/vercel-ai-sdk" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/vercel-ai-sdk" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/vercel-ai-sdk" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/plugins/overview</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/overview" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/overview" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/overview" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/plugins/pdf-inputs</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/pdf-inputs" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/pdf-inputs" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/pdf-inputs" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/plugins/privacy-sanitization</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/privacy-sanitization" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/privacy-sanitization" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/privacy-sanitization" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/plugins/response-healing</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/response-healing" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/response-healing" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/response-healing" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/plugins/web-search</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/web-search" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/web-search" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/web-search" />
+<lastmod>2026-05-06T16:41:35.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/presets</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/presets" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/presets" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/presets" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/structured-outputs</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/structured-outputs" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/structured-outputs" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/structured-outputs" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/features/tool-calling</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/tool-calling" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/tool-calling" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/tool-calling" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/overview/migration</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/overview/migration" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/overview/migration" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/overview/migration" />
+<lastmod>2026-05-25T21:49:00.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/overview/models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/overview/models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/overview/models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/overview/models" />
+<lastmod>2026-05-27T20:01:12.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/guides/overview/principles</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/overview/principles" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/overview/principles" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/overview/principles" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/mcp</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/mcp" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/mcp" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/mcp" />
+<lastmod>2026-03-26T14:57:33.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/quickstart</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/quickstart" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/quickstart" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/quickstart" />
+<lastmod>2026-06-10T17:26:51.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/sdk</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/sdk/dotnet</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/dotnet" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/dotnet" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/dotnet" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/sdk/go</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/go" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/go" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/go" />
+<lastmod>2026-03-19T21:14:47.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/sdk/java</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/java" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/java" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/java" />
+<lastmod>2026-03-19T21:14:47.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/sdk/openai</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/openai" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/openai" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/openai" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/sdk/python</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/python" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/python" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/python" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/docs/sdk/typescript</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/typescript" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/typescript" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/typescript" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/api-reference/chat/send-chat-completion-request</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/chat/send-chat-completion-request" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/chat/send-chat-completion-request" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/chat/send-chat-completion-request" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/api-reference/dashboard/get-dashboard-models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/dashboard/get-dashboard-models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/dashboard/get-dashboard-models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/dashboard/get-dashboard-models" />
+<lastmod>2026-03-15T17:30:29.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/api-reference/models/get-models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/models/get-models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/models/get-models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/models/get-models" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/api-reference/public/get-public-pricing</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/public/get-public-pricing" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/public/get-public-pricing" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/public/get-public-pricing" />
+<lastmod>2026-03-15T17:30:29.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/api-reference/whoami/get-whoami</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/api-reference/whoami/get-whoami" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/api-reference/whoami/get-whoami" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/api-reference/whoami/get-whoami" />
+<lastmod>2026-03-15T17:30:29.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/reference/error-handling</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/error-handling" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/error-handling" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/error-handling" />
+<lastmod>2026-05-31T12:57:15.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/reference/overview</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/overview" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/overview" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/overview" />
+<lastmod>2026-03-19T21:14:47.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/reference/parameters</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/parameters" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/parameters" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/parameters" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/reference/rate-limits</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/rate-limits" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/rate-limits" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/rate-limits" />
+<lastmod>2026-06-08T00:23:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/api/reference/streaming</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/api/reference/streaming" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/api/reference/streaming" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/api/reference/streaming" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/authentication/api-keys</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/authentication/api-keys" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/authentication/api-keys" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/authentication/api-keys" />
+<lastmod>2026-06-06T18:56:28.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/authentication/management-api-keys</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/authentication/management-api-keys" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/authentication/management-api-keys" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/authentication/management-api-keys" />
+<lastmod>2026-06-06T18:56:28.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/faq</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/faq" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/faq" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/faq" />
+<lastmod>2026-05-09T15:37:02.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/coding-agents/claude-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/claude-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/claude-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/claude-code" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/coding-agents/cursor</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/cursor" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/cursor" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/cursor" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/coding-agents/hermes-agent</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/hermes-agent" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/hermes-agent" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/hermes-agent" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/coding-agents/kilo-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/kilo-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/kilo-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/kilo-code" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/coding-agents/mimo-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/mimo-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/mimo-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/mimo-code" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/coding-agents/openclaw</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/openclaw" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/openclaw" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/openclaw" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/coding-agents/opencode</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/coding-agents/opencode" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/coding-agents/opencode" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/coding-agents/opencode" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/aider</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/aider" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/aider" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/aider" />
+<lastmod>2026-05-31T12:57:15.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/awesome-gonkagate</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/awesome-gonkagate" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/awesome-gonkagate" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/awesome-gonkagate" />
+<lastmod>2026-03-19T21:14:47.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/cline</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/cline" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/cline" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/cline" />
+<lastmod>2026-05-31T12:57:15.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/frameworks-and-integrations-overview</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/frameworks-and-integrations-overview" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/frameworks-and-integrations-overview" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/frameworks-and-integrations-overview" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/langchain</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/langchain" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/langchain" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/langchain" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/llamaindex</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/llamaindex" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/llamaindex" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/llamaindex" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/n8n</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/n8n" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/n8n" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/n8n" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/pydanticai</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/pydanticai" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/pydanticai" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/pydanticai" />
+<lastmod>2026-03-18T17:52:34.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/roo-code</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/roo-code" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/roo-code" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/roo-code" />
+<lastmod>2026-05-31T12:57:15.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/tanstack-ai</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/tanstack-ai" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/tanstack-ai" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/tanstack-ai" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/community/vercel-ai-sdk</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/community/vercel-ai-sdk" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/community/vercel-ai-sdk" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/community/vercel-ai-sdk" />
+<lastmod>2026-03-30T15:55:07.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/plugins/overview</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/overview" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/overview" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/overview" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/plugins/pdf-inputs</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/pdf-inputs" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/pdf-inputs" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/pdf-inputs" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/plugins/privacy-sanitization</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/privacy-sanitization" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/privacy-sanitization" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/privacy-sanitization" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/plugins/response-healing</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/response-healing" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/response-healing" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/response-healing" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/plugins/web-search</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/plugins/web-search" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/plugins/web-search" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/plugins/web-search" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/presets</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/presets" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/presets" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/presets" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/structured-outputs</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/structured-outputs" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/structured-outputs" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/structured-outputs" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/features/tool-calling</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/features/tool-calling" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/features/tool-calling" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/features/tool-calling" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.8</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/overview/migration</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/overview/migration" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/overview/migration" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/overview/migration" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/overview/models</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/overview/models" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/overview/models" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/overview/models" />
+<lastmod>2026-05-31T12:57:15.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.85</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/guides/overview/principles</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/guides/overview/principles" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/guides/overview/principles" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/guides/overview/principles" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/mcp</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/mcp" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/mcp" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/mcp" />
+<lastmod>2026-05-31T13:17:11.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/quickstart</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/quickstart" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/quickstart" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/quickstart" />
+<lastmod>2026-06-10T17:26:51.000Z</lastmod>
+<changefreq>weekly</changefreq>
+<priority>0.9</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/sdk</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/sdk/dotnet</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/dotnet" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/dotnet" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/dotnet" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/sdk/go</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/go" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/go" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/go" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/sdk/java</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/java" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/java" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/java" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/sdk/openai</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/openai" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/openai" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/openai" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/sdk/python</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/python" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/python" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/python" />
+<lastmod>2026-05-28T21:30:10.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/docs/sdk/typescript</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/docs/sdk/typescript" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/docs/sdk/typescript" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/docs/sdk/typescript" />
+<lastmod>2026-06-11T23:25:20.000Z</lastmod>
+<changefreq>monthly</changefreq>
+<priority>0.75</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/models/minimaxai/minimax-m2.7</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models/minimaxai/minimax-m2.7" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models/minimaxai/minimax-m2.7" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models/minimaxai/minimax-m2.7" />
+<changefreq>daily</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/models/minimaxai/minimax-m2.7</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models/minimaxai/minimax-m2.7" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models/minimaxai/minimax-m2.7" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models/minimaxai/minimax-m2.7" />
+<changefreq>daily</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/models/moonshotai/kimi-k2.6</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models/moonshotai/kimi-k2.6" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models/moonshotai/kimi-k2.6" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models/moonshotai/kimi-k2.6" />
+<changefreq>daily</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/models/moonshotai/kimi-k2.6</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models/moonshotai/kimi-k2.6" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models/moonshotai/kimi-k2.6" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models/moonshotai/kimi-k2.6" />
+<changefreq>daily</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/en/models/qwen/qwen3-235b-a22b-instruct-2507-fp8</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models/qwen/qwen3-235b-a22b-instruct-2507-fp8" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models/qwen/qwen3-235b-a22b-instruct-2507-fp8" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models/qwen/qwen3-235b-a22b-instruct-2507-fp8" />
+<changefreq>daily</changefreq>
+<priority>0.7</priority>
+</url>
+<url>
+<loc>https://gonkagate.com/ru/models/qwen/qwen3-235b-a22b-instruct-2507-fp8</loc>
+<xhtml:link rel="alternate" hreflang="x-default" href="https://gonkagate.com/en/models/qwen/qwen3-235b-a22b-instruct-2507-fp8" />
+<xhtml:link rel="alternate" hreflang="en" href="https://gonkagate.com/en/models/qwen/qwen3-235b-a22b-instruct-2507-fp8" />
+<xhtml:link rel="alternate" hreflang="ru" href="https://gonkagate.com/ru/models/qwen/qwen3-235b-a22b-instruct-2507-fp8" />
+<changefreq>daily</changefreq>
+<priority>0.7</priority>
+</url>
+</urlset>

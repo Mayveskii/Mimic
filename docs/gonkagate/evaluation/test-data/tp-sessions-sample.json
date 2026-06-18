@@ -1,0 +1,12 @@
+[
+  {"id": "s001", "operatorId": 3346, "operatorName": "Корнилов", "createdAt": "2026-05-26T09:00:00+03:00", "closedAt": "2026-05-26T09:15:00+03:00", "status": "closed", "category": "password_reset", "rating": 5},
+  {"id": "s002", "operatorId": 5477, "operatorName": "Орлов", "createdAt": "2026-05-26T09:05:00+03:00", "closedAt": "2026-05-26T09:45:00+03:00", "status": "closed", "category": "software_bug", "rating": 4},
+  {"id": "s003", "operatorId": 3346, "operatorName": "Корнилов", "createdAt": "2026-05-26T09:30:00+03:00", "closedAt": "2026-05-26T09:40:00+03:00", "status": "closed", "category": "access_request", "rating": 5},
+  {"id": "s004", "operatorId": 6935, "operatorName": "Мурашева", "createdAt": "2026-05-26T10:00:00+03:00", "closedAt": "2026-05-26T10:50:00+03:00", "status": "closed", "category": "software_bug", "rating": 3},
+  {"id": "s005", "operatorId": 5010, "operatorName": "Савицкий", "createdAt": "2026-05-26T10:15:00+03:00", "closedAt": "2026-05-26T10:25:00+03:00", "status": "closed", "category": "password_reset", "rating": 5},
+  {"id": "s006", "operatorId": 5477, "operatorName": "Орлов", "createdAt": "2026-05-26T10:30:00+03:00", "closedAt": "2026-05-26T11:00:00+03:00", "status": "closed", "category": "hardware_issue", "rating": 4},
+  {"id": "s007", "operatorId": 3346, "operatorName": "Корнилов", "createdAt": "2026-05-26T11:00:00+03:00", "closedAt": "2026-05-26T11:10:00+03:00", "status": "closed", "category": "access_request", "rating": 5},
+  {"id": "s008", "operatorId": 6935, "operatorName": "Мурашева", "createdAt": "2026-05-26T11:30:00+03:00", "closedAt": "2026-05-26T12:00:00+03:00", "status": "closed", "category": "software_bug", "rating": 2},
+  {"id": "s009", "operatorId": 5010, "operatorName": "Савицкий", "createdAt": "2026-05-26T12:00:00+03:00", "closedAt": "2026-05-26T12:20:00+03:00", "status": "closed", "category": "password_reset", "rating": 5},
+  {"id": "s010", "operatorId": 5477, "operatorName": "Орлов", "createdAt": "2026-05-26T12:30:00+03:00", "closedAt": "2026-05-26T13:00:00+03:00", "status": "closed", "category": "hardware_issue", "rating": 4}
+]
