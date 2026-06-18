@@ -7,24 +7,17 @@ import (
 	"time"
 
 	"github.com/Mayveskii/Mimic/internal/config"
+	"github.com/Mayveskii/Mimic/internal/core"
+	"github.com/Mayveskii/Mimic/internal/model"
+	"github.com/Mayveskii/Mimic/internal/orchestrator"
 	"github.com/Mayveskii/Mimic/internal/sandbox"
 )
 
-// SessionContext holds all state for a single model session.
-type SessionContext struct {
-	ID           string
-	ModelID      string
-	RepoPath     string
-	WorktreePath string
-	BaseSHA      string
-	Budget       *Budget
-	Config       *config.RepoConfig
-	StartTime    time.Time
-}
-
 // Manager handles session lifecycle: Init → Execute → Finalize → Destroy.
 type Manager struct {
-	Sandbox *sandbox.WorktreeManager
+	Sandbox   *sandbox.WorktreeManager
+	Caller    model.Caller
+	Assembler *orchestrator.ContextAssembler
 }
 
 // NewManager creates a session manager for the given base repo.
@@ -34,8 +27,20 @@ func NewManager(baseRepo string) *Manager {
 	}
 }
 
+// WithCaller attaches an LLM caller to the manager.
+func (m *Manager) WithCaller(caller model.Caller) *Manager {
+	m.Caller = caller
+	return m
+}
+
+// WithAssembler attaches a context assembler to the manager.
+func (m *Manager) WithAssembler(assembler *orchestrator.ContextAssembler) *Manager {
+	m.Assembler = assembler
+	return m
+}
+
 // Init creates a new session: validates repo, provisions worktree, loads config, locks budget.
-func (m *Manager) Init(modelID string) (*SessionContext, error) {
+func (m *Manager) Init(modelID string) (*core.SessionContext, error) {
 	// 1. Validate git reality
 	sha, err := m.Sandbox.GetBaselineSHA()
 	if err != nil {
@@ -65,7 +70,7 @@ func (m *Manager) Init(modelID string) (*SessionContext, error) {
 	// 4. Lock budget
 	budget := NewBudget(cfg.Budget.MaxTokens, cfg.Budget.MaxTimeSeconds)
 
-	ctx := &SessionContext{
+	ctx := &core.SessionContext{
 		ID:           fmt.Sprintf("%s-%s-%d", filepath.Base(m.Sandbox.BaseRepo), modelID, time.Now().Unix()),
 		ModelID:      modelID,
 		RepoPath:     m.Sandbox.BaseRepo,
@@ -80,27 +85,31 @@ func (m *Manager) Init(modelID string) (*SessionContext, error) {
 }
 
 // Execute runs the model's intent in the session context.
-// Currently a stub: full 6-stage pipeline (Hunt + Orchestrator) will be wired here.
-func (m *Manager) Execute(ctx *SessionContext, intent string) (string, error) {
+func (m *Manager) Execute(ctx *core.SessionContext, intent string) (string, error) {
 	if ctx == nil {
 		return "", fmt.Errorf("session context is nil")
 	}
 	if ctx.Budget.Exhausted() {
 		return "", fmt.Errorf("budget exhausted: %s", ctx.Budget)
 	}
+	if m.Caller == nil {
+		return "", fmt.Errorf("no LLM caller configured")
+	}
 
-	// TODO: Wire Hunt system (assess→compress→search→rank)
-	// TODO: Wire Orchestrator pipeline (classify→plan→validate→exec→verify→respond)
-	// TODO: Wire C-core execution via CGO
+	pipeline := orchestrator.NewPipeline(nil, m.Caller, nil, m.Assembler)
+	result, err := pipeline.Run(nil, ctx, intent)
+	if err != nil {
+		return "", fmt.Errorf("pipeline failed: %w", err)
+	}
+	if !result.Success {
+		return "", fmt.Errorf("execution failed: %s", result.Output)
+	}
 
-	// Stub: simulate token consumption
-	ctx.Budget.Consume(100, 1)
-
-	return fmt.Sprintf("executed intent %q in worktree %s (budget: %s)", intent, ctx.WorktreePath, ctx.Budget), nil
+	return result.Output, nil
 }
 
 // Finalize collects proof, writes artifacts, and extracts skills.
-func (m *Manager) Finalize(ctx *SessionContext) (*sandbox.Proof, error) {
+func (m *Manager) Finalize(ctx *core.SessionContext) (*sandbox.Proof, error) {
 	if ctx == nil {
 		return nil, fmt.Errorf("session context is nil")
 	}
@@ -132,7 +141,7 @@ func (m *Manager) Finalize(ctx *SessionContext) (*sandbox.Proof, error) {
 }
 
 // Destroy cleans up the session: destroys worktree.
-func (m *Manager) Destroy(ctx *SessionContext) error {
+func (m *Manager) Destroy(ctx *core.SessionContext) error {
 	if ctx == nil {
 		return fmt.Errorf("session context is nil")
 	}

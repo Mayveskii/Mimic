@@ -12,8 +12,8 @@ import (
 // Behavior source: hermes-agent skill extraction.
 type Skill struct {
 	ID          string  `json:"id"`
-	Trigger     string  `json:"trigger"`     // what situation activates this skill
-	Action      string  `json:"action"`      // what to do
+	Trigger     string  `json:"trigger"`      // what situation activates this skill
+	Action      string  `json:"action"`       // what to do
 	SuccessRate float64 `json:"success_rate"` // 0.0..1.0
 	SourceRepo  string  `json:"source_repo,omitempty"`
 	CreatedAt   int64   `json:"created_at"`

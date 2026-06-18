@@ -8,13 +8,13 @@ import (
 
 // MemoryEntry is a single stored fact.
 type MemoryEntry struct {
-	ID        string    `json:"id"`
-	Fact      string    `json:"fact"`
-	Embedding [384]int8 `json:"embedding"`
-	CreatedAt time.Time `json:"created_at"`
-	TTL       time.Duration `json:"ttl"`
-	AccessCount int       `json:"access_count"`
-	LastAccess  time.Time `json:"last_access"`
+	ID          string        `json:"id"`
+	Fact        string        `json:"fact"`
+	Embedding   [384]int8     `json:"embedding"`
+	CreatedAt   time.Time     `json:"created_at"`
+	TTL         time.Duration `json:"ttl"`
+	AccessCount int           `json:"access_count"`
+	LastAccess  time.Time     `json:"last_access"`
 }
 
 // Memory provides semantic memory operations.

@@ -29,9 +29,9 @@ func (a Action) String() string {
 // Classifier determines the appropriate action for an error.
 // Behavior source: hermes-agent error classifier.
 type Classifier struct {
-	RetryCount   int
-	MaxRetries   int
-	BackoffMs    int
+	RetryCount int
+	MaxRetries int
+	BackoffMs  int
 }
 
 // NewClassifier creates a classifier with default limits.

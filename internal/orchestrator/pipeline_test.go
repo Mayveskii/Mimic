@@ -2,6 +2,7 @@ package orchestrator
 
 import (
 	"context"
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -9,11 +10,41 @@ import (
 	"testing"
 
 	"github.com/Mayveskii/Mimic/internal/config"
+	"github.com/Mayveskii/Mimic/internal/core"
 	"github.com/Mayveskii/Mimic/internal/hunt"
 	"github.com/Mayveskii/Mimic/internal/mesh"
 	"github.com/Mayveskii/Mimic/internal/sandbox"
-	"github.com/Mayveskii/Mimic/internal/session"
 )
+
+type testBudget struct {
+	maxTokens       int
+	maxTimeSeconds  int
+	usedTokens      int
+	usedTimeSeconds int
+}
+
+func (b *testBudget) Consume(tokens, seconds int) bool {
+	if b.usedTokens+tokens > b.maxTokens {
+		return false
+	}
+	if b.usedTimeSeconds+seconds > b.maxTimeSeconds {
+		return false
+	}
+	b.usedTokens += tokens
+	b.usedTimeSeconds += seconds
+	return true
+}
+
+func (b *testBudget) Exhausted() bool {
+	return b.usedTokens >= b.maxTokens || b.usedTimeSeconds >= b.maxTimeSeconds
+}
+
+func (b *testBudget) String() string {
+	return fmt.Sprintf("tokens=%d/%d time=%ds/%ds", b.usedTokens, b.maxTokens, b.usedTimeSeconds, b.maxTimeSeconds)
+}
+
+func (b *testBudget) TokenBudget() int { return b.maxTokens }
+func (b *testBudget) TimeBudget() int  { return b.maxTimeSeconds }
 
 func setupRepo(t *testing.T) string {
 	t.Helper()
@@ -51,7 +82,7 @@ func TestPipeline_Run_GitIntent(t *testing.T) {
 	_ = slot.SaveToFile(meshDir)
 
 	hunter := hunt.NewHunter(meshDir)
-	pipeline := NewPipeline(hunter)
+	pipeline := NewPipeline(hunter, nil, nil, nil)
 
 	// Setup session
 	wm := sandbox.NewWorktreeManager(repoPath)
@@ -61,12 +92,12 @@ func TestPipeline_Run_GitIntent(t *testing.T) {
 	}
 	defer wm.Destroy("qwen")
 
-	sess := &session.SessionContext{
+	sess := &core.SessionContext{
 		ID:           "test-1",
 		ModelID:      "qwen",
 		RepoPath:     repoPath,
 		WorktreePath: wtPath,
-		Budget:       session.NewBudget(100000, 600),
+		Budget:       &testBudget{maxTokens: 100000, maxTimeSeconds: 600},
 		Config:       config.DefaultRepoConfig(),
 	}
 
@@ -88,7 +119,7 @@ func TestPipeline_Run_GitIntent(t *testing.T) {
 func TestPipeline_Run_BuildIntent(t *testing.T) {
 	repoPath := setupRepo(t)
 	hunter := hunt.NewHunter("")
-	pipeline := NewPipeline(hunter)
+	pipeline := NewPipeline(hunter, nil, nil, nil)
 
 	wm := sandbox.NewWorktreeManager(repoPath)
 	wtPath, err := wm.Provision("kimi")
@@ -97,12 +128,12 @@ func TestPipeline_Run_BuildIntent(t *testing.T) {
 	}
 	defer wm.Destroy("kimi")
 
-	sess := &session.SessionContext{
+	sess := &core.SessionContext{
 		ID:           "test-2",
 		ModelID:      "kimi",
 		RepoPath:     repoPath,
 		WorktreePath: wtPath,
-		Budget:       session.NewBudget(100000, 600),
+		Budget:       &testBudget{maxTokens: 100000, maxTimeSeconds: 600},
 		Config:       config.DefaultRepoConfig(),
 	}
 
@@ -121,7 +152,7 @@ func TestPipeline_Run_BuildIntent(t *testing.T) {
 func TestPipeline_BudgetExhausted(t *testing.T) {
 	repoPath := setupRepo(t)
 	hunter := hunt.NewHunter("")
-	pipeline := NewPipeline(hunter)
+	pipeline := NewPipeline(hunter, nil, nil, nil)
 
 	wm := sandbox.NewWorktreeManager(repoPath)
 	wtPath, err := wm.Provision("minimax")
@@ -131,12 +162,12 @@ func TestPipeline_BudgetExhausted(t *testing.T) {
 	defer wm.Destroy("minimax")
 
 	// Exhausted budget
-	sess := &session.SessionContext{
+	sess := &core.SessionContext{
 		ID:           "test-3",
 		ModelID:      "minimax",
 		RepoPath:     repoPath,
 		WorktreePath: wtPath,
-		Budget:       &session.Budget{MaxTokens: 1, MaxTimeSeconds: 1, UsedTokens: 1, UsedTimeSeconds: 1},
+		Budget:       &testBudget{maxTokens: 1, maxTimeSeconds: 1, usedTokens: 1, usedTimeSeconds: 1},
 		Config:       config.DefaultRepoConfig(),
 	}
 
@@ -152,7 +183,7 @@ func TestPipeline_BudgetExhausted(t *testing.T) {
 
 func TestPipeline_Classify_KeywordCases(t *testing.T) {
 	tests := []struct {
-		intent   string
+		intent     string
 		wantDomain string
 	}{
 		{"commit these files", "git"},
@@ -169,7 +200,7 @@ func TestPipeline_Classify_KeywordCases(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.intent, func(t *testing.T) {
 			stage := &ClassifyStage{}
-			out, err := stage.Process(context.Background(), &session.SessionContext{Budget: session.NewBudget(100000, 600)}, []byte(tt.intent))
+			out, err := stage.Process(context.Background(), &core.SessionContext{Budget: &testBudget{maxTokens: 100000, maxTimeSeconds: 600}}, []byte(tt.intent))
 			if err != nil {
 				t.Fatalf("Process: %v", err)
 			}

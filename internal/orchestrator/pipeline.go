@@ -6,14 +6,15 @@ import (
 	"strings"
 
 	"github.com/Mayveskii/Mimic/internal/cgo"
+	"github.com/Mayveskii/Mimic/internal/core"
 	"github.com/Mayveskii/Mimic/internal/hunt"
-	"github.com/Mayveskii/Mimic/internal/session"
+	"github.com/Mayveskii/Mimic/internal/model"
 )
 
 // Stage is a single step in the 6-stage pipeline.
 type Stage interface {
 	Name() string
-	Process(ctx context.Context, sess *session.SessionContext, input []byte) ([]byte, error)
+	Process(ctx context.Context, sess *core.SessionContext, input []byte) ([]byte, error)
 }
 
 // Result is the final output of the pipeline.
@@ -30,21 +31,21 @@ type Pipeline struct {
 }
 
 // NewPipeline creates a fully wired pipeline.
-func NewPipeline(hunter *hunt.Hunter) *Pipeline {
+func NewPipeline(hunter *hunt.Hunter, caller model.Caller, tools []model.ToolSchema, assembler *ContextAssembler) *Pipeline {
 	return &Pipeline{
 		Stages: []Stage{
 			&StateStage{},
 			&MeshStage{Hunter: hunter},
 			&ClassifyStage{},
-			&PlanValidateExecStage{},
-			&VerifyStage{},
+			&PlanValidateExecStage{Caller: caller, Tools: tools, Assembler: assembler},
+			&VerifyStage{Caller: caller, Tools: tools, Assembler: assembler},
 			&RespondStage{},
 		},
 	}
 }
 
 // Run executes the pipeline for the given session and intent.
-func (p *Pipeline) Run(ctx context.Context, sess *session.SessionContext, intent string) (*Result, error) {
+func (p *Pipeline) Run(ctx context.Context, sess *core.SessionContext, intent string) (*Result, error) {
 	if sess == nil {
 		return nil, fmt.Errorf("session context is nil")
 	}
@@ -78,7 +79,7 @@ type StateStage struct{}
 
 func (s *StateStage) Name() string { return "STATE" }
 
-func (s *StateStage) Process(ctx context.Context, sess *session.SessionContext, input []byte) ([]byte, error) {
+func (s *StateStage) Process(ctx context.Context, sess *core.SessionContext, input []byte) ([]byte, error) {
 	// Validate worktree exists and is clean
 	if sess.WorktreePath == "" {
 		return nil, fmt.Errorf("worktree not provisioned")
@@ -95,7 +96,7 @@ type MeshStage struct {
 
 func (s *MeshStage) Name() string { return "MESH" }
 
-func (s *MeshStage) Process(ctx context.Context, sess *session.SessionContext, input []byte) ([]byte, error) {
+func (s *MeshStage) Process(ctx context.Context, sess *core.SessionContext, input []byte) ([]byte, error) {
 	if s.Hunter == nil {
 		return input, nil // graceful skip if hunter not configured
 	}
@@ -128,7 +129,7 @@ type ClassifyStage struct{}
 
 func (s *ClassifyStage) Name() string { return "CLASSIFY" }
 
-func (s *ClassifyStage) Process(ctx context.Context, sess *session.SessionContext, input []byte) ([]byte, error) {
+func (s *ClassifyStage) Process(ctx context.Context, sess *core.SessionContext, input []byte) ([]byte, error) {
 	intent := string(input)
 	// Simple keyword-based classification
 	domain := "system"
@@ -150,34 +151,72 @@ func (s *ClassifyStage) Process(ctx context.Context, sess *session.SessionContex
 }
 
 // PlanValidateExecStage builds a plan, validates it, and executes via C-core.
-type PlanValidateExecStage struct{}
+type PlanValidateExecStage struct {
+	Caller    model.Caller
+	Tools     []model.ToolSchema
+	Assembler *ContextAssembler
+}
 
 func (s *PlanValidateExecStage) Name() string { return "EXEC" }
 
-func (s *PlanValidateExecStage) Process(ctx context.Context, sess *session.SessionContext, input []byte) ([]byte, error) {
-	// Stub: real implementation will build OpPacket chain, validate, and execute
-	// For now, simulate a single SYS_FILE_WRITE for demonstration
+func (s *PlanValidateExecStage) Process(ctx context.Context, sess *core.SessionContext, input []byte) ([]byte, error) {
 	sess.Budget.Consume(100, 1)
 
-	// Build a simple packet (stub)
-	pkt := cgo.Packet{Opcode: "SYS_FILE_WRITE", Args: map[string]interface{}{"path": "/tmp/test", "content": "hello"}}
-	result, err := cgo.ExecuteChain([]cgo.Packet{pkt}, float32(sess.Budget.MaxTokens), float32(sess.Budget.MaxTimeSeconds))
+	var context string
+	if s.Assembler != nil {
+		ctxPack, err := s.Assembler.Assemble(ctx, string(input))
+		if err == nil {
+			context = ctxPack
+		}
+	}
+
+	plan, err := GeneratePlanFromGoal(ctx, s.Caller, string(input), s.Tools, context)
 	if err != nil {
-		// If C-core is not wired for this opcode, return input as-is (graceful)
+		return nil, fmt.Errorf("plan generation failed: %w", err)
+	}
+
+	if len(plan.Steps) == 0 {
+		// Direct answer, no execution needed.
 		return input, nil
 	}
 
-	return []byte(fmt.Sprintf("executed: %s (result: %s)", string(input), result.Result)), nil
+	budget := CostEstimate{Tokens: sess.Budget.TokenBudget(), TimeUs: sess.Budget.TimeBudget() * 1000}
+	if err := ValidatePlan(plan, budget); err != nil {
+		return nil, fmt.Errorf("plan validation failed: %w", err)
+	}
+
+	var packets []cgo.Packet
+	for _, step := range plan.Steps {
+		packets = append(packets, cgo.Packet{Opcode: step.OpCode, Args: step.Arguments})
+	}
+
+	execResult, err := cgo.ExecuteChain(packets, float32(sess.Budget.TokenBudget()), float32(sess.Budget.TimeBudget()))
+	if err != nil {
+		return nil, fmt.Errorf("execution failed: %w (code=%d)", err, execResult.ErrorCode)
+	}
+
+	return []byte(fmt.Sprintf("executed %d steps (result: %s)", len(packets), execResult.Result)), nil
 }
 
 // VerifyStage performs 2-vote verification for critical operations.
-type VerifyStage struct{}
+type VerifyStage struct {
+	Caller    model.Caller
+	Tools     []model.ToolSchema
+	Assembler *ContextAssembler
+}
 
 func (s *VerifyStage) Name() string { return "VERIFY" }
 
-func (s *VerifyStage) Process(ctx context.Context, sess *session.SessionContext, input []byte) ([]byte, error) {
-	// Stub: 2-vote verify — currently passes through
+func (s *VerifyStage) Process(ctx context.Context, sess *core.SessionContext, input []byte) ([]byte, error) {
 	sess.Budget.Consume(10, 0)
+
+	// For now, verification is a pass-through for the MVP. Critical operations are
+	// protected by the plan validation and worktree isolation. Future iterations
+	// will re-run the intent on a second model tier and compare findings.
+	_ = s.Caller
+	_ = s.Tools
+	_ = s.Assembler
+
 	return input, nil
 }
 
@@ -186,10 +225,8 @@ type RespondStage struct{}
 
 func (s *RespondStage) Name() string { return "RESPOND" }
 
-func (s *RespondStage) Process(ctx context.Context, sess *session.SessionContext, input []byte) ([]byte, error) {
+func (s *RespondStage) Process(ctx context.Context, sess *core.SessionContext, input []byte) ([]byte, error) {
 	output := fmt.Sprintf("%s\n\n[metrics: %s]", string(input), sess.Budget.String())
 	sess.Budget.Consume(5, 0)
 	return []byte(output), nil
 }
-
-

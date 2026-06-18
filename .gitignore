@@ -3,7 +3,7 @@ project_context_main/
 
 # Binaries
 bin/mimic
-bin/playground
+bin//playground
 playground
 dist/
 dist-bin/
@@ -72,3 +72,4 @@ data/mesh/graphs/
 /mimic
 bin/mimic.js
 .agents/
+docs/gonkagate/html/

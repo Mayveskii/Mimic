@@ -5,9 +5,9 @@ import "fmt"
 // Budget tracks token and time consumption per session.
 // Behavior source: hermes-agent iteration budget.
 type Budget struct {
-	MaxTokens      int
-	MaxTimeSeconds int
-	UsedTokens     int
+	MaxTokens       int
+	MaxTimeSeconds  int
+	UsedTokens      int
 	UsedTimeSeconds int
 }
 
@@ -44,6 +44,12 @@ func (b *Budget) Remaining() (tokens, timeSeconds int) {
 func (b *Budget) Exhausted() bool {
 	return b.UsedTokens >= b.MaxTokens || b.UsedTimeSeconds >= b.MaxTimeSeconds
 }
+
+// TokenBudget returns the token budget cap.
+func (b *Budget) TokenBudget() int { return b.MaxTokens }
+
+// TimeBudget returns the time budget cap.
+func (b *Budget) TimeBudget() int { return b.MaxTimeSeconds }
 
 // String returns a human-readable budget summary.
 func (b *Budget) String() string {

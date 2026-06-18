@@ -60,7 +60,7 @@ sandbox:
 	if cfg.Budget.MaxIterations != 5 {
 		t.Fatalf("expected max_iterations=5, got %d", cfg.Budget.MaxIterations)
 	}
-	if cfg.Sandbox.AutoRollback {
+	if cfg.Sandbox.AutoRollback == nil || *cfg.Sandbox.AutoRollback {
 		t.Fatal("expected auto_rollback=false")
 	}
 	if cfg.Models.Local != "custom/local" {

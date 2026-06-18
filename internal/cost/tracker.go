@@ -17,14 +17,14 @@ type Tracker struct {
 
 // Entry is a single cost record.
 type Entry struct {
-	PersonaID      string  `json:"persona_id"`
-	Model          string  `json:"model"`
-	TokensIn       int     `json:"tokens_in"`
-	TokensOut      int     `json:"tokens_out"`
-	TimeMs         int64   `json:"time_ms"`
-	CostUSD        float64 `json:"cost_usd"`
-	Timestamp      int64   `json:"timestamp"`
-	SessionID      string  `json:"session_id,omitempty"`
+	PersonaID string  `json:"persona_id"`
+	Model     string  `json:"model"`
+	TokensIn  int     `json:"tokens_in"`
+	TokensOut int     `json:"tokens_out"`
+	TimeMs    int64   `json:"time_ms"`
+	CostUSD   float64 `json:"cost_usd"`
+	Timestamp int64   `json:"timestamp"`
+	SessionID string  `json:"session_id,omitempty"`
 }
 
 // NewTracker creates a cost tracker for the given log directory.
@@ -40,7 +40,7 @@ func (t *Tracker) Record(e Entry) error {
 	if e.Timestamp == 0 {
 		e.Timestamp = time.Now().Unix()
 	}
-	
+
 	// Ensure directory exists
 	if err := os.MkdirAll(filepath.Dir(t.logPath), 0755); err != nil {
 		return fmt.Errorf("mkdir log dir: %w", err)

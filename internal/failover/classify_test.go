@@ -9,10 +9,10 @@ func TestClassifier_Classify(t *testing.T) {
 	c := NewClassifier()
 
 	tests := []struct {
-		name   string
-		err    string
-		want   Action
-		reset  bool
+		name  string
+		err   string
+		want  Action
+		reset bool
 	}{
 		{"nil error", "", Retry, false},
 		{"rate limit", "429 rate limit exceeded", Retry, false},

@@ -16,7 +16,7 @@ type Node struct {
 	Name     string   `json:"name"`
 	File     string   `json:"file"`
 	Line     int      `json:"line"`
-	Type     string   `json:"type"` // func, type, var, import
+	Type     string   `json:"type"`  // func, type, var, import
 	Edges    []string `json:"edges"` // IDs of connected nodes
 	PageRank float64  `json:"page_rank"`
 }

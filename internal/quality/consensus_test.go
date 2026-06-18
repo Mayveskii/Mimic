@@ -49,8 +49,8 @@ func TestAggregator_NoConsensus(t *testing.T) {
 	agg := NewAggregator()
 
 	findings := map[string][]normalize.Finding{
-		"qwen": {{File: "a.go", Line: 1, Summary: "issue A", Confidence: 0.5}},
-		"kimi": {{File: "b.go", Line: 2, Summary: "issue B", Confidence: 0.6}},
+		"qwen":    {{File: "a.go", Line: 1, Summary: "issue A", Confidence: 0.5}},
+		"kimi":    {{File: "b.go", Line: 2, Summary: "issue B", Confidence: 0.6}},
 		"minimax": {{File: "c.go", Line: 3, Summary: "issue C", Confidence: 0.7}},
 	}
 

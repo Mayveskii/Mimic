@@ -10,18 +10,18 @@ import (
 
 // ConsensusResult holds the aggregated outcome from multiple models.
 type ConsensusResult struct {
-	Facts           []ConsensusFact `json:"facts"`
-	Disagreements   []Disagreement  `json:"disagreements"`
-	ModelCount      int             `json:"model_count"`
-	ConsensusThreshold float64      `json:"consensus_threshold"`
+	Facts              []ConsensusFact `json:"facts"`
+	Disagreements      []Disagreement  `json:"disagreements"`
+	ModelCount         int             `json:"model_count"`
+	ConsensusThreshold float64         `json:"consensus_threshold"`
 }
 
 // ConsensusFact is a finding that 2/3+ models agree on.
 type ConsensusFact struct {
 	Finding    normalize.Finding `json:"finding"`
-	Agreement  int               `json:"agreement"`   // how many models agree
-	Models     []string          `json:"models"`      // which models
-	Confidence float64           `json:"confidence"`  // averaged confidence
+	Agreement  int               `json:"agreement"`  // how many models agree
+	Models     []string          `json:"models"`     // which models
+	Confidence float64           `json:"confidence"` // averaged confidence
 }
 
 // Disagreement is a finding with no consensus.

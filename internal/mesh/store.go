@@ -16,6 +16,14 @@ type Store struct {
 	db *sql.DB
 }
 
+// Close closes the underlying database.
+func (s *Store) Close() error {
+	if s.db == nil {
+		return nil
+	}
+	return s.db.Close()
+}
+
 // NewStore opens or creates a mesh SQLite database.
 func NewStore(dbPath string) (*Store, error) {
 	db, err := sql.Open("sqlite", dbPath)

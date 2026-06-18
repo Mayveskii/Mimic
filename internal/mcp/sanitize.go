@@ -84,7 +84,7 @@ func normalizePaths(s string) string {
 	// Remove trailing slash before path closing quote
 	// Simple string replacement: "/' → " and "/" → "
 	s = strings.ReplaceAll(s, `\"/`, `\"`)
-	s = strings.ReplaceAll(s, `'/`, `'`) 
+	s = strings.ReplaceAll(s, `'/`, `'`)
 	return s
 }
 

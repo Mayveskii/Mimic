@@ -8,10 +8,10 @@ import (
 
 // Proof holds mandatory proof artifacts collected after execution.
 type Proof struct {
-	GitStatus   string `json:"git_status"`
-	GitLog      string `json:"git_log"`
-	LsLa        string `json:"ls_la"`
-	GitDiff     string `json:"git_diff,omitempty"`
+	GitStatus    string `json:"git_status"`
+	GitLog       string `json:"git_log"`
+	LsLa         string `json:"ls_la"`
+	GitDiff      string `json:"git_diff,omitempty"`
 	WorktreePath string `json:"worktree_path"`
 }
 

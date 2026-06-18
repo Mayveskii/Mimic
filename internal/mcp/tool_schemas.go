@@ -1,6 +1,10 @@
 package mcp
 
-import "strings"
+import (
+	"strings"
+
+	"github.com/Mayveskii/Mimic/internal/model"
+)
 
 // ToolSchema определяет JSON Schema для инструмента, совместимый с OpenAI function calling
 // и MCP spec. Это решает проблему: модель не знает какие параметры нужны.
@@ -916,6 +920,22 @@ func ToolsForContext(query string) []ToolSchema {
 		if matched[s.Group] {
 			out = append(out, s)
 		}
+	}
+	return out
+}
+
+// ToModelTools converts MCP tool schemas to the model package format.
+func ToModelTools(schemas []ToolSchema) []model.ToolSchema {
+	out := make([]model.ToolSchema, 0, len(schemas))
+	for _, s := range schemas {
+		out = append(out, model.ToolSchema{
+			Type: "function",
+			Function: map[string]interface{}{
+				"name":        s.Name,
+				"description": s.Description,
+				"parameters":  s.InputSchema,
+			},
+		})
 	}
 	return out
 }

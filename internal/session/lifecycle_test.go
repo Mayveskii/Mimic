@@ -10,13 +10,13 @@ func TestLifecycle_RecordQuery(t *testing.T) {
 	lc := NewLifecycle(tmpDir)
 
 	rec := SessionRecord{
-		ID:        "sess-1",
-		ModelID:   "qwen",
-		RepoPath:  "/tmp/rtk",
-		Intent:    "fix race",
-		BaseSHA:   "abc123",
-		StartTime: time.Now(),
-		Success:   true,
+		ID:         "sess-1",
+		ModelID:    "qwen",
+		RepoPath:   "/tmp/rtk",
+		Intent:     "fix race",
+		BaseSHA:    "abc123",
+		StartTime:  time.Now(),
+		Success:    true,
 		BudgetUsed: "tokens=500/100000",
 	}
 	if err := lc.Record(rec); err != nil {

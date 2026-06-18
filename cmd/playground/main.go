@@ -5,10 +5,16 @@ import (
 	"flag"
 	"fmt"
 	"os"
+	"path/filepath"
 
+	"github.com/Mayveskii/Mimic/internal/config"
 	"github.com/Mayveskii/Mimic/internal/cost"
 	"github.com/Mayveskii/Mimic/internal/event"
+	"github.com/Mayveskii/Mimic/internal/graphify"
 	"github.com/Mayveskii/Mimic/internal/hunt"
+	"github.com/Mayveskii/Mimic/internal/mcp"
+	"github.com/Mayveskii/Mimic/internal/mesh"
+	"github.com/Mayveskii/Mimic/internal/model"
 	"github.com/Mayveskii/Mimic/internal/orchestrator"
 	"github.com/Mayveskii/Mimic/internal/session"
 )
@@ -33,6 +39,21 @@ func main() {
 	fmt.Printf("  intent: %s\n", *intent)
 	fmt.Println()
 
+	// Load repo config and set up hot-reload watcher.
+	cfg, err := config.LoadRepoConfig(*repoPath)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Config load failed: %v\n", err)
+		os.Exit(1)
+	}
+	watcher, err := config.NewWatcher(*repoPath, func(updated *config.RepoConfig) {
+		cfg = updated
+	})
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "Config watcher failed: %v\n", err)
+		os.Exit(1)
+	}
+	defer watcher.Stop()
+
 	// 1. Session Manager
 	mgr := session.NewManager(*repoPath)
 	ctx, err := mgr.Init(*modelID)
@@ -54,9 +75,40 @@ func main() {
 	// 3. Cost Tracker
 	costTracker := cost.NewTracker(ctx.WorktreePath)
 
-	// 4. Hunt + Pipeline
+	// 4. Model provider and cascade.
+	gonkaCfg, ok := cfg.Providers["gonkagate"]
+	if !ok {
+		fmt.Fprintf(os.Stderr, "GonkaGate provider not configured\n")
+		os.Exit(1)
+	}
+	provider, err := model.NewGonkaGateProvider(gonkaCfg.Endpoint, gonkaCfg.EnvKey, gonkaCfg.TimeoutMs, gonkaCfg.RetryMax)
+	if err != nil {
+		fmt.Fprintf(os.Stderr, "GonkaGate provider failed: %v\n", err)
+		os.Exit(1)
+	}
+	cascade := model.NewCascade(provider, cfg.Models)
+	mgr = mgr.WithCaller(cascade)
+
+	// 5. Context assembler with mesh and graphify.
+	assembler := orchestrator.NewContextAssembler(cfg)
+	if *meshDir != "" {
+		store, err := mesh.NewStore(filepath.Join(*meshDir, "mesh.db"))
+		if err == nil {
+			defer store.Close()
+			assembler.Mesh = store
+		}
+	}
+	graph := graphify.NewGraph()
+	if err := graph.BuildFromRepo(*repoPath); err == nil && len(graph.Nodes) > 0 {
+		graph.ComputePageRank(10, 0.85)
+		assembler.Graphify = graph
+	}
+	mgr = mgr.WithAssembler(assembler)
+
+	// 6. Hunt + Pipeline
 	hunter := hunt.NewHunter(*meshDir)
-	pipeline := orchestrator.NewPipeline(hunter)
+	tools := mcp.ToModelTools(mcp.DefaultSchemas)
+	pipeline := orchestrator.NewPipeline(hunter, cascade, tools, assembler)
 
 	result, err := pipeline.Run(context.Background(), ctx, *intent)
 	if err != nil {
@@ -65,14 +117,14 @@ func main() {
 		os.Exit(1)
 	}
 
-	// 5. Collect proof
+	// 7. Collect proof
 	proof, err := mgr.Finalize(ctx)
 	if err != nil {
 		fmt.Fprintf(os.Stderr, "Finalize failed: %v\n", err)
 		os.Exit(1)
 	}
 
-	// 6. Record cost
+	// 8. Record cost
 	_ = costTracker.Record(cost.Entry{
 		PersonaID: *modelID,
 		Model:     ctx.Config.Models.Local,
@@ -81,7 +133,7 @@ func main() {
 		SessionID: ctx.ID,
 	})
 
-	// 7. Output
+	// 9. Output
 	fmt.Printf("=== Result ===\n%s\n\n", result.Output)
 	fmt.Printf("=== Proof ===\n")
 	fmt.Printf("Git Status:\n%s\n\n", proof.GitStatus)

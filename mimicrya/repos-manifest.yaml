@@ -648,3 +648,74 @@ hardware:
     slots: 0
     z_density: 0.0
     notes: container runtime, image layers
+
+security:
+  - repo: github/docs
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: GitHub-native documentation patterns, workflows, security hardening, platform automation grammar
+
+  - repo: github/security/advanced-security
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: Code scanning, secret scanning, dependency review alert taxonomy and remediation workflows
+
+  - repo: dependabot/dependabot-core
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: Dependency update automation, ecosystem parsers, vulnerability remediation behavior
+
+  - repo: dependabot/smoke-tests
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: End-to-end manifest fixtures for dependency update verification
+
+  - repo: dependabot/cli
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: CLI for testing and debugging Dependabot update jobs
+
+  - repo: OWASP/ASVS
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: Application Security Verification Standard — requirement taxonomy for security controls
+
+  - repo: OWASP/CheatSheetSeries
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: Language/platform-specific security remediation guidance
+
+  - repo: google/osv.dev
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: Open Source Vulnerabilities database and API — ecosystem-agnostic vulnerability lookup
+
+  - repo: github/advisory-database
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: GitHub Security Advisories — CVE to package mapping, severity, patched versions
+
+  - repo: ossf/scorecard
+    status: pending
+    last_commit: ""
+    slots: 0
+    z_density: 0.0
+    notes: OpenSSF Scorecard — security posture checks and maintainability hygiene

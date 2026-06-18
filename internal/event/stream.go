@@ -23,11 +23,11 @@ const (
 // Event is a single record in the event stream.
 // Behavior source: OpenHands event stream.
 type Event struct {
-	ID        string    `json:"id"`
-	Type      EventType `json:"type"`
-	Timestamp int64     `json:"timestamp"`
-	Source    string    `json:"source"`     // model ID or system component
-	Content   string    `json:"content"`
+	ID        string                 `json:"id"`
+	Type      EventType              `json:"type"`
+	Timestamp int64                  `json:"timestamp"`
+	Source    string                 `json:"source"` // model ID or system component
+	Content   string                 `json:"content"`
 	Metadata  map[string]interface{} `json:"metadata,omitempty"`
 }
 

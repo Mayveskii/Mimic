@@ -35,8 +35,14 @@ func LoadRepoConfig(repoPath string) (*RepoConfig, error) {
 		cfg.Repo = repoName
 	}
 
-	// Apply defaults for missing fields
+	applyDefaults(cfg)
+	return cfg, nil
+}
+
+// applyDefaults fills missing config fields from defaults.
+func applyDefaults(cfg *RepoConfig) {
 	defaults := DefaultRepoConfig()
+
 	if cfg.Models.Local == "" {
 		cfg.Models.Local = defaults.Models.Local
 	}
@@ -46,6 +52,13 @@ func LoadRepoConfig(repoPath string) (*RepoConfig, error) {
 	if cfg.Models.Top == "" {
 		cfg.Models.Top = defaults.Models.Top
 	}
+	if cfg.Models.Cascade.ConfidenceThreshold == 0 {
+		cfg.Models.Cascade.ConfidenceThreshold = defaults.Models.Cascade.ConfidenceThreshold
+	}
+	if cfg.Models.Cascade.MaxEscalations == 0 {
+		cfg.Models.Cascade.MaxEscalations = defaults.Models.Cascade.MaxEscalations
+	}
+
 	if cfg.Budget.MaxTokens == 0 {
 		cfg.Budget.MaxTokens = defaults.Budget.MaxTokens
 	}
@@ -56,7 +69,43 @@ func LoadRepoConfig(repoPath string) (*RepoConfig, error) {
 		cfg.Budget.MaxTimeSeconds = defaults.Budget.MaxTimeSeconds
 	}
 
-	return cfg, nil
+	if cfg.Providers == nil {
+		cfg.Providers = defaults.Providers
+	} else {
+		for name, defaultProvider := range defaults.Providers {
+			if existing, ok := cfg.Providers[name]; ok {
+				if existing.Endpoint == "" {
+					existing.Endpoint = defaultProvider.Endpoint
+				}
+				if existing.EnvKey == "" {
+					existing.EnvKey = defaultProvider.EnvKey
+				}
+				if existing.TimeoutMs == 0 {
+					existing.TimeoutMs = defaultProvider.TimeoutMs
+				}
+				if existing.RetryMax == 0 {
+					existing.RetryMax = defaultProvider.RetryMax
+				}
+				cfg.Providers[name] = existing
+			} else {
+				cfg.Providers[name] = defaultProvider
+			}
+		}
+	}
+
+	if cfg.Value.ValuePerSeverity == nil {
+		cfg.Value.ValuePerSeverity = defaults.Value.ValuePerSeverity
+	}
+
+	if cfg.Sandbox.WorktreePrefix == "" {
+		cfg.Sandbox.WorktreePrefix = defaults.Sandbox.WorktreePrefix
+	}
+	if cfg.Sandbox.AutoRollback == nil {
+		cfg.Sandbox.AutoRollback = defaults.Sandbox.AutoRollback
+	}
+	if cfg.Sandbox.CollectProof == nil {
+		cfg.Sandbox.CollectProof = defaults.Sandbox.CollectProof
+	}
 }
 
 // SaveRepoConfig writes the repo config to disk.

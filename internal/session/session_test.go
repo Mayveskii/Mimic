@@ -1,6 +1,7 @@
 package session
 
 import (
+	"context"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -8,7 +9,14 @@ import (
 	"testing"
 
 	"github.com/Mayveskii/Mimic/internal/config"
+	"github.com/Mayveskii/Mimic/internal/model"
 )
+
+type mockCaller struct{}
+
+func (m *mockCaller) Call(ctx context.Context, req model.ChatRequest) (*model.CallResult, error) {
+	return &model.CallResult{Response: model.ChatResponse{}}, nil
+}
 
 func setupRepo(t *testing.T) string {
 	t.Helper()
@@ -49,8 +57,9 @@ func TestManager_Init(t *testing.T) {
 	if ctx.Budget == nil {
 		t.Fatal("budget is nil")
 	}
-	if ctx.Budget.MaxTokens != 100000 {
-		t.Fatalf("expected max_tokens=100000, got %d", ctx.Budget.MaxTokens)
+	budget := ctx.Budget.(*Budget)
+	if budget.MaxTokens != 100000 {
+		t.Fatalf("expected max_tokens=100000, got %d", budget.MaxTokens)
 	}
 	if ctx.Config == nil {
 		t.Fatal("config is nil")
@@ -87,6 +96,7 @@ func TestManager_Execute(t *testing.T) {
 	}
 	defer mgr.Destroy(ctx)
 
+	mgr = mgr.WithCaller(&mockCaller{})
 	result, err := mgr.Execute(ctx, "fix race condition")
 	if err != nil {
 		t.Fatalf("Execute: %v", err)
@@ -94,7 +104,7 @@ func TestManager_Execute(t *testing.T) {
 	if !strings.Contains(result, "fix race condition") {
 		t.Fatalf("expected result to contain intent, got: %s", result)
 	}
-	if ctx.Budget.UsedTokens == 0 {
+	if ctx.Budget.(*Budget).UsedTokens == 0 {
 		t.Fatal("expected budget to be consumed")
 	}
 }
@@ -206,8 +216,9 @@ func TestLoadRepoConfig_Integration(t *testing.T) {
 	}
 	defer mgr.Destroy(ctx)
 
-	if ctx.Budget.MaxTokens != 50000 {
-		t.Fatalf("expected max_tokens=50000 from config, got %d", ctx.Budget.MaxTokens)
+	budget := ctx.Budget.(*Budget)
+	if budget.MaxTokens != 50000 {
+		t.Fatalf("expected max_tokens=50000 from config, got %d", budget.MaxTokens)
 	}
 	if ctx.Config.Models.Medium != "kimi" {
 		t.Fatalf("expected medium model=kimi from config, got %q", ctx.Config.Models.Medium)

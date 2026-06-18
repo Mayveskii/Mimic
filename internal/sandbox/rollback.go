@@ -7,9 +7,9 @@ import (
 
 // Rollback restores the worktree to its baseline state.
 // 3-phase rollback:
-//   1. git checkout -- .   (revert all modified files)
-//   2. git clean -fd       (remove untracked files and directories)
-//   3. git status verify   (confirm clean tree)
+//  1. git checkout -- .   (revert all modified files)
+//  2. git clean -fd       (remove untracked files and directories)
+//  3. git status verify   (confirm clean tree)
 func Rollback(worktreePath string) error {
 	if worktreePath == "" {
 		return fmt.Errorf("worktree path is empty")
