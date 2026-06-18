@@ -1,0 +1,173 @@
+# External Behavior Sources — Mimic
+#
+# Canonical platforms, products, and documentation outside Mayveskii/* that
+# define behavior Mimic should learn. Unlike Mayveskii behavior sources these
+# are not forked for code extraction; they are reference targets for mimicry
+# and distillation sources for proven patterns.
+#
+# Schema per source:
+#   source: org/repo or canonical URL
+#   type: docs | product | tool | maintainer
+#   domain: security | dependencies | platform | ...
+#   behaviors:
+#     - name: snake_case identifier
+#       what: one-line description of the behavior
+#       implemented_in: target path in Mimic
+#       status: pending | planned | partial | done | reference | future
+#   notes: free-form context
+
+sources:
+  - source: github/docs
+    type: docs
+    domain: platform
+    behaviors:
+      - name: github_actions_workflow_patterns
+        what: Canonical patterns for CI/CD workflows, artifact handling, permissions, job orchestration
+        implemented_in: .github/workflows/
+        status: reference
+
+      - name: github_security_best_practices
+        what: Security hardening, secret management, token scoping, dependency review, least-privilege automation
+        implemented_in: internal/orchestrator/security/
+        status: reference
+
+      - name: platform_native_automation_grammar
+        what: How GitHub-native automation expresses intent — workflows, apps, checks, review gates
+        implemented_in: specs/05-BEHAVIOR.md
+        status: reference
+    notes: Source of truth for GitHub-native behavior and the grammar of platform automation.
+
+  - source: github/security/advanced-security
+    type: product
+    domain: security
+    behaviors:
+      - name: code_scanning_alert_triage
+        what: "Static analysis alert → severity classification → file:line location → remediation workflow"
+        implemented_in: internal/quality/security.go
+        status: planned
+
+      - name: secret_scanning_response
+        what: Detect leaked secret → revoke/rotate → verify removal → audit trail
+        implemented_in: internal/quality/secrets.go
+        status: planned
+
+      - name: dependency_review_gates
+        what: Block PRs introducing vulnerable dependencies, suggest alternatives, evaluate license compatibility
+        implemented_in: internal/orchestrator/guardrails.go
+        status: planned
+
+      - name: alert_to_patch_traceability
+        what: Every security alert must map to a concrete code change with proof (test, diff, verification)
+        implemented_in: internal/session/logger.go
+        status: planned
+    notes: GitHub Advanced Security defines the alert taxonomy and remediation loop Mimic must implement.
+
+  - source: dependabot
+    type: maintainer
+    domain: dependencies
+    behaviors:
+      - name: automated_dependency_updates
+        what: Scan manifests → detect outdated/vulnerable deps → open update PRs with changelogs and compatibility notes
+        implemented_in: internal/orchestrator/dependency.go
+        status: planned
+
+      - name: vulnerability_alert_remediation
+        what: Convert Dependabot alert into patch plan — bump version, adapt lockfile, run tests, collect proof
+        implemented_in: internal/orchestrator/security.go
+        status: planned
+
+      - name: update_grouping_strategy
+        what: Group compatible updates, isolate breaking changes, respect ignore rules and version constraints
+        implemented_in: internal/orchestrator/dependency.go
+        status: planned
+
+      - name: ecosystem_aware_manifest_parsing
+        what: Understand npm/pip/go/maven/etc. manifest and lockfile semantics enough to apply safe bumps
+        implemented_in: internal/tool/dependency/
+        status: future
+
+      - name: maintainer_communication_style
+        what: PR body with summary, changelog excerpt, risk note, and clear rollback path — junior-dev feel
+        implemented_in: internal/skill/extract.go
+        status: planned
+    notes: Dependabot is the canonical maintainer behavior. Mimic's autonomy stage targets Dependabot++ — alert to merged patch with human review gate.
+
+  - source: owasp
+    type: taxonomy
+    domain: security
+    behaviors:
+      - name: owasp_top_10_classification
+        what: Map findings and vulnerabilities to OWASP Top 10 categories for prioritization and reporting
+        implemented_in: internal/quality/classify.go
+        status: planned
+
+      - name: asvs_requirement_mapping
+        what: Align security controls with ASVS requirements — verify coverage per application level
+        implemented_in: internal/quality/asvs.go
+        status: future
+
+      - name: cheat_sheet_remediation
+        what: Pull platform/language-specific remediation guidance from OWASP Cheat Sheets
+        implemented_in: internal/tool/remediation.go
+        status: planned
+    notes: OWASP provides the shared taxonomy for application security weaknesses and remediation patterns.
+
+  - source: nvd
+    type: aggregator
+    domain: security
+    behaviors:
+      - name: cve_metadata_enrichment
+        what: Resolve CVE-ID → description, CVSS severity, CWE, CPE, affected products, references
+        implemented_in: internal/tool/cve.go
+        status: planned
+
+      - name: severity_based_prioritization
+        what: Use CVSS base score and vector as one input for remediation priority ranking
+        implemented_in: internal/orchestrator/prioritize.go
+        status: planned
+    notes: NVD is the canonical source for CVE metadata and severity scoring.
+
+  - source: osv
+    type: aggregator
+    domain: security
+    behaviors:
+      - name: package_version_vulnerability_lookup
+        what: Query OSV API by package ecosystem + version → list of affecting vulnerabilities
+        implemented_in: internal/tool/osv.go
+        status: planned
+
+      - name: affected_range_parsing
+        what: Parse semver, git ranges, and ecosystem-specific affected versions from OSV records
+        implemented_in: internal/tool/osv.go
+        status: planned
+    notes: OSV provides a unified, ecosystem-agnostic API for open source vulnerability lookup.
+
+  - source: github/advisory-database
+    type: aggregator
+    domain: security
+    behaviors:
+      - name: github_advisory_lookup
+        what: Resolve package + version → GitHub Security Advisory with CVE mapping, severity, patched version
+        implemented_in: internal/tool/ghsa.go
+        status: planned
+
+      - name: advisory_to_patch_mapping
+        what: "Map advisory record to concrete update action: version constraint, lockfile change, test command"
+        implemented_in: internal/orchestrator/dependency.go
+        status: planned
+    notes: GitHub Advisory Database links CVEs to package ecosystems and is the data source behind Dependabot alerts.
+
+  - source: openssf/scorecard
+    type: tool
+    domain: security
+    behaviors:
+      - name: security_posture_checking
+        what: "Evaluate repo security posture: branch protection, dependency update tool, signed releases, token permissions"
+        implemented_in: internal/quality/scorecard.go
+        status: future
+
+      - name: posture_to_remediation_plan
+        what: Convert failing Scorecard checks into actionable remediation steps with priority
+        implemented_in: internal/orchestrator/security.go
+        status: future
+    notes: OpenSSF Scorecard defines maintainability and security hygiene checks that Mimic should eventually remediate proactively.
