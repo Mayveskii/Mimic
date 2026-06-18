@@ -42,6 +42,11 @@ func NewStore(repoPath string) (*Store, error) {
 	return &Store{repoPath: repoPath}, nil
 }
 
+// RepoPath returns the filesystem path of the backing git repository.
+func (s *Store) RepoPath() string {
+	return s.repoPath
+}
+
 // StoreBlob writes a blob object and returns its SHA-1 hash.
 func (s *Store) StoreBlob(data []byte) (string, error) {
 	cmd := exec.Command("git", "-C", s.repoPath, "hash-object", "-w", "--stdin")
