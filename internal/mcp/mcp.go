@@ -81,6 +81,7 @@ type Server struct {
 	projectMapHandler *ProjectMapHandler
 	exaHandler        *ExaHandler
 	planHandler       *PlanHandler
+	casHandler        *CASTools
 }
 
 // Tool describes an available operation
@@ -245,6 +246,12 @@ func (s *Server) handleRequest(req JSONRPCRequest) *JSONRPCResponse {
 			return resp
 		}
 
+		// Route CAS pattern tools
+		if isCASTool(params.Name) {
+			resp.Result = s.dispatchCASTools(params.Name, params.Arguments)
+			return resp
+		}
+
 		// Route Exa tools
 		if params.Name == "EXA_SEARCH" {
 			resp.Result = s.exaHandler.HandleExaSearch(params.Arguments)
@@ -312,5 +319,6 @@ func (s *Server) WithTransport(t Transport) *Server {
 		projectMapHandler: s.projectMapHandler,
 		exaHandler:        s.exaHandler,
 		planHandler:       s.planHandler,
+		casHandler:        s.casHandler,
 	}
 }

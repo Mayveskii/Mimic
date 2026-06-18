@@ -843,6 +843,156 @@ var DefaultSchemas = []ToolSchema{
 		},
 	},
 
+	// ── CAS Pattern Operations ─────────────────────────────────────────
+	{
+		Name:        "apply_pattern",
+		Group:       "cas",
+		Description: "Apply a stored pattern to a base tree and return a new tree SHA. Use tree_sha to compose with prior operations; omit it to start from the empty tree.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"pattern_sha": map[string]interface{}{
+					"type":        "string",
+					"description": "SHA of the stored pattern blob",
+				},
+				"target_path": map[string]interface{}{
+					"type":        "string",
+					"description": "File path where the pattern output is written",
+				},
+				"params": map[string]interface{}{
+					"type":        "object",
+					"description": "Interpolation parameters for the pattern",
+					"additionalProperties": map[string]interface{}{
+						"type": "string",
+					},
+				},
+				"tree_sha": map[string]interface{}{
+					"type":        "string",
+					"description": "Optional base tree SHA (empty tree if omitted)",
+				},
+			},
+			"required": []string{"pattern_sha", "target_path"},
+		},
+	},
+	{
+		Name:        "graft_module",
+		Group:       "cas",
+		Description: "Copy all entries from a source tree into a target path of a new tree and return the new tree SHA.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"source_tree_sha": map[string]interface{}{
+					"type":        "string",
+					"description": "SHA of the source tree to graft",
+				},
+				"target_path": map[string]interface{}{
+					"type":        "string",
+					"description": "Directory path under which the source tree is placed",
+				},
+			},
+			"required": []string{"source_tree_sha", "target_path"},
+		},
+	},
+	{
+		Name:        "edit_via_patch",
+		Group:       "cas",
+		Description: "Apply a unified diff patch to a file in a base tree and return a new tree SHA. Use tree_sha to compose with prior operations; omit it to start from the empty tree.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"file_path": map[string]interface{}{
+					"type":        "string",
+					"description": "Path of the file to patch",
+				},
+				"patch": map[string]interface{}{
+					"type":        "string",
+					"description": "Unified diff patch to apply",
+				},
+				"tree_sha": map[string]interface{}{
+					"type":        "string",
+					"description": "Optional base tree SHA (empty tree if omitted)",
+				},
+			},
+			"required": []string{"file_path"},
+		},
+	},
+	{
+		Name:        "write_file",
+		Group:       "cas",
+		Description: "Write raw content to a path in a base tree and return the new tree SHA. Use tree_sha to compose with prior operations; omit it to start from the empty tree.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"path": map[string]interface{}{
+					"type":        "string",
+					"description": "File path to write",
+				},
+				"content": map[string]interface{}{
+					"type":        "string",
+					"description": "File content",
+				},
+				"tree_sha": map[string]interface{}{
+					"type":        "string",
+					"description": "Optional base tree SHA (empty tree if omitted)",
+				},
+			},
+			"required": []string{"path"},
+		},
+	},
+	{
+		Name:        "commit_transition",
+		Group:       "cas",
+		Description: "Create a commit object from a tree SHA. parent_sha may be empty for a root commit.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"tree_sha": map[string]interface{}{
+					"type":        "string",
+					"description": "SHA of the tree to commit",
+				},
+				"parent_sha": map[string]interface{}{
+					"type":        "string",
+					"description": "SHA of the parent commit (empty for root commit)",
+				},
+				"message": map[string]interface{}{
+					"type":        "string",
+					"description": "Commit message",
+				},
+			},
+			"required": []string{"tree_sha", "message"},
+		},
+	},
+	{
+		Name:        "read_blob",
+		Group:       "cas",
+		Description: "Read the contents of a blob object by SHA.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"sha": map[string]interface{}{
+					"type":        "string",
+					"description": "SHA of the blob to read",
+				},
+			},
+			"required": []string{"sha"},
+		},
+	},
+	{
+		Name:        "read_tree",
+		Group:       "cas",
+		Description: "Read the entries of a tree object by SHA.",
+		InputSchema: map[string]interface{}{
+			"type": "object",
+			"properties": map[string]interface{}{
+				"sha": map[string]interface{}{
+					"type":        "string",
+					"description": "SHA of the tree to read",
+				},
+			},
+			"required": []string{"sha"},
+		},
+	},
+
 	// ── Plan Generation ────────────────────────────────────────────────
 	{
 		Name:        "PLAN_GENERATE",
