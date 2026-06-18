@@ -1,6 +1,7 @@
 # Mimic
 
 > **Execution layer for AI agents that doesn't hallucinate.**
+>**https://docs.github.com/**
 
 Mimic is an MCP server with a C-core execution engine — not a wrapper around bash, but a deterministic runtime that validates every operation before it runs, measures cost, and rolls back on failure.
 
