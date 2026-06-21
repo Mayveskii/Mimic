@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "golang/go",
+  "query": "github golang/go runtime, GC, scheduler, toolchain",
+  "fetched_at": "2026-06-21T06:46:58.525740Z",
+  "search_results": [
+    {
+      "title": "src/runtime/proc.go at go1.26.1 · golang/go",
+      "url": "https://github.com/golang/go/blob/go1.26.1/src/runtime/proc.go",
+      "id": "https://github.com/golang/go/blob/go1.26.1/src/runtime/proc.go"
+    },
+    {
+      "title": "go/src/runtime at master · golang/go · GitHub",
+      "url": "https://github.com/golang/go/tree/master/src/runtime",
+      "id": "https://github.com/golang/go/tree/master/src/runtime"
+    },
+    {
+      "title": "src/runtime/mgc.go at 99d4927f · golang/go",
+      "url": "https://github.com/golang/go/blob/99d4927f/src/runtime/mgc.go",
+      "id": "https://github.com/golang/go/blob/99d4927f/src/runtime/mgc.go"
+    },
+    {
+      "title": "src/runtime/proc.go at 329317472fd3fbc3179523bd70e03e452c829846 · golang/go",
+      "url": "https://github.com/golang/go/blob/329317472fd3fbc3179523bd70e03e452c829846/src/runtime/proc.go",
+      "id": "https://github.com/golang/go/blob/329317472fd3fbc3179523bd70e03e452c829846/src/runtime/proc.go"
+    },
+    {
+      "title": "src/runtime/mgc.go at go1.20.5 · golang/go",
+      "url": "https://github.com/golang/go/blob/go1.20.5/src/runtime/mgc.go",
+      "id": "https://github.com/golang/go/blob/go1.20.5/src/runtime/mgc.go"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/golang/go/blob/go1.26.1/src/runtime/proc.go",
+      "title": "src/runtime/proc.go at go1.26.1 · golang/go",
+      "text": "# File: golang/go/src/runtime/proc.go\n\n- Repository: golang/go | The Go programming language | 134K stars | Go\n- Branch: go1.26.1\n\n```go\n// Copyright 2014 The Go Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style\n// license that can be found in the LICENSE file.\n\npackage runtime\n\nimport (\n\t\"internal/abi\"\n\t\"internal/cpu\"\n\t\"internal/goarch\"\n\t\"internal/goexperiment\"\n\t\"internal/goos\"\n\t\"internal/runtime/atomic\"\n\t\"internal/runtime/exithook\"\n\t\"internal/runtime/sys\"\n\t\"internal/strconv\"\n\t\"internal/stringslite\"\n\t\"unsafe\"\n)\n\n// set using cmd/go/internal/modload.ModInfoProg\nvar modinfo string\n\n// Goroutine scheduler\n// The scheduler's job is to distribute ready-to-run goroutines over worker threads.\n//\n// The main concepts are:\n// G - goroutine.\n// M - worker thread, or machine.\n// P - processor, a resource that is required to execute Go code.\n//     M must have an associated P to execute Go code, however it can be\n//     blocked or in a syscall w/o an associated P"
+    },
+    {
+      "url": "https://github.com/golang/go/tree/master/src/runtime",
+      "title": "go/src/runtime at master · golang/go · GitHub",
+      "text": "go/src/runtime at master · golang/go · GitHub\n\n## Files\n\nmaster\n\n# runtime\n\nmaster\n\n# runtime\n\nTop\n\nLast commit message\n\nLast commit date\n\nView all files\n\ngo/src/runtime at master · golang/go · GitHub\n[Skip to content](#start-of-content)\n## Navigation Menu\nToggle navigation\n[\n](https://github.com/)\n[\nSign in\n](https://github.com/login?return_to=https://github.com/golang/go/tree/master/src/runtime)\nAppearance settings\nSearch or jump to...\n# Search code, repositories, users, issues, pull requests...\n \nSearch\nClear\n[Search syntax tips](https://docs.github.com/search-github/github-code-search/understanding-github-code-search-syntax)\n#\nProvide feedback\n \nWe read every piece of feedback, and take your input very seriously.\nInclude my email address so I can be contacted\nCancel\nSubmit feedback\n#\nSaved searches\n## Use saved searches to filter your results more quickly\n \nName\nQuery\nTo see all available qualifiers, see our [documentation](https://docs.github.com/search-github/github-code-search/u"
+    },
+    {
+      "url": "https://github.com/golang/go/blob/99d4927f/src/runtime/mgc.go",
+      "title": "src/runtime/mgc.go at 99d4927f · golang/go",
+      "text": "# File: golang/go/src/runtime/mgc.go\n\n- Repository: golang/go | The Go programming language | 133K stars | Go\n- Branch: 99d4927f\n\n```go\n// Copyright 2009 The Go Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style\n// license that can be found in the LICENSE file.\n\n// Garbage collector (GC).\n//\n// The GC runs concurrently with mutator threads, is type accurate (aka precise), allows multiple\n// GC threads to run in parallel. It is a concurrent mark and sweep that uses a write barrier. It is\n// non-generational and non-compacting. Allocation is done using size segregated per P allocation\n// areas to minimize fragmentation while eliminating locks in the common case.\n//\n// The algorithm decomposes into several steps.\n// This is a high level description of the algorithm being used. For an overview of GC a good\n// place to start is Richard Jones' gchandbook.org.\n//\n// The algorithm's intellectual heritage includes Dijkstra's on-the-fly algorithm, see\n// Edsger W"
+    }
+  ]
+}
