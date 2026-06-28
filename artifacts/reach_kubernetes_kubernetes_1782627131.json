@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "kubernetes/kubernetes",
+  "query": "github kubernetes/kubernetes controllers, reconciliation loops, API server",
+  "fetched_at": "2026-06-28T06:12:11.554742Z",
+  "search_results": [
+    {
+      "title": "pkg/controller/framework/controller.go at 82cb4c17581752ae9f00bd746a63e529149c04b4 · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go"
+    },
+    {
+      "title": "contributors/devel/controllers.md at 8cafef897a22026d42f5e5bb3f104febe7e29830 · kubernetes/community",
+      "url": "https://github.com/kubernetes/community/blob/8cafef897a22026d42f5e5bb3f104febe7e29830/contributors/devel/controllers.md",
+      "id": "https://github.com/kubernetes/community/blob/8cafef897a22026d42f5e5bb3f104febe7e29830/contributors/devel/controllers.md"
+    },
+    {
+      "title": "pkg/controller/volume/persistentvolume/pv_controller.go at master · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/volume/persistentvolume/pv_controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/volume/persistentvolume/pv_controller.go"
+    },
+    {
+      "title": "pkg/controller/endpoint/endpoints_controller.go at master · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/endpoint/endpoints_controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/endpoint/endpoints_controller.go"
+    },
+    {
+      "title": "pkg/controller/replicaset/replica_set.go at 5bac42bf · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/5bac42bf/pkg/controller/replicaset/replica_set.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/5bac42bf/pkg/controller/replicaset/replica_set.go"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go",
+      "title": "pkg/controller/framework/controller.go at 82cb4c17581752ae9f00bd746a63e529149c04b4 · kubernetes/kubernetes",
+      "text": "# File: kubernetes/kubernetes/pkg/controller/framework/controller.go\n\n- Repository: kubernetes/kubernetes | Production-Grade Container Scheduling and Management | 123K stars | Go\n- Branch: 82cb4c17581752ae9f00bd746a63e529149c04b4\n\n```go\n/*\nCopyright 2015 The Kubernetes Authors All rights reserved.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/\n\npackage framework\n\nimport (\n\t\"sync\"\n\t\"time\"\n\n\t\"k8s.io/kubernetes/pkg/client/cache\"\n\t\"k8s.io/kubernetes/pkg/runtime\"\n\tutilruntime \"k8s.io/kubernetes/pkg/util/runtime\"\n\t\"k8s."
+    },
+    {
+      "url": "https://github.com/kubernetes/community/blob/8cafef897a22026d42f5e5bb3f104febe7e29830/contributors/devel/controllers.md",
+      "title": "contributors/devel/controllers.md at 8cafef897a22026d42f5e5bb3f104febe7e29830 · kubernetes/community",
+      "text": "# File: kubernetes/community/contributors/devel/controllers.md\n\n- Repository: kubernetes/community | Kubernetes community content | 13K stars | Jupyter Notebook\n- Branch: 8cafef897a22026d42f5e5bb3f104febe7e29830\n\n```md\n# Writing Controllers\n\nA Kubernetes controller is an active reconciliation process. That is, it watches some object for the world's desired state, and it watches the world's actual state, too. Then, it sends instructions to try and make the world's current state be more like the desired state.\n\nThe simplest implementation of this is a loop:\n\n```go\nfor {\n  desired := getDesiredState()\n  current := getCurrentState()\n  makeChanges(desired, current)\n}\n```\n\nWatches, etc, are all merely optimizations of this logic.\n\n## Guidelines\n\nWhen you're writing controllers, there are few guidelines that will help make sure you get the results and performance you're looking for.\n\n1. Operate on one item at a time. If you use a `workqueue.Interface`, you'll be able to queue changes for a pa"
+    },
+    {
+      "url": "https://github.com/kubernetes/kubernetes/blob/master/pkg/controller/volume/persistentvolume/pv_controller.go",
+      "title": "pkg/controller/volume/persistentvolume/pv_controller.go at master · kubernetes/kubernetes",
+      "text": "# File: kubernetes/kubernetes/pkg/controller/volume/persistentvolume/pv_controller.go\n\n- Repository: kubernetes/kubernetes | Production-Grade Container Scheduling and Management | 121K stars | Go\n- Branch: master\n\n```go\n/*\nCopyright 2016 The Kubernetes Authors.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/\n\npackage persistentvolume\n\nimport (\n\t\"context\"\n\t\"errors\"\n\t\"fmt\"\n\t\"reflect\"\n\t\"slices\"\n\t\"strings\"\n\t\"time\"\n\n\tutilfeature \"k8s.io/apiserver/pkg/util/feature\"\n\t\"k8s.io/kubernetes/pkg/features\"\n\t\"k8s.io/kubernetes/pk"
+    }
+  ]
+}
