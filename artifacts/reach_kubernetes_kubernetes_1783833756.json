@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "kubernetes/kubernetes",
+  "query": "github kubernetes/kubernetes controllers, reconciliation loops, API server",
+  "fetched_at": "2026-07-12T05:22:36.188543Z",
+  "search_results": [
+    {
+      "title": "pkg/controller/framework/controller.go at 82cb4c17581752ae9f00bd746a63e529149c04b4 · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go"
+    },
+    {
+      "title": "contributors/devel/sig-api-machinery/controllers.md",
+      "url": "https://github.com/kubernetes/community/blob/cbe9c8ac5f71a99179d7ffe4a008b9018830af72/contributors/devel/sig-api-machinery/controllers.md",
+      "id": "https://github.com/kubernetes/community/blob/cbe9c8ac5f71a99179d7ffe4a008b9018830af72/contributors/devel/sig-api-machinery/controllers.md"
+    },
+    {
+      "title": "pkg/controlplane/controller/kubernetesservice/controller.go",
+      "url": "https://github.com/kubernetes/kubernetes/blob/v1.36.2/pkg/controlplane/controller/kubernetesservice/controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/v1.36.2/pkg/controlplane/controller/kubernetesservice/controller.go"
+    },
+    {
+      "title": "pkg/controller/replicaset/replica_set.go",
+      "url": "https://github.com/kubernetes/kubernetes/blob/5bac42bf/pkg/controller/replicaset/replica_set.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/5bac42bf/pkg/controller/replicaset/replica_set.go"
+    },
+    {
+      "title": "pkg/controller/deployment/deployment_controller.go at e9b95827 · kubernetes/kubernetes",
+      "url": "https://github.com/kubernetes/kubernetes/blob/e9b95827/pkg/controller/deployment/deployment_controller.go",
+      "id": "https://github.com/kubernetes/kubernetes/blob/e9b95827/pkg/controller/deployment/deployment_controller.go"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/kubernetes/kubernetes/blob/82cb4c17581752ae9f00bd746a63e529149c04b4/pkg/controller/framework/controller.go",
+      "title": "pkg/controller/framework/controller.go at 82cb4c17581752ae9f00bd746a63e529149c04b4 · kubernetes/kubernetes",
+      "text": "# File: kubernetes/kubernetes/pkg/controller/framework/controller.go\n\n- Repository: kubernetes/kubernetes | Production-Grade Container Scheduling and Management | 123K stars | Go\n- Branch: 82cb4c17581752ae9f00bd746a63e529149c04b4\n\n```go\n/*\nCopyright 2015 The Kubernetes Authors All rights reserved.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n    http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/\n\npackage framework\n\nimport (\n\t\"sync\"\n\t\"time\"\n\n\t\"k8s.io/kubernetes/pkg/client/cache\"\n\t\"k8s.io/kubernetes/pkg/runtime\"\n\tutilruntime \"k8s.io/kubernetes/pkg/util/runtime\"\n\t\"k8s."
+    },
+    {
+      "url": "https://github.com/kubernetes/community/blob/cbe9c8ac5f71a99179d7ffe4a008b9018830af72/contributors/devel/sig-api-machinery/controllers.md",
+      "title": "contributors/devel/sig-api-machinery/controllers.md",
+      "text": "# contributors/devel/sig-api-machinery/controllers.md\n\n- Branch: cbe9c8ac5f71a99179d7ffe4a008b9018830af72\n- Repository: kubernetes/community\n\n---\n\n# Writing Controllers\n\nA Kubernetes controller is an active reconciliation process. That is, it watches some object for the world's desired state, and it watches the world's actual state, too. Then, it sends instructions to try and make the world's current state be more like the desired state.\n\nThe simplest implementation of this is a loop:\n\n```go\nfor {\n  desired := getDesiredState()\n  current := getCurrentState()\n  makeChanges(desired, current)\n}\n```\n\nWatches, etc, are all merely optimizations of this logic.\n\n## Guidelines\n\nWhen you're writing controllers, there are few guidelines that will help make sure you get the results and performance you're looking for.\n\n1. Operate on one item at a time. If you use a `workqueue.Interface`, you'll be able to queue changes for a particular resource and later pop them in multiple “worker” gofuncs with a"
+    },
+    {
+      "url": "https://github.com/kubernetes/kubernetes/blob/v1.36.2/pkg/controlplane/controller/kubernetesservice/controller.go",
+      "title": "pkg/controlplane/controller/kubernetesservice/controller.go",
+      "text": "# pkg/controlplane/controller/kubernetesservice/controller.go\n\n- Branch: v1.36.2\n- Repository: kubernetes/kubernetes\n\n---\n\n/*\nCopyright 2014 The Kubernetes Authors.\n\nLicensed under the Apache License, Version 2.0 (the \"License\");\nyou may not use this file except in compliance with the License.\nYou may obtain a copy of the License at\n\n http://www.apache.org/licenses/LICENSE-2.0\n\nUnless required by applicable law or agreed to in writing, software\ndistributed under the License is distributed on an \"AS IS\" BASIS,\nWITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\nSee the License for the specific language governing permissions and\nlimitations under the License.\n*/\n\npackage kubernetesservice\n\nimport (\n \"context\"\n \"fmt\"\n \"net\"\n \"net/http\"\n \"sync\"\n \"time\"\n\n corev1 \"k8s.io/api/core/v1\"\n \"k8s.io/apimachinery/pkg/api/errors\"\n metav1 \"k8s.io/apimachinery/pkg/apis/meta/v1\"\n \"k8s.io/apimachinery/pkg/util/intstr\"\n \"k8s.io/apimachinery/pkg/util/runtime\"\n \"k8s.io/apimachinery/pkg/"
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "ethereum/go-ethereum",
+  "query": "github ethereum/go-ethereum blockchain, consensus, p2p",
+  "fetched_at": "2026-07-12T05:22:40.108553Z",
+  "search_results": [
+    {
+      "title": "GitHub - ethereum/go-ethereum: Go implementation of the Ethereum protocol · GitHub",
+      "url": "https://github.com/ethereum/go-ethereum/tree/master/",
+      "id": "https://github.com/ethereum/go-ethereum/tree/master/"
+    },
+    {
+      "title": "Go implementation of the Ethereum protocol - GitHub",
+      "url": "https://github.com/ethereum/go-ethereum",
+      "id": "https://github.com/ethereum/go-ethereum"
+    },
+    {
+      "title": "consensus - go-ethereum - GitHub",
+      "url": "https://github.com/ethereum/go-ethereum/blob/master/consensus/consensus.go",
+      "id": "https://github.com/ethereum/go-ethereum/blob/master/consensus/consensus.go"
+    },
+    {
+      "title": "ethereum/go-ethereum",
+      "url": "https://github.com/ethereum/go-ethereum?files=1",
+      "id": "https://github.com/ethereum/go-ethereum?files=1"
+    },
+    {
+      "title": "core/blockchain.go",
+      "url": "https://github.com/ethereum/go-ethereum/blob/ab48ba42f4f34873d65fd1737fabac5c680baff6/core/blockchain.go",
+      "id": "https://github.com/ethereum/go-ethereum/blob/ab48ba42f4f34873d65fd1737fabac5c680baff6/core/blockchain.go"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/ethereum/go-ethereum/tree/master/",
+      "title": "GitHub - ethereum/go-ethereum: Go implementation of the Ethereum protocol · GitHub",
+      "text": "GitHub - ethereum/go-ethereum: Go implementation of the Ethereum protocol · GitHub\n\nmaster\n\nGo to file\n\nCode\n\nLast commit message\n\nLast commit date\n\nView all files\n\n| Name | Name |\n| --- | --- |\n\n## Repository files navigation\n\n## Go Ethereum\n\nGolang execution layer implementation of the Ethereum protocol.\n\nAutomated builds are available for stable releases and the unstable master branch. Binary archives are published at https://geth.ethereum.org/downloads/.\n\n## Building the source\n\nFor prerequisites and detailed build instructions please read the Installation Instructions.\n\nBuilding`geth` requires both a Go (version 1.23 or later) and a C compiler. You can install them using your favourite package manager. Once the dependencies are installed, run\n\n```\nmake geth\n```\n\nor, to build the full suite of utilities:\n\n```\nmake all\n```\n\n## Executables\n\nThe go-ethereum project comes with several wrappers/executables found in the`cmd` directory.\n\n| Command | Description |\n| --- | --- |\n| `geth` | "
+    },
+    {
+      "url": "https://github.com/ethereum/go-ethereum",
+      "title": "ethereum/go-ethereum",
+      "text": "# Repository: ethereum/go-ethereum\n\nGo implementation of the Ethereum protocol\n\n- Stars: 51094\n- Forks: 21927\n- Watchers: 2207\n- Open issues: 356\n- Primary language: Go\n- Languages: Go (83.9%), C (11.1%), JavaScript (2.6%), Assembly (0.9%), Sage (0.3%), Shell (0.2%), Go Template (0.2%), CMake (0.2%), M4 (0.1%), NSIS (0.1%), Python (0.1%), Solidity, Makefile, Yul, Dockerfile, HTML\n- License: GNU Lesser General Public License v3.0 (LGPL-3.0)\n- Topics: blockchain, ethereum, geth, go, p2p\n- Default branch: master\n- Homepage: https://geth.ethereum.org\n- Created: 2013-12-26T13:05:46Z\n- Last push: 2026-06-05T02:44:41Z\n- Contributors: 450 (top: obscuren, karalabe, fjl, holiman, rjl493456442, tgerring, zelig, MariusVanDerWijden, gballet, CJentzsch)\n- Releases: 230\n- Latest release: v1.17.3 (2026-05-11T15:23:41Z)\n\n---\n\n## Go Ethereum\n\nGolang execution layer implementation of the Ethereum protocol.\n\n[![API Reference](\nhttps://pkg.go.dev/badge/github.com/ethereum/go-ethereum\n)](https://pkg.go.dev/"
+    },
+    {
+      "url": "https://github.com/ethereum/go-ethereum/blob/master/consensus/consensus.go",
+      "title": "consensus/consensus.go at master · ethereum/go-ethereum",
+      "text": "# File: ethereum/go-ethereum/consensus/consensus.go\n\n- Repository: ethereum/go-ethereum | Go implementation of the Ethereum protocol | 51K stars | Go\n- Branch: master\n\n```go\n// Copyright 2017 The go-ethereum Authors\n// This file is part of the go-ethereum library.\n//\n// The go-ethereum library is free software: you can redistribute it and/or modify\n// it under the terms of the GNU Lesser General Public License as published by\n// the Free Software Foundation, either version 3 of the License, or\n// (at your option) any later version.\n//\n// The go-ethereum library is distributed in the hope that it will be useful,\n// but WITHOUT ANY WARRANTY; without even the implied warranty of\n// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the\n// GNU Lesser General Public License for more details.\n//\n// You should have received a copy of the GNU Lesser General Public License\n// along with the go-ethereum library. If not, see <http://www.gnu.org/licenses/>.\n\n// Package consensus implements d"
+    }
+  ]
+}
