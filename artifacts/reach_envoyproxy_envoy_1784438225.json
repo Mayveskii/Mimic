@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "envoyproxy/envoy",
+  "query": "github envoyproxy/envoy proxy, filter chain, xDS",
+  "fetched_at": "2026-07-19T05:17:05.305315Z",
+  "search_results": [
+    {
+      "title": "Feature : Listener Filter Chain Discovery Service · Pull Request #25473 · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/pull/25473",
+      "id": "https://github.com/envoyproxy/envoy/pull/25473"
+    },
+    {
+      "title": "api/XDS_PROTOCOL.md",
+      "url": "https://github.com/envoyproxy/envoy/blob/32e4d286668731594eb5c81ed664bd144d8d2d88/api/XDS_PROTOCOL.md",
+      "id": "https://github.com/envoyproxy/envoy/blob/32e4d286668731594eb5c81ed664bd144d8d2d88/api/XDS_PROTOCOL.md"
+    },
+    {
+      "title": "Filter Chain DS support · Issue #39141 · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/issues/39141",
+      "id": "https://github.com/envoyproxy/envoy/issues/39141"
+    },
+    {
+      "title": "docs/root/intro/arch_overview/operations/dynamic_configuration.rst at main · envoyproxy/envoy",
+      "url": "https://github.com/envoyproxy/envoy/blob/main/docs/root/intro/arch_overview/operations/dynamic_configuration.rst",
+      "id": "https://github.com/envoyproxy/envoy/blob/main/docs/root/intro/arch_overview/operations/dynamic_configuration.rst"
+    },
+    {
+      "title": "FilterChain Discovery Service (FDS)",
+      "url": "https://github.com/envoyproxy/envoy/issues/4540",
+      "id": "https://github.com/envoyproxy/envoy/issues/4540"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/envoyproxy/envoy/pull/25473",
+      "title": "Feature : Listener Filter Chain Discovery Service · Pull Request #25473 · envoyproxy/envoy",
+      "text": "# Pull Request: envoyproxy/envoy #25473\n\n- Repository: envoyproxy/envoy | Cloud-native high-performance edge/middle/service proxy | 28K stars | C++\n\n## Feature : Listener Filter Chain Discovery Service\n\n- Author: [@rakeshdatta](https://github.com/rakeshdatta)\n- State: closed\n- Labels: stale, waiting, api\n- Source branch: feat_listener_fcds\n- Target branch: main\n- Assignees: [@adisuissa](https://github.com/adisuissa)\n- Mergeable: unstable\n- Commits: 7\n- Additions: 952\n- Deletions: 52\n- Changed files: 15\n- Created: 2023-02-09T18:27:55Z\n- Updated: 2023-06-23T08:01:43Z\n- Closed: 2023-06-23T08:01:43Z\n\n**Commit Message**: Feature: Listener Filter Chain Discovery Service\n**Additional Description:** \nThis is an updated version of this PR: https://github.com/envoyproxy/envoy/pull/23096\n\nRepresenting tenants as filter-chains in envoy, its essential to be able to dynamically and independently load the tenant (filter chain) configs. To achieve that, this feature introduces anothe xDS called Filter"
+    },
+    {
+      "url": "https://github.com/envoyproxy/envoy/blob/32e4d286668731594eb5c81ed664bd144d8d2d88/api/XDS_PROTOCOL.md",
+      "title": "api/XDS_PROTOCOL.md",
+      "text": "# api/XDS_PROTOCOL.md\n\n- Branch: 32e4d286668731594eb5c81ed664bd144d8d2d88\n- Repository: envoyproxy/envoy\n\n---\n\n# xDS REST and gRPC protocol\n\nEnvoy discovers its various dynamic resources via the filesystem or by querying\none or more management servers. Collectively, these discovery services and their\ncorresponding APIs are referred to as _xDS_. Resources are requested via\n_subscriptions_, by specifying a filesystem path to watch, initiating gRPC\nstreams or polling a REST-JSON URL. The latter two methods involve sending\nrequests with a\n[`DiscoveryRequest`](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#discoveryrequest)\nproto payload. Resources are delivered in a\n[`DiscoveryResponse`](https://www.envoyproxy.io/docs/envoy/latest/api-v2/api/v2/discovery.proto#discoveryresponse)\nproto payload in all methods. We discuss each type of subscription below.\n\n## Filesystem subscriptions\n\nThe simplest approach to delivering dynamic configuration is to place it at a\nwell "
+    },
+    {
+      "url": "https://github.com/envoyproxy/envoy/issues/39141",
+      "title": "Filter Chain DS support · Issue #39141 · envoyproxy/envoy",
+      "text": "# Issue: envoyproxy/envoy #39141\n\n- Repository: envoyproxy/envoy | Cloud-native high-performance edge/middle/service proxy | 28K stars | C++\n\n## Filter Chain DS support\n\n- Author: [@ohadvano](https://github.com/ohadvano)\n- Association: CONTRIBUTOR\n- State: open\n- Labels: enhancement, no stalebot, area/xds, area/filter_chains\n- Reactions: 👍 2\n- Created: 2025-04-16T08:34:10Z\n- Updated: 2025-05-19T03:25:11Z\n\nThis is a feature tracking issue for adding filter chain discovery service support in Envoy.\n\nFilter chain discovery can be looked at in two ways:\n\n1. A filter chain is explicitly specified in the bootstrap configurations, but its configuration is discovered at runtime\n2. Listener's filter chains are not specified in the bootstrap, rather than being discovered at runtime. This can either be all of the listener's filter chains or some of them (a model where some of the filter chains are static and some are runtime-discovered, but they co-exist within the same listener)\n\nAlthough the go"
+    }
+  ]
+}

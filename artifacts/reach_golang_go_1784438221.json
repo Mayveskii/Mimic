@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "golang/go",
+  "query": "github golang/go runtime, GC, scheduler, toolchain",
+  "fetched_at": "2026-07-19T05:17:01.586086Z",
+  "search_results": [
+    {
+      "title": "go/src/runtime/mgc.go at master · golang/go",
+      "url": "https://github.com/golang/go/blob/master/src/runtime/mgc.go",
+      "id": "https://github.com/golang/go/blob/master/src/runtime/mgc.go"
+    },
+    {
+      "title": "go/src/runtime/proc.go at master · golang/go",
+      "url": "https://github.com/golang/go/blob/master/src/runtime/proc.go",
+      "id": "https://github.com/golang/go/blob/master/src/runtime/proc.go"
+    },
+    {
+      "title": "src/runtime/proc.go at go1.26.4 · golang/go",
+      "url": "https://github.com/golang/go/blob/go1.26.4/src/runtime/proc.go",
+      "id": "https://github.com/golang/go/blob/go1.26.4/src/runtime/proc.go"
+    },
+    {
+      "title": "src/runtime/compiler.go at master · golang/go",
+      "url": "https://github.com/golang/go/blob/master/src/runtime/compiler.go",
+      "id": "https://github.com/golang/go/blob/master/src/runtime/compiler.go"
+    },
+    {
+      "title": "go/src/runtime/HACKING.md at master · golang/go",
+      "url": "https://github.com/golang/go/blob/master/src/runtime/HACKING.md",
+      "id": "https://github.com/golang/go/blob/master/src/runtime/HACKING.md"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/golang/go/blob/master/src/runtime/mgc.go",
+      "title": "src/runtime/mgc.go",
+      "text": "# src/runtime/mgc.go\n\n- Branch: master\n- Repository: golang/go\n\n---\n\n// Copyright 2009 The Go Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style\n// license that can be found in the LICENSE file.\n\n// Garbage collector (GC).\n//\n// The GC runs concurrently with mutator threads, is type accurate (aka precise), allows multiple\n// GC threads to run in parallel. It is a concurrent mark and sweep that uses a write barrier. It is\n// non-generational and non-compacting. Allocation is done using size segregated per P allocation\n// areas to minimize fragmentation while eliminating locks in the common case.\n//\n// The algorithm decomposes into several steps.\n// This is a high level description of the algorithm being used. For an overview of GC a good\n// place to start is Richard Jones' gchandbook.org.\n//\n// The algorithm's intellectual heritage includes Dijkstra's on-the-fly algorithm, see\n// Edsger W. Dijkstra, Leslie Lamport, A. J. Martin, C. S. Scholten, and E. F."
+    },
+    {
+      "url": "https://github.com/golang/go/blob/master/src/runtime/proc.go",
+      "title": "src/runtime/proc.go at master · golang/go",
+      "text": "# File: golang/go/src/runtime/proc.go\n\n- Repository: golang/go | The Go programming language | 135K stars | Go\n- Branch: master\n\n```go\n// Copyright 2014 The Go Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style\n// license that can be found in the LICENSE file.\n\npackage runtime\n\nimport (\n\t\"internal/abi\"\n\t\"internal/cpu\"\n\t\"internal/goarch\"\n\t\"internal/goexperiment\"\n\t\"internal/goos\"\n\t\"internal/runtime/atomic\"\n\t\"internal/runtime/exithook\"\n\t\"internal/runtime/maps\"\n\t\"internal/runtime/sys\"\n\t\"internal/strconv\"\n\t\"internal/stringslite\"\n\t\"unsafe\"\n)\n\n// set using cmd/go/internal/modload.ModInfoProg\nvar modinfo string\n\n// Goroutine scheduler\n// The scheduler's job is to distribute ready-to-run goroutines over worker threads.\n//\n// The main concepts are:\n// G - goroutine.\n// M - worker thread, or machine.\n// P - processor, a resource that is required to execute Go code.\n//     M must have an associated P to execute Go code, however it can be\n//     blocked or in a sysc"
+    },
+    {
+      "url": "https://github.com/golang/go/blob/go1.26.4/src/runtime/proc.go",
+      "title": "src/runtime/proc.go at go1.26.4 · golang/go",
+      "text": "# File: golang/go/src/runtime/proc.go\n\n- Repository: golang/go | The Go programming language | 135K stars | Go\n- Branch: go1.26.4\n\n```go\n// Copyright 2014 The Go Authors. All rights reserved.\n// Use of this source code is governed by a BSD-style\n// license that can be found in the LICENSE file.\n\npackage runtime\n\nimport (\n\t\"internal/abi\"\n\t\"internal/cpu\"\n\t\"internal/goarch\"\n\t\"internal/goexperiment\"\n\t\"internal/goos\"\n\t\"internal/runtime/atomic\"\n\t\"internal/runtime/exithook\"\n\t\"internal/runtime/sys\"\n\t\"internal/strconv\"\n\t\"internal/stringslite\"\n\t\"unsafe\"\n)\n\n// set using cmd/go/internal/modload.ModInfoProg\nvar modinfo string\n\n// Goroutine scheduler\n// The scheduler's job is to distribute ready-to-run goroutines over worker threads.\n//\n// The main concepts are:\n// G - goroutine.\n// M - worker thread, or machine.\n// P - processor, a resource that is required to execute Go code.\n//     M must have an associated P to execute Go code, however it can be\n//     blocked or in a syscall w/o an associated P"
+    }
+  ]
+}

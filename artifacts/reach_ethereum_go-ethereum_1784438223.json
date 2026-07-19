@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "ethereum/go-ethereum",
+  "query": "github ethereum/go-ethereum blockchain, consensus, p2p",
+  "fetched_at": "2026-07-19T05:17:03.466850Z",
+  "search_results": [
+    {
+      "title": "Go implementation of the Ethereum protocol",
+      "url": "https://github.com/ethereum/go-ethereum",
+      "id": "https://github.com/ethereum/go-ethereum"
+    },
+    {
+      "title": "ethereum/go-ethereum",
+      "url": "https://github.com/ethereum/go-ethereum?files=1",
+      "id": "https://github.com/ethereum/go-ethereum?files=1"
+    },
+    {
+      "title": "GitHub - ethereum/go-ethereum: Go implementation of the Ethereum protocol · GitHub",
+      "url": "https://github.com/ethereum/go-ethereum/tree/master/",
+      "id": "https://github.com/ethereum/go-ethereum/tree/master/"
+    },
+    {
+      "title": "core/blockchain.go",
+      "url": "https://github.com/ethereum/go-ethereum/blob/ab48ba42f4f34873d65fd1737fabac5c680baff6/core/blockchain.go",
+      "id": "https://github.com/ethereum/go-ethereum/blob/ab48ba42f4f34873d65fd1737fabac5c680baff6/core/blockchain.go"
+    },
+    {
+      "title": "consensus/beacon/consensus.go",
+      "url": "https://github.com/ethereum/go-ethereum/blob/master/consensus/beacon/consensus.go",
+      "id": "https://github.com/ethereum/go-ethereum/blob/master/consensus/beacon/consensus.go"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/ethereum/go-ethereum",
+      "title": "ethereum/go-ethereum",
+      "text": "# Repository: ethereum/go-ethereum\n\nGo implementation of the Ethereum protocol\n\n- Stars: 51094\n- Forks: 21927\n- Watchers: 2207\n- Open issues: 356\n- Primary language: Go\n- Languages: Go (83.9%), C (11.1%), JavaScript (2.6%), Assembly (0.9%), Sage (0.3%), Shell (0.2%), Go Template (0.2%), CMake (0.2%), M4 (0.1%), NSIS (0.1%), Python (0.1%), Solidity, Makefile, Yul, Dockerfile, HTML\n- License: GNU Lesser General Public License v3.0 (LGPL-3.0)\n- Topics: blockchain, ethereum, geth, go, p2p\n- Default branch: master\n- Homepage: https://geth.ethereum.org\n- Created: 2013-12-26T13:05:46Z\n- Last push: 2026-06-05T02:44:41Z\n- Contributors: 450 (top: obscuren, karalabe, fjl, holiman, rjl493456442, tgerring, zelig, MariusVanDerWijden, gballet, CJentzsch)\n- Releases: 230\n- Latest release: v1.17.3 (2026-05-11T15:23:41Z)\n\n---\n\n## Go Ethereum\n\nGolang execution layer implementation of the Ethereum protocol.\n\n[![API Reference](\nhttps://pkg.go.dev/badge/github.com/ethereum/go-ethereum\n)](https://pkg.go.dev/"
+    },
+    {
+      "url": "https://github.com/ethereum/go-ethereum?files=1",
+      "title": "ethereum/go-ethereum",
+      "text": "# ethereum/go-ethereum\n\nGo implementation of the Ethereum protocol\n\n- Stars: 51174\n- Forks: 21921\n- Watchers: 51174\n- Open issues: 383\n- License: GNU Lesser General Public License v3.0\n- Homepage: https://geth.ethereum.org\n- Default branch: master\n- Created: 2013-12-26T13:05:46Z\n\n## Languages\n\n- Assembly\n- C\n- CMake\n- Dockerfile\n- Go\n- Go Template\n- HTML\n- JavaScript\n- M4\n- Makefile\n- NSIS\n- Python\n- Sage\n- Shell\n- Solidity\n- Yul\n\n## Topics\n\n- blockchain\n- ethereum\n- geth\n- go\n- p2p\n\n## Top Contributors\n\n- obscuren (3951 contributions)\n- karalabe (2681 contributions)\n- fjl (1630 contributions)\n- holiman (826 contributions)\n- rjl493456442 (612 contributions)\n- tgerring (569 contributions)\n- zelig (377 contributions)\n- MariusVanDerWijden (339 contributions)\n- gballet (262 contributions)\n- CJentzsch (226 contributions)\n\n---\n\n## README\n\n## Go Ethereum\n\nGolang execution layer implementation of the Ethereum protocol.\n\n[![API Reference](\nhttps://pkg.go.dev/badge/github.com/ethereum/go-ethereu"
+    },
+    {
+      "url": "https://github.com/ethereum/go-ethereum/tree/master/",
+      "title": "GitHub - ethereum/go-ethereum: Go implementation of the Ethereum protocol · GitHub",
+      "text": "GitHub - ethereum/go-ethereum: Go implementation of the Ethereum protocol · GitHub\n\n/ go-ethereum Public\n\nNotifications\n\nStar 51.4k\n\n- Fork 22.1k\n\nmaster\n\nBranches\n\nTags\n\nGo to Branches page\n\nGo to Tags page\n\nGo to file\n\nCode\n\n| Name | Name | Last commit message | Last commit date |\n| --- | --- | --- | --- |\n| Latest commit History 17,196 Commits View commit history for this file. 17,196 Commits |\n| .gitea/workflows | .gitea/workflows |\n| .github | .github |\n| accounts | accounts |\n| beacon | beacon |\n| build | build |\n| cmd | cmd |\n| common | common |\n| consensus | consensus |\n| console | console |\n| core | core |\n| crypto | crypto |\n| docs | docs |\n| eth | eth |\n| ethclient | ethclient |\n| ethdb | ethdb |\n| ethstats | ethstats |\n| event | event |\n| graphql | graphql |\n| internal | internal |\n| log | log |\n| metrics | metrics |\n| miner | miner |\n| node | node |\n| p2p | p2p |\n| params | params |\n| rlp | rlp |\n| rpc | rpc |\n| signer | signer |\n| tests | tests |\n| trie | trie |\n| triedb "
+    }
+  ]
+}

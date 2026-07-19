@@ -1,0 +1,50 @@
+{
+  "source": "reach",
+  "repo": "etcd-io/etcd",
+  "query": "github etcd-io/etcd RAFT consensus, distributed KV",
+  "fetched_at": "2026-07-19T05:16:57.866306Z",
+  "search_results": [
+    {
+      "title": "etcd-io/etcd: Distributed reliable key-value store for the most critical data of ...",
+      "url": "https://github.com/etcd-io/etcd",
+      "id": "https://github.com/etcd-io/etcd"
+    },
+    {
+      "title": "etcd-io/raft: Raft library for maintaining a replicated state machine",
+      "url": "https://github.com/etcd-io/raft",
+      "id": "https://github.com/etcd-io/raft"
+    },
+    {
+      "title": "etcd",
+      "url": "https://etcd.io/",
+      "id": "https://etcd.io/"
+    },
+    {
+      "title": "server/etcdserver/raft.go",
+      "url": "https://github.com/etcd-io/etcd/blob/master/server/etcdserver/raft.go",
+      "id": "https://github.com/etcd-io/etcd/blob/master/server/etcdserver/raft.go"
+    },
+    {
+      "title": "raft/raft.go at a3174d0f8ec6ec58827d7d86448bb4df08ae69e4 · etcd-io/etcd",
+      "url": "https://github.com/etcd-io/etcd/blob/a3174d0f8ec6ec58827d7d86448bb4df08ae69e4/raft/raft.go",
+      "id": "https://github.com/etcd-io/etcd/blob/a3174d0f8ec6ec58827d7d86448bb4df08ae69e4/raft/raft.go"
+    }
+  ],
+  "fetched_content": [
+    {
+      "url": "https://github.com/etcd-io/etcd",
+      "title": "etcd-io/etcd",
+      "text": "# Repository: etcd-io/etcd\n\nDistributed reliable key-value store for the most critical data of a distributed system\n\n- Stars: 51923\n- Forks: 10402\n- Watchers: 1267\n- Open issues: 266\n- Primary language: Go\n- Languages: Go (96.0%), Shell (2.3%), Jsonnet (1.0%), Makefile (0.4%), Procfile (0.1%), Dockerfile\n- License: Apache License 2.0 (Apache-2.0)\n- Topics: cncf, consensus, database, distributed-database, distributed-systems, etcd, go, key-value, kubernetes, raft\n- Default branch: main\n- Homepage: https://etcd.io\n- Created: 2013-07-06T21:57:21Z\n- Last push: 2026-07-01T09:59:56Z\n- Contributors: 380 (top: gyuho, ahrtr, xiang90, serathius, yichengq, ptabor, jonboulle, jmhbnz, bcwaldon, ivanvc)\n- Releases: 286\n- Latest release: v3.7.0-rc.0 (2026-06-01T21:27:32Z) [prerelease]\n\n---\n\n# etcd\n\n[![Go Report Card](https://goreportcard.com/badge/github.com/etcd-io/etcd?style=flat-square)](https://goreportcard.com/report/github.com/etcd-io/etcd)\n[![Coverage](https://codecov.io/gh/etcd-io/etcd/branch"
+    },
+    {
+      "url": "https://github.com/etcd-io/raft",
+      "title": "etcd-io/raft",
+      "text": "# Repository: etcd-io/raft\n\nRaft library for maintaining a replicated state machine\n\n- Stars: 1034\n- Forks: 246\n- Watchers: 19\n- Open issues: 73\n- Primary language: Go\n- Languages: Go (90.2%), TLA (7.8%), Shell (1.9%), Makefile\n- License: Apache License 2.0 (Apache-2.0)\n- Topics: consensus, distributed-systems, raft\n- Default branch: main\n- Created: 2022-11-27T22:39:54Z\n- Last push: 2026-05-19T18:46:12Z\n- Contributors: 150 (top: ahrtr, yichengq, tbg, dependabot[bot], xiang90, pav-kv, gyuho, bmizerany, ptabor, bdarnell)\n- Releases: 1\n- Latest release: v3.6.0 (2025-02-05T19:00:43Z)\n\n---\n\n# Raft library\n\nRaft is a protocol with which a cluster of nodes can maintain a replicated state machine.\nThe state machine is kept in sync through the use of a replicated log.\nFor more details on Raft, see \"In Search of an Understandable Consensus Algorithm\"\n(https://raft.github.io/raft.pdf) by Diego Ongaro and John Ousterhout.\n\nThis Raft library is stable and feature complete. As of 2016, it is **the m"
+    },
+    {
+      "url": "https://etcd.io/",
+      "title": "etcd",
+      "text": "etcd\n\n## A distributed, reliable key-value store for the most critical data of a distributed system\n\nLearn more Quickstart\n\n# What is etcd?\n\netcd is a strongly consistent, distributed key-value store that provides a reliable way to store data that needs to be accessed by a distributed system or cluster of machines. It gracefully handles leader elections during network partitions and can tolerate machine failure, even in the leader node. Learn more\n\n# Features\n\n### Simple interface\n\nRead and write values using standard HTTP tools, such as curl\n\n### Key-value storage\n\nStore data in hierarchically organized directories, as in a standard filesystem\n\n### Watch for changes\n\nWatch specific keys or directories for changes and react to changes in values\n\n---\n\nOptional SSL client certificate authentication\n\nBenchmarked at 1000s of writes/s per instance\n\nOptional TTLs for keys expiration\n\nProperly distributed via Raft protocol\n\n# Used by\n\n#### etcd is a CNCF project"
+    }
+  ]
+}
